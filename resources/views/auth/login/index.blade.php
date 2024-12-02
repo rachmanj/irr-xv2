@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MOCA</title>
+    <title>IRR - X</title>
 
     <!-- Google Font: Source Sans Pro -->
     {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"> --}}
@@ -19,7 +19,7 @@
 <body class="hold-transition login-page">
     <div class="login-box">
         <div class="login-logo">
-            <h2><b>MOCA</b> System<small> | v.1.0</small></h2>
+            <h2><b>IRR</b> - X<small> | v.1.0</small></h2>
         </div>
         <!-- /.login-logo -->
         <div class="card">
