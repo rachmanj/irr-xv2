@@ -21,6 +21,10 @@
 
                 <a href="#" class="nav-link">Search</a>
 
+                @can('akses_accounting')
+                    @include('layout.partials.menu.accounting')
+                @endcan
+
                 @can('akses_admin')
                     @include('layout.partials.menu.admin')
                 @endcan

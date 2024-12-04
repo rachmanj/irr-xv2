@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('itos', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
-            $table->string('owner')->nullable();
-            $table->string('location')->nullable();
+            $table->string('ito_number', 50);
+            $table->date('ito_date');
+            $table->string('po_number', 50);
+            $table->string('vendor_code', 50);
+            $table->string('vendor_name');
+            $table->string('project');
+            $table->foreignId('additional_doc_id')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('itos');
     }
 };

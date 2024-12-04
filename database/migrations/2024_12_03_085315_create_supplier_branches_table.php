@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('supplier_branches', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
-            $table->string('owner')->nullable();
-            $table->string('location')->nullable();
+            $table->foreignId('supplier_id');
+            $table->string('branch_name');
+            $table->string('sap_code', 50)->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('supplier_branches');
     }
 };
