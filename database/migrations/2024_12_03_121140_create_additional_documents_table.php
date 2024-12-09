@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('additional_documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('invoice_id')->nullable();
+            $table->foreignId('invoice_id')->nullable()->constrained('invoices');
             $table->string('type', 50); // ITO / DO / BAST / etc
             $table->string('document_number');
             $table->date('document_date');
             $table->date('receive_date')->nullable();
-            $table->foreignId('created_by');
+            $table->foreignId('created_by')->constrained('users');
             $table->string('attachment')->nullable();
             $table->string('flag', 30)->nullable();
             $table->string('status', 20)->nullable();
@@ -32,6 +32,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('additional_documents');
+        Schema::enableForeignKeyConstraints();
     }
 };

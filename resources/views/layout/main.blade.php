@@ -16,9 +16,9 @@
                 <div class="container">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">@yield('title_page')</small></h1>
+                            <h5 class="m-0">@yield('title_page')</h5>
                         </div><!-- /.col -->
-                        @include('layout.partials.breadcrumb')
+                        {{-- @include('layout.partials.breadcrumb') --}}
                     </div><!-- /.row -->
                 </div><!-- /.container-fluid -->
             </div>

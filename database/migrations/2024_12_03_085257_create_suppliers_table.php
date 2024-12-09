@@ -15,10 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('sap_code', 50)->nullable();
             $table->string('name');
-            $table->string('type', 50); // vendor / customer
+            $table->string('type', 50)->default('vendor'); // vendor / customer
             $table->string('city')->nullable();
-            $table->string('payment_project')->nullable(); // project code for responsible do payment
+            $table->string('payment_project')->default('001H'); // project code for responsible do payment
             $table->boolean('is_active')->default(true);
+            $table->text('address')->nullable();
+            $table->string('npwp', 50)->nullable();
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
     }
@@ -28,6 +31,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('suppliers');
+        Schema::enableForeignKeyConstraints();
     }
 };

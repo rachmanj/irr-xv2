@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Accounting\InvoiceController;
 
 Route::middleware('guest')->group(function () {
     Route::controller(LoginController::class)->group(function () {
@@ -27,4 +28,7 @@ Route::middleware('auth')->group(function () {
     require __DIR__ . '/accounting.php';
     require __DIR__ . '/finance.php';
     require __DIR__ . '/logistic.php';
+    require __DIR__ . '/master.php';
 });
+
+Route::get('/check-invoice-number', [InvoiceController::class, 'checkInvoiceNumber'])->name('check.invoice.number');

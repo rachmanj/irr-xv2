@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\MigrasiController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -27,4 +28,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('data', [PermissionController::class, 'data'])->name('data');
         Route::resource('/', PermissionController::class)->parameters(['' => 'permission']);
     });
+
+    // MIGRASI
+    Route::get('migrasi', [MigrasiController::class, 'index'])->name('migrasi.index');
+    Route::post('migrasi/copy-invoice', [MigrasiController::class, 'copyInvoiceIRR5'])->name('migrasi.copyInvoiceIRR5');
 });

@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('supplier_branches', function (Blueprint $table) {
+        Schema::create('invoice_attachments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supplier_id');
-            $table->string('branch_name');
-            $table->string('sap_code', 50)->nullable();
+            $table->foreignId('invoice_id')->constrained('invoices');
+            $table->string('file_name');
+            $table->foreignId('uploaded_by')->constrained('users');
             $table->timestamps();
         });
     }
@@ -25,6 +25,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('supplier_branches');
+        Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('invoice_attachments');
+        Schema::enableForeignKeyConstraints();
     }
 };

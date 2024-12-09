@@ -105,4 +105,10 @@
 @section('scripts')
     <!-- Select2 -->
     <script src="{{ asset('adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
-@endsection
+    <script>
+        $(document).ready(function() {
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+        });
+    @endsection

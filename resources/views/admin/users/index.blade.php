@@ -81,7 +81,7 @@
                             <label for='project'>Project</label>
                             <select name="project" class="form-control select2bs4 @error('project') is-invalid @enderror">
                                 <option value="">-- Select Project --</option>
-                                @foreach (\App\Models\Project::orderBy('code')->get() as $project)
+                                @foreach ($projects as $project)
                                     <option value="{{ $project->code }}"
                                         {{ old('project') == $project->code ? 'selected' : '' }}>{{ $project->code }}
                                     </option>
@@ -169,7 +169,7 @@
     <script src="{{ asset('adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
 
     <script>
-        $(function() {
+        $(document).ready(function() {
             $("#users_table").DataTable({
                 processing: true,
                 serverSide: true,
@@ -204,10 +204,7 @@
                     },
                 ],
                 fixedHeader: true,
-            })
-        });
-
-        $(document).ready(function() {
+            });
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             });
