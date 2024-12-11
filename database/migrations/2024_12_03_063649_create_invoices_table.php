@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('payment_project', 30)->nullable(); // project for responsible do payment
             $table->string('currency', 3)->default('IDR');
             $table->decimal('amount', 20, 2);
+            $table->string('type', 50); // item / service / catering
             $table->date('payment_date')->nullable();
             $table->string('status', 20)->default('pending'); // pending / return / sap
             $table->foreignId('created_by')->constrained('users');

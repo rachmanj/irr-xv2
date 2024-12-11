@@ -16,10 +16,10 @@
                 <div class="card-header">
                     <h3 class="card-title">Create New Invoice</h3>
                 </div>
-                <div class="card-body">
-                    <form action="{{ route('accounting.invoices.store') }}" method="POST">
-                        @csrf
 
+                <form action="{{ route('accounting.invoices.store') }}" method="POST">
+                    @csrf
+                    <div class="card-body">
                         <div class="row">
                             <div class="col-4">
                                 <div class="form-group">
@@ -54,6 +54,20 @@
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
+                                    <label for="po_no">PO Number</label>
+                                    <input type="text" name="po_no" id="po_no"
+                                        class="form-control @error('po_no') is-invalid @enderror"
+                                        value="{{ old('po_no') }}">
+                                    @error('po_no')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
                                     <label for="invoice_date">Invoice Date</label>
                                     <input type="date" name="invoice_date" id="invoice_date" class="form-control"
                                         value="{{ old('invoice_date') }}">
@@ -62,24 +76,22 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-4">
-
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="receive_date">Receive Date</label>
+                                    <input type="date" name="receive_date" id="receive_date" class="form-control"
+                                        value="{{ old('receive_date') }}">
+                                    @error('receive_date')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="receive_date">Receive Date</label>
-                            <input type="date" name="receive_date" id="receive_date" class="form-control"
-                                value="{{ old('receive_date') }}">
-                            @error('receive_date')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
                         </div>
 
                         <div class="row">
                             <div class="col-4">
                                 <div class="form-group">
-                                    <label for="receive_project">Select Project</label>
+                                    <label for="receive_project">Receive at Project</label>
                                     <select name="receive_project" id="receive_project" class="form-control select2bs4">
                                         <option value="000H" {{ old('receive_project') == '000H' ? 'selected' : '' }}>
                                             000H</option>
@@ -94,19 +106,25 @@
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
-                                    <label for="invoice_project">Invoice Project</label>
-                                    <input type="text" name="invoice_project" id="invoice_project" class="form-control"
-                                        value="{{ old('invoice_project') }}">
-                                    @error('invoice_project')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                    <label for="invoice_project">For Project</label>
+                                    <select name="invoice_project" id="invoice_project" class="form-control select2bs4">
+                                        <option value="000H" {{ old('invoice_project') == '000H' ? 'selected' : '' }}>
+                                            000H</option>
+                                        @foreach ($projects as $project)
+                                            <option value="{{ $project->code }}"
+                                                {{ old('invoice_project') == $project->code ? 'selected' : '' }}>
+                                                {{ $project->code }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
                                     <label for="payment_project">Payment Project</label>
-                                    <input type="text" name="payment_project" id="payment_project" class="form-control"
-                                        value="{{ old('payment_project') }}">
+                                    <select name="payment_project" id="payment_project" class="form-control select2bs4">
+                                        <option value="">Select Payment Project</option>
+                                    </select>
                                     @error('payment_project')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -114,43 +132,37 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="currency">Currency</label>
-                            <input type="text" name="currency" id="currency" class="form-control"
-                                value="{{ old('currency', 'IDR') }}">
-                            @error('currency')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="currency">Currency</label>
+                                    <select name="currency" id="currency" class="form-control">
+                                        <option value="IDR" {{ old('currency', 'IDR') == 'IDR' ? 'selected' : '' }}>IDR
+                                        </option>
+                                        <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-8">
+                                <div class="form-group">
+                                    <label for="amount">Amount</label>
+                                    <input type="number" name="amount" id="amount" class="form-control"
+                                        value="{{ old('amount') }}">
+                                    @error('amount')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="amount">Amount</label>
-                            <input type="number" name="amount" id="amount" class="form-control"
-                                value="{{ old('amount') }}">
-                            @error('amount')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="status">Status</label>
-                            <input type="text" name="status" id="status" class="form-control"
-                                value="{{ old('status', 'pending') }}">
-                            @error('status')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-
-
-
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary btn-sm">Create Invoice</button>
-                        </div>
-
-                    </form>
-                </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary btn-sm">Save Invoice</button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 @endsection
 
@@ -194,6 +206,39 @@
                             }
                         }
                     });
+                }
+            });
+
+            $('#supplier_id').on('change', function() {
+                var supplierId = $(this).val();
+                if (supplierId) {
+                    $.ajax({
+                        url: '{{ route('get.payment.project') }}',
+                        method: 'GET',
+                        data: {
+                            supplier_id: supplierId
+                        },
+                        success: function(response) {
+                            $('#payment_project').empty();
+                            $('#payment_project').append(
+                                '<option value="">Select Payment Project</option>');
+                            if (response.payment_project) {
+                                $('#payment_project').append('<option value="' + response
+                                    .payment_project + '" selected>' + response
+                                    .payment_project + '</option>');
+                            }
+                            $.each(@json($projects), function(index, project) {
+                                $('#payment_project').append('<option value="' + project
+                                    .code + '">' + project.code + '</option>');
+                            });
+                        },
+                        error: function(response) {
+                            console.log(response);
+                        }
+                    });
+                } else {
+                    $('#payment_project').empty();
+                    $('#payment_project').append('<option value="">Select Payment Project</option>');
                 }
             });
         });

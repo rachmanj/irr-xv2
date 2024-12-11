@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Accounting\InvoiceController;
+use App\Http\Controllers\Master\SupplierController;
 
 Route::middleware('guest')->group(function () {
     Route::controller(LoginController::class)->group(function () {
@@ -32,3 +33,4 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/check-invoice-number', [InvoiceController::class, 'checkInvoiceNumber'])->name('check.invoice.number');
+Route::get('/get-payment-project', [SupplierController::class, 'getPaymentProject'])->name('get.payment.project');

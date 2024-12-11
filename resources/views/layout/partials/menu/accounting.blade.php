@@ -4,5 +4,7 @@
     <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
         <li><a href="{{ route('accounting.invoices.index', ['page' => 'dashboard']) }}"
                 class="dropdown-item">Invoices</a></li>
+        <li><a href="#" class="dropdown-item">Additional Documents</a></li>
+        <li><a href="#" class="dropdown-item">SPI</a></li>
     </ul>
 </li>
