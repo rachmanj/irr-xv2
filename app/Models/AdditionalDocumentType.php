@@ -14,6 +14,6 @@ class AdditionalDocumentType extends Model
 
     public function additionalDocuments(): HasMany
     {
-        return $this->hasMany(AdditionalDocument::class);
+        return $this->hasMany(AdditionalDocument::class, 'document_type_id');
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Accounting\AdditionalDocumentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
@@ -35,3 +36,5 @@ Route::middleware('auth')->group(function () {
 Route::get('/check-invoice-number', [InvoiceController::class, 'checkInvoiceNumber'])->name('check.invoice.number');
 Route::get('/get-payment-project', [SupplierController::class, 'getPaymentProject'])->name('get.payment.project');
 Route::get('/get-project-location', [InvoiceController::class, 'getProjectLocation'])->name('get.project.location');
+Route::get('/check-addoc-combination', [AdditionalDocumentController::class, 'checkDocumentCombination'])->name('check.addoc.combination');
+Route::get('/search-invoices-by-po', [AdditionalDocumentController::class, 'searchInvoicesByPo'])->name('search.invoices.by.po');

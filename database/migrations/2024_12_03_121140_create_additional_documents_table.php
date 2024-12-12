@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('additional_documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('invoice_id')->nullable()->constrained('invoices');
-            $table->string('type', 50); // ITO / DO / BAST / etc
+            $table->foreignId('type_id')->constrained('additional_document_types');
             $table->string('document_number');
             $table->date('document_date');
+            $table->string('po_no', 50)->nullable();
+            $table->foreignId('invoice_id')->nullable()->constrained('invoices');
+            $table->string('project', 50)->nullable();
             $table->date('receive_date')->nullable();
             $table->foreignId('created_by')->constrained('users');
             $table->string('attachment')->nullable();

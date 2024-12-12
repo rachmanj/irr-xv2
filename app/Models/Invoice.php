@@ -32,6 +32,6 @@ class Invoice extends Model
 
     public function invoiceType(): BelongsTo
     {
-        return $this->belongsTo(InvoiceType::class);
+        return $this->belongsTo(InvoiceType::class, 'type_id');
     }
 }

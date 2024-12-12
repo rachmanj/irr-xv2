@@ -14,8 +14,8 @@ class AdditionalDocument extends Model
         return $this->belongsTo(Invoice::class);
     }
 
-    public function additionalDocumentType(): BelongsTo
+    public function documentType(): BelongsTo
     {
-        return $this->belongsTo(AdditionalDocumentType::class);
+        return $this->belongsTo(AdditionalDocumentType::class, 'type_id');
     }
 }
