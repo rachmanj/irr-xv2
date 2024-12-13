@@ -95,4 +95,12 @@ class AdditionalDocumentController extends Controller
             'documents' => $documents,
         ]);
     }
+
+    public function searchAdditionalDocumentsByPo(Request $request)
+    {
+        $poNo = $request->query('po_no');
+        $documents = AdditionalDocument::where('po_no', $poNo)->with('documentType')->get();
+
+        return response()->json($documents);
+    }
 }

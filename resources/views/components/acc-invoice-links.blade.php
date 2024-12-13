@@ -5,6 +5,8 @@
         <a href="{{ route('accounting.invoices.index', ['page' => 'search']) }}"
             class="{{ request()->get('page') == 'search' ? 'active' : '' }}">Search</a> |
         <a href="{{ route('accounting.invoices.index', ['page' => 'create']) }}"
-            class="{{ request()->get('page') == 'create' ? 'active' : '' }}">New</a>
+            class="{{ request()->get('page') == 'create' ? 'active' : '' }}">New</a> |
+        <a href="{{ route('accounting.invoices.index', ['page' => 'list']) }}"
+            class="{{ request()->get('page') == 'list' ? 'active' : '' }}">List</a>
     </div>
 </div>

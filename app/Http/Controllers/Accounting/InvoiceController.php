@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Accounting;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdditionalDocument;
 use App\Models\Invoice;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class InvoiceController extends Controller
             'dashboard' => 'accounting.invoices.dashboard',
             'search' => 'accounting.invoices.search',
             'create' => 'accounting.invoices.create',
+            'list' => 'accounting.invoices.list',
         ];
 
         if ($page === 'create') {
@@ -32,6 +34,8 @@ class InvoiceController extends Controller
 
     public function store(Request $request)
     {
+        // return $request->all();
+
         $validatedData = $request->validate([
             'invoice_number' => [
                 'required',
@@ -58,8 +62,20 @@ class InvoiceController extends Controller
         $invoice->receive_project = $validatedData['receive_project'];
         $invoice->receive_date = $validatedData['receive_date'];
         $invoice->amount = $validatedData['amount'];
+        $invoice->po_no = $request->po_no;
+        $invoice->type_id = $request->invoice_type;
         $invoice->created_by = Auth::user()->id;
         $invoice->save();
+
+        if ($request->has('selected_documents')) {
+            foreach ($request->selected_documents as $documentId) {
+                $document = AdditionalDocument::find($documentId);
+                if ($document) {
+                    $document->invoice_id = $invoice->id;
+                    $document->save();
+                }
+            }
+        }
 
         Alert::success('Success', 'Invoice created successfully');
 
@@ -75,5 +91,36 @@ class InvoiceController extends Controller
             ->exists();
 
         return response()->json(['exists' => $exists]);
+    }
+
+    public function data()
+    {
+        $invoices = Invoice::orderBy('receive_date', 'asc')
+            ->whereNotIn('status', ['close', 'return'])
+            ->get();
+
+        return datatables()->of($invoices)
+            ->addColumn('vendor', function ($invoice) {
+                return $invoice->supplier->name;
+            })
+            ->addColumn('days', function ($invoice) {
+                $receiveDate = \Carbon\Carbon::parse($invoice->receive_date)->startOfDay();
+                $currentDate = \Carbon\Carbon::now()->startOfDay();
+                return $receiveDate->diffInDays($currentDate);
+            })
+            ->addIndexColumn()
+            ->addColumn('action', 'accounting.invoices.action')
+            ->rawColumns(['action'])
+            ->toJson();
+    }
+
+    public function searchInvoices(Request $request)
+    {
+        $query = $request->query('query');
+        $invoices = Invoice::where('invoice_number', 'LIKE', "%{$query}%")
+            ->orWhere('po_no', 'LIKE', "%{$query}%")
+            ->get();
+
+        return response()->json($invoices);
     }
 }

@@ -26,8 +26,8 @@
                                 <div class="form-group">
                                     <label for="type_id">Document Type</label>
                                     <select name="type_id" id="type_id"
-                                        class="form-control @error('type_id') is-invalid @enderror">
-                                        <option value="">Select Document Type</option>
+                                        class="form-control select2bs4 @error('type_id') is-invalid @enderror">
+                                        <option value="">-- select --</option>
                                         @foreach ($additionalDocumentTypes as $documentType)
                                             <option value="{{ $documentType->id }}"
                                                 {{ old('type_id') == $documentType->id ? 'selected' : '' }}>

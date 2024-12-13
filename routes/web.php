@@ -38,3 +38,4 @@ Route::get('/get-payment-project', [SupplierController::class, 'getPaymentProjec
 Route::get('/get-project-location', [InvoiceController::class, 'getProjectLocation'])->name('get.project.location');
 Route::get('/check-addoc-combination', [AdditionalDocumentController::class, 'checkDocumentCombination'])->name('check.addoc.combination');
 Route::get('/search-invoices-by-po', [AdditionalDocumentController::class, 'searchInvoicesByPo'])->name('search.invoices.by.po');
+Route::get('/search-additional-documents-by-po', [AdditionalDocumentController::class, 'searchAdditionalDocumentsByPo'])->name('search_addocs_by_po');

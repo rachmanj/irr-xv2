@@ -180,6 +180,27 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card-body" id="similar-documents-card" style="display: none;">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>Related Additional Documents</h5>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <td>#</td>
+                                            <td>DocType</td>
+                                            <td>DocNum</td>
+                                            <td>DocDate</td>
+                                            <td>checkbox</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="similar-documents-tbody">
+                                        <!-- Dynamic content will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary btn-sm">Save Invoice</button>
                     </div>
@@ -263,6 +284,43 @@
                 } else {
                     $('#payment_project').empty();
                     $('#payment_project').append('<option value="">Select Payment Project</option>');
+                }
+            });
+
+            $('#po_no').on('blur', function() {
+                var poNo = $(this).val();
+
+                if (poNo) {
+                    $.ajax({
+                        url: '{{ route('search_addocs_by_po') }}',
+                        method: 'GET',
+                        data: {
+                            po_no: poNo
+                        },
+                        success: function(response) {
+                            $('#similar-documents-tbody').empty();
+                            if (response.length > 0) {
+                                $.each(response, function(index, document) {
+                                    $('#similar-documents-tbody').append('<tr><td>' + (
+                                            index + 1) + '</td><td>' + document
+                                        .document_type.type_name + '</td><td>' +
+                                        document.document_number + '</td><td>' +
+                                        document.document_date +
+                                        '</td><td><input type="checkbox" name="selected_documents[]" value="' +
+                                        document.id + '"></td></tr>');
+                                });
+                                $('#similar-documents-card').show();
+                            } else {
+                                $('#similar-documents-tbody').append(
+                                    '<tr><td colspan="5">No additional documents found</td></tr>'
+                                );
+                                $('#similar-documents-card').show();
+                            }
+                        },
+                        error: function(response) {
+                            console.log(response);
+                        }
+                    });
                 }
             });
         });
