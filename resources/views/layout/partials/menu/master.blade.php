@@ -6,7 +6,7 @@
         <li><a href="{{ route('master.additional-document-types.index') }}" class="dropdown-item">AdditionalDoc
                 Types</a>
         <li><a href="{{ route('master.invoice-types.index') }}" class="dropdown-item">Invoice Types</a></li>
-        <li><a href="#" class="dropdown-item">Upload</a>
+        <li><a href="{{ route('master.upload.index', ['page' => 'ito']) }}" class="dropdown-item">Upload</a>
         </li>
     </ul>
 </li>

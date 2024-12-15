@@ -25,6 +25,11 @@ return new class extends Migration
             $table->string('flag', 30)->nullable();
             $table->string('status', 20)->nullable();
             $table->string('remarks')->nullable();
+            $table->string('ito_creator', 50)->nullable();
+            $table->string('grpo_no', 20)->nullable();
+            $table->string('origin_wh', 20)->nullable();
+            $table->string('destination_wh', 20)->nullable();
+            $table->integer('batch_no')->nullable();
             $table->timestamps();
         });
     }

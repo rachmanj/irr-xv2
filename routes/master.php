@@ -3,6 +3,8 @@
 use App\Http\Controllers\Master\SupplierController;
 use App\Http\Controllers\Master\AdditionalDocumentTypeController;
 use App\Http\Controllers\Master\InvoiceTypeController;
+use App\Http\Controllers\Master\ItoController;
+use App\Http\Controllers\Master\UploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('master')->name('master.')->group(function () {
@@ -23,5 +25,14 @@ Route::prefix('master')->name('master.')->group(function () {
     Route::prefix('invoice-types')->name('invoice-types.')->group(function () {
         Route::get('data', [InvoiceTypeController::class, 'data'])->name('data');
         Route::resource('/', InvoiceTypeController::class)->parameters(['' => 'invoiceType']);
+    });
+
+    //UPLOAD
+    Route::prefix('upload')->name('upload.')->group(function () {
+        Route::get('/', [UploadController::class, 'index'])->name('index');
+        Route::prefix('ito')->name('ito.')->group(function () {
+            Route::get('/data', [ItoController::class, 'data'])->name('data');
+            Route::post('/ito-upload', [ItoController::class, 'upload'])->name('upload');
+        });
     });
 });

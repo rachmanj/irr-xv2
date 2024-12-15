@@ -24,7 +24,13 @@ class AdditionalDocumentController extends Controller
         ];
 
         if ($page === 'create') {
-            $invoices = Invoice::all();
+            $invoices = Invoice::with('supplier')
+                ->join('suppliers', 'invoices.supplier_id', '=', 'suppliers.id')
+                ->orderBy('suppliers.name')
+                ->select('invoices.*')
+                ->get();
+
+
             $additionalDocumentTypes = AdditionalDocumentType::orderBy('type_name')->get();
 
             return view($views[$page], compact('invoices', 'additionalDocumentTypes'));
@@ -88,7 +94,10 @@ class AdditionalDocumentController extends Controller
     {
         $poNo = $request->query('po_no');
         $invoices = Invoice::where('po_no', $poNo)->get();
-        $documents = AdditionalDocument::where('po_no', $poNo)->with('documentType')->get();
+        $documents = AdditionalDocument::where('po_no', $poNo)
+            ->whereNull('invoice_id')
+            ->with('documentType')
+            ->get();
 
         return response()->json([
             'invoices' => $invoices,
@@ -100,6 +109,20 @@ class AdditionalDocumentController extends Controller
     {
         $poNo = $request->query('po_no');
         $documents = AdditionalDocument::where('po_no', $poNo)->with('documentType')->get();
+
+        return response()->json($documents);
+    }
+
+    public function searchAdditionalDocuments(Request $request)
+    {
+        $query = $request->query('query');
+        $documents = AdditionalDocument::where('document_number', 'LIKE', "%{$query}%")
+            ->orWhere('po_no', 'LIKE', "%{$query}%")
+            ->get()
+            ->map(function ($document) {
+                $document->receive_date = $document->receive_date ? $document->receive_date->format('d-M-Y') : 'not received';
+                return $document;
+            });
 
         return response()->json($documents);
     }

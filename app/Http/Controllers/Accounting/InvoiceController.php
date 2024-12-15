@@ -34,8 +34,6 @@ class InvoiceController extends Controller
 
     public function store(Request $request)
     {
-        // return $request->all();
-
         $validatedData = $request->validate([
             'invoice_number' => [
                 'required',
@@ -44,7 +42,7 @@ class InvoiceController extends Controller
                         ->where('supplier_id', $request->supplier_id)
                         ->exists()
                     ) {
-                        $fail('The combination of invoice number and supplier ID already exists.');
+                        $fail('Nomor invoice untuk vendor tsb sudah ada');
                     }
                 },
             ],
@@ -53,6 +51,7 @@ class InvoiceController extends Controller
             'receive_date' => 'required|date',
             'receive_project' => 'required',
             'amount' => 'required|numeric',
+            'invoice_type' => 'required',
         ]);
 
         $invoice = new Invoice();

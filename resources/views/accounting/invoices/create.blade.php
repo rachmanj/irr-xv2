@@ -21,11 +21,11 @@
                     @csrf
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-4">
+                            <div class="col-12">
                                 <div class="form-group">
-                                    <label for="supplier_id">Select Supplier</label>
+                                    <label for="supplier_id">Select Vendor</label>
                                     <select name="supplier_id" id="supplier_id" class="form-control select2bs4">
-                                        <option value="">Select Supplier</option>
+                                        <option value="">Select Vendor</option>
                                         @foreach (App\Models\Supplier::where('type', 'vendor')->where('is_active', 1)->orderBy('name', 'asc')->get() as $supplier)
                                             <option value="{{ $supplier->id }}"
                                                 {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
@@ -38,7 +38,26 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-4">
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="invoice_type">Invoice Type</label>
+                                    <select name="invoice_type" id="invoice_type" class="form-control select2bs4">
+                                        <option value="">Select Type</option>
+                                        @foreach (App\Models\InvoiceType::orderBy('type_name', 'asc')->get() as $invoiceType)
+                                            <option value="{{ $invoiceType->id }}"
+                                                {{ old('invoice_type') == $invoiceType->id ? 'selected' : '' }}>
+                                                {{ $invoiceType->type_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('invoice_type')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-5">
                                 <div class="form-group">
                                     <label for="invoice_number">Invoice Number</label>
                                     <input type="text" name="invoice_number" id="invoice_number"
@@ -66,7 +85,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-4">
+                            <div class="col-3">
                                 <div class="form-group">
                                     <label for="invoice_date">Invoice Date</label>
                                     <input type="date" name="invoice_date" id="invoice_date" class="form-control"
@@ -76,7 +95,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-4">
+                            <div class="col-3">
                                 <div class="form-group">
                                     <label for="receive_date">Receive Date</label>
                                     <input type="date" name="receive_date" id="receive_date" class="form-control"
@@ -86,21 +105,31 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-4">
-                                <div class="form-group">
-                                    <label for="invoice_type">Invoice Type</label>
-                                    <select name="invoice_type" id="invoice_type" class="form-control select2bs4">
-                                        <option value="">Select Invoice Type</option>
-                                        @foreach (App\Models\InvoiceType::orderBy('type_name', 'asc')->get() as $invoiceType)
-                                            <option value="{{ $invoiceType->id }}"
-                                                {{ old('invoice_type') == $invoiceType->id ? 'selected' : '' }}>
-                                                {{ $invoiceType->type_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('invoice_type')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <div class="form-group">
+                                            <label for="amount">Curr</label>
+                                            <select name="currency" id="currency" class="form-control">
+                                                <option value="IDR"
+                                                    {{ old('currency', 'IDR') == 'IDR' ? 'selected' : '' }}>IDR
+                                                </option>
+                                                <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>
+                                                    USD
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-9">
+                                        <div class="form-group">
+                                            <label for="amount">Amount</label>
+                                            <input type="number" name="amount" id="amount" class="form-control"
+                                                value="{{ old('amount') }}">
+                                            @error('amount')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -108,7 +137,7 @@
                         <div class="row">
                             <div class="col-4">
                                 <div class="form-group">
-                                    <label for="receive_project">Receive at</label>
+                                    <label for="receive_project">Received in</label>
                                     <select name="receive_project" id="receive_project" class="form-control select2bs4">
                                         <option value="000H" {{ old('receive_project') == '000H' ? 'selected' : '' }}>
                                             000H</option>
@@ -138,9 +167,15 @@
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
-                                    <label for="payment_project">Payment at</label>
+                                    <label for="payment_project">Payment in</label>
                                     <select name="payment_project" id="payment_project" class="form-control select2bs4">
-                                        <option value="">Select Payment Project</option>
+                                        <option value="">Select Project</option>
+                                        @foreach ($projects as $project)
+                                            <option value="{{ $project->code }}"
+                                                {{ old('payment_project') == $project->code ? 'selected' : '' }}>
+                                                {{ $project->code }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('payment_project')
                                         <div class="text-danger">{{ $message }}</div>
@@ -150,28 +185,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-2">
-                                <div class="form-group">
-                                    <label for="currency">Currency</label>
-                                    <select name="currency" id="currency" class="form-control">
-                                        <option value="IDR" {{ old('currency', 'IDR') == 'IDR' ? 'selected' : '' }}>IDR
-                                        </option>
-                                        <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="form-group">
-                                    <label for="amount">Amount</label>
-                                    <input type="number" name="amount" id="amount" class="form-control"
-                                        value="{{ old('amount') }}">
-                                    @error('amount')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-6">
+                            <div class="col-12">
                                 <div class="form-group">
                                     <label for="remarks">Remarks</label>
                                     <input type="text" name="remarks" id="remarks" class="form-control"

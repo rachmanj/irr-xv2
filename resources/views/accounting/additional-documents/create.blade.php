@@ -94,7 +94,7 @@
                                         @foreach ($invoices as $invoice)
                                             <option value="{{ $invoice->id }}"
                                                 {{ old('invoice_id') == $invoice->id ? 'selected' : '' }}>
-                                                {{ $invoice->invoice_number }}</option>
+                                                {{ $invoice->supplier->name . ' | ' . $invoice->invoice_number }}</option>
                                         @endforeach
                                     </select>
                                     @error('invoice_id')

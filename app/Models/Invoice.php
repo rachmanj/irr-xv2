@@ -10,7 +10,7 @@ class Invoice extends Model
 {
     protected $guarded = [];
 
-    public function supplier()
+    public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }

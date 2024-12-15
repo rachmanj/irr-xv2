@@ -16,6 +16,7 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
     // ADDITIONAL DOCUMENTS
     Route::prefix('additional-documents')->name('additional-documents.')->group(function () {
         Route::get('data', [AdditionalDocumentController::class, 'data'])->name('data');
+        Route::get('/search', [AdditionalDocumentController::class, 'searchAdditionalDocuments'])->name('search');
         Route::resource('/', AdditionalDocumentController::class)->parameters(['' => 'additionalDocument']);
     });
 });
