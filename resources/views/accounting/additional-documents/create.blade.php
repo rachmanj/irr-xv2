@@ -88,18 +88,14 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="invoice_id">Select Invoice</label>
-                                    <select name="invoice_id" id="invoice_id"
-                                        class="form-control select2bs4 @error('invoice_id') is-invalid @enderror">
+                                    <select name="invoice_id" id="invoice_id" class="form-control select2bs4">
                                         <option value="">Select Invoice</option>
-                                        @foreach ($invoices as $invoice)
+                                        {{-- @foreach ($invoices as $invoice)
                                             <option value="{{ $invoice->id }}"
                                                 {{ old('invoice_id') == $invoice->id ? 'selected' : '' }}>
                                                 {{ $invoice->supplier->name . ' | ' . $invoice->invoice_number }}</option>
-                                        @endforeach
+                                        @endforeach --}}
                                     </select>
-                                    @error('invoice_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -211,8 +207,8 @@
                                     '<option value="">Select Invoice</option>');
                                 $.each(response.invoices, function(index, invoice) {
                                     $('#invoice_id').append('<option value="' + invoice
-                                        .id + '">' + invoice.invoice_number +
-                                        '</option>');
+                                        .id + '">' + invoice.supplier.name + ' | ' +
+                                        invoice.invoice_number + '</option>');
                                 });
                             } else {
                                 $('#invoice_id').append(

@@ -24,16 +24,22 @@ class AdditionalDocumentController extends Controller
         ];
 
         if ($page === 'create') {
-            $invoices = Invoice::with('supplier')
-                ->join('suppliers', 'invoices.supplier_id', '=', 'suppliers.id')
-                ->orderBy('suppliers.name')
-                ->select('invoices.*')
-                ->get();
-
+            // $invoices = Invoice::with('supplier')
+            //     ->join('suppliers', 'invoices.supplier_id', '=', 'suppliers.id')
+            //     ->orderBy('suppliers.name')
+            //     ->select('invoices.*')
+            //     ->get();
 
             $additionalDocumentTypes = AdditionalDocumentType::orderBy('type_name')->get();
 
-            return view($views[$page], compact('invoices', 'additionalDocumentTypes'));
+            return view($views[$page], compact('additionalDocumentTypes'));
+        } elseif ($page === 'dashboard') {
+            $dashboardData = [
+                'outs' => $this->outs_addoc(),
+                'type' => $this->outs_addocs_by_type(),
+            ];
+
+            return view($views[$page], compact('dashboardData'));
         }
 
         return view($views[$page]);
@@ -93,7 +99,7 @@ class AdditionalDocumentController extends Controller
     public function searchInvoicesByPo(Request $request)
     {
         $poNo = $request->query('po_no');
-        $invoices = Invoice::where('po_no', $poNo)->get();
+        $invoices = Invoice::with('supplier')->where('po_no', $poNo)->get();
         $documents = AdditionalDocument::where('po_no', $poNo)
             ->whereNull('invoice_id')
             ->with('documentType')
@@ -125,5 +131,81 @@ class AdditionalDocumentController extends Controller
             });
 
         return response()->json($documents);
+    }
+
+    public function data()
+    {
+        $documents = AdditionalDocument::query();
+        $documents = $documents->whereHas('documentType', function ($query) {
+            $query->where('type_name', 'ito');
+        })
+            // ->whereNull('invoice_id')
+            ->whereNull('receive_date');
+
+        return datatables()->of($documents)
+            ->editColumn('document_date', function ($row) {
+                return $row->document_date ? \Carbon\Carbon::parse($row->document_date)->format('d-M-Y') : 'N/A';
+            })
+            ->addColumn('document_type', function ($row) {
+                return $row->documentType ? $row->documentType->type_name : 'N/A';
+            })
+            ->addColumn('invoice_number', function ($row) {
+                return $row->invoice ? $row->invoice->invoice_number : 'N/A';
+            })
+            ->addIndexColumn()
+            ->addColumn('action', 'accounting.additional-documents.action')
+            ->rawColumns(['action'])
+            ->toJson();
+    }
+
+    public function outs_addoc()
+    {
+        $addocs = AdditionalDocument::whereNull('invoice_id')->orWhereNull('receive_date')->get();
+        $orphan = $addocs->whereNull('invoice_id')->count();
+        $not_receive = $addocs->whereNull('receive_date')->count();
+        $last_added_count = AdditionalDocument::whereDate('created_at', \Carbon\Carbon::parse(AdditionalDocument::max('created_at'))->toDateString())->count();
+
+        $older_than_week = $addocs->filter(function ($addoc) {
+            return \Carbon\Carbon::parse($addoc->created_at)->diffInDays(now()) > 7;
+        })->count();
+
+        return [
+            [
+                'description' => 'Orphan',
+                'count' => $orphan,
+            ],
+            [
+                'description' => 'Dokumen belum diterima',
+                'count' => $not_receive,
+            ],
+            [
+                'description' => 'New additional documents',
+                'count' => $last_added_count,
+            ],
+            [
+                'description' => 'Older than a week',
+                'count' => $older_than_week,
+            ],
+        ];
+    }
+
+    public function outs_addocs_by_type()
+    {
+        $addoc_types = AdditionalDocumentType::orderBy('type_name', 'asc')->get();
+        $addocs = AdditionalDocument::whereNull('invoice_id')->orWhereNull('receive_date')->get();
+
+        $data = [];
+
+        foreach ($addoc_types as $type) {
+            $count = $addocs->where('type_id', $type->id)->count();
+            if ($count > 0) {
+                $data[] = [
+                    'type' => $type->type_name,
+                    'count' => $count,
+                ];
+            }
+        }
+
+        return $data;
     }
 }

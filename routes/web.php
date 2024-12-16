@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Accounting\InvoiceController;
 use App\Http\Controllers\Master\SupplierController;
+use App\Http\Controllers\TestController;
 
 Route::middleware('guest')->group(function () {
     Route::controller(LoginController::class)->group(function () {
@@ -23,8 +24,9 @@ Route::middleware('guest')->group(function () {
 // middleware('auth') means that the user must be authenticated to access the route
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index']);
-
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::get('/test', [TestController::class, 'index'])->name('test');
 
     require __DIR__ . '/admin.php';
     require __DIR__ . '/accounting.php';
