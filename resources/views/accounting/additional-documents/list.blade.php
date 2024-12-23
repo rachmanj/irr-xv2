@@ -27,6 +27,7 @@
                                 <th>Doc Date</th>
                                 <th>PO No</th>
                                 <th>Inv No</th>
+                                <th>Days</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -88,6 +89,10 @@
                     },
                     {
                         data: 'invoice_number',
+                    },
+                    {
+                        data: 'days',
+                        className: 'text-right'
                     },
                     {
                         data: 'action',

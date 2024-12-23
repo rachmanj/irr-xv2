@@ -152,6 +152,9 @@ class AdditionalDocumentController extends Controller
             ->addColumn('invoice_number', function ($row) {
                 return $row->invoice ? $row->invoice->invoice_number : 'N/A';
             })
+            ->addColumn('days', function ($row) {
+                return (int) \Carbon\Carbon::parse($row->created_at)->diffInDays(now());
+            })
             ->addIndexColumn()
             ->addColumn('action', 'accounting.additional-documents.action')
             ->rawColumns(['action'])
@@ -165,8 +168,16 @@ class AdditionalDocumentController extends Controller
         $not_receive = $addocs->whereNull('receive_date')->count();
         $last_added_count = AdditionalDocument::whereDate('created_at', \Carbon\Carbon::parse(AdditionalDocument::max('created_at'))->toDateString())->count();
 
+        $lest_than_a_week = $addocs->filter(function ($addoc) {
+            return \Carbon\Carbon::parse($addoc->created_at)->diffInDays(now()) < 7;
+        })->count();
+
         $older_than_week = $addocs->filter(function ($addoc) {
             return \Carbon\Carbon::parse($addoc->created_at)->diffInDays(now()) > 7;
+        })->count();
+
+        $older_than_a_month = $addocs->filter(function ($addoc) {
+            return \Carbon\Carbon::parse($addoc->created_at)->diffInDays(now()) > 30;
         })->count();
 
         return [
@@ -183,8 +194,16 @@ class AdditionalDocumentController extends Controller
                 'count' => $last_added_count,
             ],
             [
+                'description' => 'Less than a week',
+                'count' => $lest_than_a_week,
+            ],
+            [
                 'description' => 'Older than a week',
                 'count' => $older_than_week,
+            ],
+            [
+                'description' => 'Older than a month',
+                'count' => $older_than_a_month,
             ],
         ];
     }

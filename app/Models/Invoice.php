@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
@@ -33,5 +34,10 @@ class Invoice extends Model
     public function invoiceType(): BelongsTo
     {
         return $this->belongsTo(InvoiceType::class, 'type_id');
+    }
+
+    public function spi(): BelongsToMany
+    {
+        return $this->belongsToMany(Spi::class, 'spi_invoice');
     }
 }

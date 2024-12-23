@@ -14,32 +14,34 @@
             <x-acc-invoice-links page='search' />
 
             <div class="container-fluid">
-                {{-- <h2 class="text-center display-4">Search</h2> --}}
                 <div class="row">
                     <div class="col-md-8 offset-md-2">
                         <form id="search-form">
-                            <div class="input-group">
-                                <input type="search" id="search-input" class="form-control form-control-lg"
-                                    placeholder="Type your keywords here">
-                                <div class="input-group-append">
-                                    <button type="submit" class="btn btn-lg btn-default">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                            <form action="{{ route('accounting.invoices.search') }}" method="POST">
+                                @csrf
+                                <div class="input-group">
+                                    <input type="search" name="key_word" id="search-input"
+                                        class="form-control form-control-lg" placeholder="Type your keywords here">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-lg btn-default">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </div>
+                            </form>
                     </div>
+                    </form>
                 </div>
-                <div class="row mt-4">
-                    <div class="col-md-8 offset-md-2">
-                        <div id="search-results" class="list-group">
-                            <!-- Search results will be inserted here -->
-                        </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-8 offset-md-2">
+                    <div id="search-results" class="list-group">
+                        <!-- Search results will be inserted here -->
                     </div>
                 </div>
             </div>
-
         </div>
+
+    </div>
     </div>
 @endsection
 
@@ -76,7 +78,10 @@
                                     '</td><td>' + invoice.po_no +
                                     '</td><td><a href="{{ route('accounting.invoices.show', '') }}/' +
                                     invoice.id +
-                                    '" class="btn btn-primary btn-xs">View</a></td></tr>';
+                                    '" class="btn btn-primary btn-xs">View</a> ' +
+                                    '<a href="{{ route('accounting.invoices.edit', '') }}/' +
+                                    invoice.id +
+                                    '" class="btn btn-secondary btn-xs">Edit</a></td></tr>';
                             });
                             table += '</tbody></table>';
                             $('#search-results').append(table);
