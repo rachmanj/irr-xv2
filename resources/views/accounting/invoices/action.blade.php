@@ -2,6 +2,7 @@
 <form action="{{ route('accounting.invoices.destroy', $model->id) }}" method="POST" style="display:inline;">
     @csrf
     @method('DELETE')
-    <button type="submit" class="btn btn-danger btn-xs" @if ($model->additionalDocuments->count() > 0) disabled @endif
+    <button type="submit" class="btn btn-danger btn-xs"
+        @if ($model->additionalDocuments->count() > 0) disabled title="This invoice already has additional documents" @endif
         onclick="return confirm('Do you really want to delete this invoice? This action cannot be undone.')">Delete</button>
 </form>

@@ -9,6 +9,8 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\Supplier;
+use App\Models\InvoiceType;
 
 class InvoiceController extends Controller
 {
@@ -50,7 +52,7 @@ class InvoiceController extends Controller
             'invoice_date' => 'required|date',
             'receive_date' => 'required|date',
             'receive_project' => 'required',
-            'amount' => 'required|numeric',
+            'amount' => 'required',
             'invoice_type' => 'required',
         ]);
 
@@ -60,9 +62,12 @@ class InvoiceController extends Controller
         $invoice->invoice_date = $validatedData['invoice_date'];
         $invoice->receive_project = $validatedData['receive_project'];
         $invoice->receive_date = $validatedData['receive_date'];
-        $invoice->amount = $validatedData['amount'];
+        $invoice->amount = str_replace(',', '', $validatedData['amount']);
         $invoice->po_no = $request->po_no;
         $invoice->type_id = $request->invoice_type;
+        $invoice->invoice_project = $request->invoice_project; // Added field
+        $invoice->payment_project = $request->payment_project; // Added field
+        $invoice->remarks = $request->remarks; // Added field for remarks
         $invoice->created_by = Auth::user()->id;
         $invoice->save();
 
@@ -76,9 +81,114 @@ class InvoiceController extends Controller
             }
         }
 
+        saveLog('invoice', $invoice->id, 'create', Auth::user()->id, 15);
+
         Alert::success('Success', 'Invoice created successfully');
 
         return redirect()->route('accounting.invoices.index', ['page' => 'create']);
+    }
+
+    public function edit($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $projects = Project::all();
+        $suppliers = Supplier::all();
+        $invoiceTypes = InvoiceType::all();
+
+        // Get all additional documents related to the PO number with documentType relationship
+        $orphanAdditionalDocuments = AdditionalDocument::where('invoice_id', null)
+            ->where('po_no', $invoice->po_no)
+            ->with('documentType') // Added documentType relationship
+            ->get();
+
+        $invoiceAdditionalDocuments = AdditionalDocument::with('documentType')
+            ->where('invoice_id', $id)
+            ->get();
+
+        $additionalDocuments = $orphanAdditionalDocuments->merge($invoiceAdditionalDocuments);
+
+        // Get IDs of documents already connected to this invoice
+        $connectedDocumentIds = AdditionalDocument::where('invoice_id', $id)
+            ->pluck('id')
+            ->toArray();
+
+        $invoice->invoice_date = \Carbon\Carbon::parse($invoice->invoice_date);
+        $invoice->receive_date = \Carbon\Carbon::parse($invoice->receive_date);
+
+        return view('accounting.invoices.edit', compact([
+            'invoice',
+            'projects',
+            'suppliers',
+            'invoiceTypes',
+            'additionalDocuments',
+            'connectedDocumentIds'
+        ]));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'invoice_number' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request, $id) {
+                    if (Invoice::where('invoice_number', $value)
+                        ->where('supplier_id', $request->supplier_id)
+                        ->where('id', '!=', $id) // Ensure the current invoice is excluded
+                        ->exists()
+                    ) {
+                        $fail('Nomor invoice untuk vendor tsb sudah ada');
+                    }
+                },
+            ],
+            'supplier_id' => 'required',
+            'invoice_date' => 'required|date',
+            'receive_date' => 'required|date',
+            'receive_project' => 'required',
+            'amount' => 'required',
+            'invoice_type' => 'required',
+        ]);
+
+        $invoice = Invoice::findOrFail($id);
+        $invoice->supplier_id = $validatedData['supplier_id'];
+        $invoice->invoice_number = $validatedData['invoice_number'];
+        $invoice->invoice_date = $validatedData['invoice_date'];
+        $invoice->receive_project = $validatedData['receive_project'];
+        $invoice->receive_date = $validatedData['receive_date'];
+        $invoice->amount = str_replace(',', '', $validatedData['amount']);
+        $invoice->po_no = $request->po_no;
+        $invoice->type_id = $request->invoice_type;
+        $invoice->invoice_project = $request->invoice_project; // Added field
+        $invoice->payment_project = $request->payment_project; // Added field
+        $invoice->remarks = $request->remarks; // Added field for remarks
+        $invoice->save();
+
+        // Update document connections
+        // First, disconnect all documents from this invoice
+        AdditionalDocument::where('invoice_id', $id)
+            ->update(['invoice_id' => null]);
+
+        // Then connect the selected documents
+        if ($request->has('selected_documents')) {
+            AdditionalDocument::whereIn('id', $request->selected_documents)
+                ->update(['invoice_id' => $id]);
+        }
+
+        saveLog('invoice', $invoice->id, 'update', Auth::user()->id, 5);
+
+        Alert::success('Success', 'Invoice updated successfully');
+
+        return redirect()->route('accounting.invoices.index', ['page' => 'list']);
+    }
+
+    public function show($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+
+        // Convert date fields to Carbon instances
+        $invoice->invoice_date = \Carbon\Carbon::parse($invoice->invoice_date);
+        $invoice->receive_date = \Carbon\Carbon::parse($invoice->receive_date);
+
+        return view('accounting.invoices.show', compact('invoice'));
     }
 
     public function checkInvoiceNumber(Request $request)
@@ -106,6 +216,12 @@ class InvoiceController extends Controller
                 $receiveDate = \Carbon\Carbon::parse($invoice->receive_date)->startOfDay();
                 $currentDate = \Carbon\Carbon::now()->startOfDay();
                 return $receiveDate->diffInDays($currentDate);
+            })
+            ->addColumn('amount', function ($invoice) {
+                return number_format($invoice->amount, 2, '.', ',');
+            })
+            ->addColumn('invoice_date', function ($invoice) {
+                return \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y');
             })
             ->addIndexColumn()
             ->addColumn('action', 'accounting.invoices.action')

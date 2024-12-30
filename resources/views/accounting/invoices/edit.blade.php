@@ -5,20 +5,25 @@
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / invoices / create</small>
+    <small>accounting / invoices / edit</small>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-invoice-links page='create' />
+            {{-- <x-acc-invoice-links page='edit' /> --}}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Create New Invoice</h3>
+                    <h3 class="card-title">Edit Invoice</h3>
+                    <a href="{{ route('accounting.invoices.index', ['page' => 'search']) }}"
+                        class="btn btn-sm btn-primary float-right">
+                        <i class="fas fa-arrow-left"></i> Back to Search
+                    </a>
                 </div>
 
-                <form action="{{ route('accounting.invoices.store') }}" method="POST">
+                <form action="{{ route('accounting.invoices.update', $invoice->id) }}" method="POST">
                     @csrf
+                    @method('PUT')
                     <div class="card-body">
                         <div class="row">
                             <div class="col-12">
@@ -28,7 +33,7 @@
                                         <option value="">Select Vendor</option>
                                         @foreach (App\Models\Supplier::where('type', 'vendor')->where('is_active', 1)->orderBy('name', 'asc')->get() as $supplier)
                                             <option value="{{ $supplier->id }}"
-                                                {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                                {{ $invoice->supplier_id == $supplier->id ? 'selected' : '' }}>
                                                 {{ $supplier->name . ' | ' . $supplier->sap_code }}
                                             </option>
                                         @endforeach
@@ -47,7 +52,7 @@
                                         <option value="">Select Type</option>
                                         @foreach (App\Models\InvoiceType::orderBy('type_name', 'asc')->get() as $invoiceType)
                                             <option value="{{ $invoiceType->id }}"
-                                                {{ old('invoice_type') == $invoiceType->id ? 'selected' : '' }}>
+                                                {{ $invoice->type_id == $invoiceType->id ? 'selected' : '' }}>
                                                 {{ $invoiceType->type_name }}
                                             </option>
                                         @endforeach
@@ -62,7 +67,7 @@
                                     <label for="invoice_number">Invoice Number</label>
                                     <input type="text" name="invoice_number" id="invoice_number"
                                         class="form-control @error('invoice_number') is-invalid @enderror"
-                                        value="{{ old('invoice_number') }}">
+                                        value="{{ old('invoice_number', $invoice->invoice_number) }}">
                                     @error('invoice_number')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -76,7 +81,7 @@
                                     <label for="po_no">PO Number</label>
                                     <input type="text" name="po_no" id="po_no"
                                         class="form-control @error('po_no') is-invalid @enderror"
-                                        value="{{ old('po_no') }}">
+                                        value="{{ old('po_no', $invoice->po_no) }}">
                                     @error('po_no')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -89,7 +94,7 @@
                                 <div class="form-group">
                                     <label for="invoice_date">Invoice Date</label>
                                     <input type="date" name="invoice_date" id="invoice_date" class="form-control"
-                                        value="{{ old('invoice_date') }}">
+                                        value="{{ old('invoice_date', $invoice->invoice_date->format('Y-m-d')) }}">
                                     @error('invoice_date')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -99,7 +104,7 @@
                                 <div class="form-group">
                                     <label for="receive_date">Receive Date</label>
                                     <input type="date" name="receive_date" id="receive_date" class="form-control"
-                                        value="{{ old('receive_date') }}">
+                                        value="{{ old('receive_date', $invoice->receive_date->format('Y-m-d')) }}">
                                     @error('receive_date')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -109,12 +114,14 @@
                                 <div class="row">
                                     <div class="col-3">
                                         <div class="form-group">
-                                            <label for="amount">Curr</label>
+                                            <label for="currency">Curr</label>
                                             <select name="currency" id="currency" class="form-control">
                                                 <option value="IDR"
-                                                    {{ old('currency', 'IDR') == 'IDR' ? 'selected' : '' }}>IDR
+                                                    {{ old('currency', $invoice->currency) == 'IDR' ? 'selected' : '' }}>
+                                                    IDR
                                                 </option>
-                                                <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>
+                                                <option value="USD"
+                                                    {{ old('currency', $invoice->currency) == 'USD' ? 'selected' : '' }}>
                                                     USD
                                                 </option>
                                             </select>
@@ -124,7 +131,8 @@
                                         <div class="form-group">
                                             <label for="amount">Amount</label>
                                             <input type="text" name="amount" id="amount" class="form-control"
-                                                value="{{ old('amount') }}" onkeyup="formatNumber(this)">
+                                                value="{{ old('amount', number_format($invoice->amount, 2, '.', ',')) }}"
+                                                onkeyup="formatNumber(this)">
                                             @error('amount')
                                                 <div class="text-danger">{{ $message }}</div>
                                             @enderror
@@ -157,11 +165,12 @@
                                 <div class="form-group">
                                     <label for="receive_project">Received in</label>
                                     <select name="receive_project" id="receive_project" class="form-control select2bs4">
-                                        <option value="000H" {{ old('receive_project') == '000H' ? 'selected' : '' }}>
+                                        <option value="000H"
+                                            {{ old('receive_project', $invoice->receive_project) == '000H' ? 'selected' : '' }}>
                                             000H</option>
                                         @foreach ($projects as $project)
                                             <option value="{{ $project->code }}"
-                                                {{ old('receive_project') == $project->code ? 'selected' : '' }}>
+                                                {{ old('receive_project', $invoice->receive_project) == $project->code ? 'selected' : '' }}>
                                                 {{ $project->code }}
                                             </option>
                                         @endforeach
@@ -172,11 +181,12 @@
                                 <div class="form-group">
                                     <label for="invoice_project">For Project</label>
                                     <select name="invoice_project" id="invoice_project" class="form-control select2bs4">
-                                        <option value="000H" {{ old('invoice_project') == '000H' ? 'selected' : '' }}>
+                                        <option value="000H"
+                                            {{ old('invoice_project', $invoice->invoice_project) == '000H' ? 'selected' : '' }}>
                                             000H</option>
                                         @foreach ($projects as $project)
                                             <option value="{{ $project->code }}"
-                                                {{ old('invoice_project') == $project->code ? 'selected' : '' }}>
+                                                {{ old('invoice_project', $invoice->invoice_project) == $project->code ? 'selected' : '' }}>
                                                 {{ $project->code }}
                                             </option>
                                         @endforeach
@@ -190,7 +200,7 @@
                                         <option value="">Select Project</option>
                                         @foreach ($projects as $project)
                                             <option value="{{ $project->code }}"
-                                                {{ old('payment_project') == $project->code ? 'selected' : '' }}>
+                                                {{ old('payment_project', $invoice->payment_project) == $project->code ? 'selected' : '' }}>
                                                 {{ $project->code }}
                                             </option>
                                         @endforeach
@@ -207,39 +217,53 @@
                                 <div class="form-group">
                                     <label for="remarks">Remarks</label>
                                     <input type="text" name="remarks" id="remarks" class="form-control"
-                                        value="{{ old('remarks') }}">
+                                        value="{{ old('remarks', $invoice->remarks) }}">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body" id="similar-documents-card" style="display: none;">
+                    <div class="card-body" id="similar-documents-card">
                         <div class="row">
                             <div class="col-12">
                                 <h5>Related Additional Documents</h5>
                                 <table class="table table-sm">
-                                    <thead>
+                                    <thead style="background-color: #343a40; color: white;">
                                         <tr>
-                                            <td>#</td>
-                                            <td>DocType</td>
-                                            <td>DocNum</td>
-                                            <td>DocDate</td>
-                                            <td>checkbox</td>
+                                            <td class="py-1">#</td>
+                                            <td class="py-1">DocType</td>
+                                            <td class="py-1">DocNum</td>
+                                            <td class="py-1">DocDate</td>
+                                            <td class="py-1">PO No</td>
+                                            <td class="py-1">checkbox</td>
                                         </tr>
                                     </thead>
                                     <tbody id="similar-documents-tbody">
-                                        <!-- Dynamic content will be inserted here -->
+                                        @foreach ($additionalDocuments as $additionalDocument)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $additionalDocument->documentType ? $additionalDocument->documentType->type_name : 'N/A' }}
+                                                </td>
+                                                <td>{{ $additionalDocument->document_number }}</td>
+                                                <td>{{ $additionalDocument->document_date }}</td>
+                                                <td>{{ $additionalDocument->po_no }}</td>
+                                                <td>
+                                                    <input type="checkbox" name="selected_documents[]"
+                                                        value="{{ $additionalDocument->id }}"
+                                                        {{ in_array($additionalDocument->id, $connectedDocumentIds) ? 'checked' : '' }}>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button type="submit" class="btn btn-primary btn-sm">Save Invoice</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Update Invoice</button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
     </div>
 @endsection
 
@@ -316,43 +340,6 @@
                 } else {
                     $('#payment_project').empty();
                     $('#payment_project').append('<option value="">Select Payment Project</option>');
-                }
-            });
-
-            $('#po_no').on('blur', function() {
-                var poNo = $(this).val();
-
-                if (poNo) {
-                    $.ajax({
-                        url: '{{ route('search_addocs_by_po') }}',
-                        method: 'GET',
-                        data: {
-                            po_no: poNo
-                        },
-                        success: function(response) {
-                            $('#similar-documents-tbody').empty();
-                            if (response.length > 0) {
-                                $.each(response, function(index, document) {
-                                    $('#similar-documents-tbody').append('<tr><td>' + (
-                                            index + 1) + '</td><td>' + document
-                                        .document_type.type_name + '</td><td>' +
-                                        document.document_number + '</td><td>' +
-                                        document.document_date +
-                                        '</td><td><input type="checkbox" name="selected_documents[]" value="' +
-                                        document.id + '"></td></tr>');
-                                });
-                                $('#similar-documents-card').show();
-                            } else {
-                                $('#similar-documents-tbody').append(
-                                    '<tr><td colspan="5">No additional documents found</td></tr>'
-                                );
-                                $('#similar-documents-card').show();
-                            }
-                        },
-                        error: function(response) {
-                            console.log(response);
-                        }
-                    });
                 }
             });
         });

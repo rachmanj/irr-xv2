@@ -26,7 +26,7 @@ return new class extends Migration
             $table->foreignId('type_id')->constrained('invoice_types');
             $table->date('payment_date')->nullable();
             $table->text('remarks')->nullable();
-            $table->string('status', 20)->default('pending'); // pending / return / sap / payment / close / cancel
+            $table->string('status', 20)->default('open'); // pending / return / sap / payment / close / cancel
             $table->foreignId('created_by')->constrained('users');
             $table->integer('duration1')->nullable(); // duration from receive_date to send_date
             $table->integer('duration2')->nullable(); // duration from receive by BO to payment_date

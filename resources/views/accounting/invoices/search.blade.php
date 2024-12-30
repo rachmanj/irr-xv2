@@ -74,13 +74,16 @@
                             var table =
                                 '<table class="table table-bordered"><thead><tr><th>Invoice Number</th><th>PO Number</th><th>Actions</th></tr></thead><tbody>';
                             $.each(response, function(index, invoice) {
+                                var editUrl = '{{ url('accounting/invoices') }}/' +
+                                    invoice.id + '/edit'; // Constructing the edit URL
+                                var viewUrl = '{{ url('accounting/invoices') }}/' +
+                                    invoice.id; // Constructing the view URL
+
                                 table += '<tr><td>' + invoice.invoice_number +
                                     '</td><td>' + invoice.po_no +
-                                    '</td><td><a href="{{ route('accounting.invoices.show', '') }}/' +
-                                    invoice.id +
+                                    '</td><td><a href="' + viewUrl +
                                     '" class="btn btn-primary btn-xs">View</a> ' +
-                                    '<a href="{{ route('accounting.invoices.edit', '') }}/' +
-                                    invoice.id +
+                                    '<a href="' + editUrl +
                                     '" class="btn btn-secondary btn-xs">Edit</a></td></tr>';
                             });
                             table += '</tbody></table>';

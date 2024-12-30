@@ -19,10 +19,12 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Vendor</th>
-                                <th>Invoice no</th>
-                                <th>PO No</th>
-                                <th>Days</th>
+                                <th><small>Vendor</small></th>
+                                <th><small>Invoice no</small></th>
+                                <th><small>Invoice Date</small></th>
+                                <th><small>PO No</small></th>
+                                <th><small>Amount</small></th>
+                                <th><small>Days</small></th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -79,12 +81,22 @@
                         name: 'invoice_number'
                     },
                     {
+                        data: 'invoice_date',
+                        name: 'invoice_date'
+                    },
+                    {
                         data: 'po_no',
                         name: 'po_no'
                     },
                     {
+                        data: 'amount',
+                        name: 'amount',
+                        className: 'text-right'
+                    },
+                    {
                         data: 'days',
-                        name: 'Days'
+                        name: 'Days',
+                        className: 'text-right'
                     },
                     {
                         data: 'action',
