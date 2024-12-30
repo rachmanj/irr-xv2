@@ -259,7 +259,7 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button type="submit" class="btn btn-primary btn-sm">Update Invoice</button>
+                        <button type="submit" class="btn btn-success btn-sm">Update Invoice</button>
                     </div>
                 </form>
             </div>

@@ -29,6 +29,11 @@ class InvoiceController extends Controller
             $projects = Project::orderBy('code', 'asc')->get();
 
             return view($views[$page], compact('projects'));
+        } elseif ($page === 'search') {
+            $suppliers = Supplier::orderBy('name')->get();
+            $invoiceTypes = InvoiceType::orderBy('type_name')->get();
+            $projects = Project::orderBy('code')->get();
+            return view($views[$page], compact('suppliers', 'invoiceTypes', 'projects'));
         }
 
         return view($views[$page]);
@@ -229,12 +234,31 @@ class InvoiceController extends Controller
             ->toJson();
     }
 
-    public function searchInvoices(Request $request)
+    public function search(Request $request)
     {
-        $query = $request->query('query');
-        $invoices = Invoice::where('invoice_number', 'LIKE', "%{$query}%")
-            ->orWhere('po_no', 'LIKE', "%{$query}%")
-            ->get();
+        $query = Invoice::with(['supplier', 'invoiceType']);
+
+        if ($request->invoice_number) {
+            $query->where('invoice_number', 'LIKE', "%{$request->invoice_number}%");
+        }
+
+        if ($request->po_no) {
+            $query->where('po_no', 'LIKE', "%{$request->po_no}%");
+        }
+
+        if ($request->supplier_id) {
+            $query->where('supplier_id', $request->supplier_id);
+        }
+
+        if ($request->type_id) {
+            $query->where('type_id', $request->type_id);
+        }
+
+        if ($request->invoice_project) {
+            $query->where('invoice_project', $request->invoice_project);
+        }
+
+        $invoices = $query->get();
 
         return response()->json($invoices);
     }

@@ -41,3 +41,7 @@ Route::get('/get-project-location', [InvoiceController::class, 'getProjectLocati
 Route::get('/check-addoc-combination', [AdditionalDocumentController::class, 'checkDocumentCombination'])->name('check.addoc.combination');
 Route::get('/search-invoices-by-po', [AdditionalDocumentController::class, 'searchInvoicesByPo'])->name('search.invoices.by.po');
 Route::get('/search-additional-documents-by-po', [AdditionalDocumentController::class, 'searchAdditionalDocumentsByPo'])->name('search_addocs_by_po');
+Route::get('/additional-documents/search', [AdditionalDocumentController::class, 'search'])
+    ->name('additional-documents.search');
+Route::get('/accounting/invoices/search', [InvoiceController::class, 'search'])
+    ->name('accounting.invoices.search');
