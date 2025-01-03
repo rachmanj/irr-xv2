@@ -182,7 +182,7 @@ class InvoiceController extends Controller
 
         Alert::success('Success', 'Invoice updated successfully');
 
-        return redirect()->route('accounting.invoices.index', ['page' => 'list']);
+        return redirect()->route('accounting.invoices.index', ['page' => 'search']);
     }
 
     public function show($id)
@@ -238,28 +238,46 @@ class InvoiceController extends Controller
     {
         $query = Invoice::with(['supplier', 'invoiceType']);
 
-        if ($request->invoice_number) {
-            $query->where('invoice_number', 'LIKE', "%{$request->invoice_number}%");
-        }
-
-        if ($request->po_no) {
-            $query->where('po_no', 'LIKE', "%{$request->po_no}%");
-        }
-
-        if ($request->supplier_id) {
-            $query->where('supplier_id', $request->supplier_id);
-        }
-
-        if ($request->type_id) {
-            $query->where('type_id', $request->type_id);
-        }
-
-        if ($request->invoice_project) {
-            $query->where('invoice_project', $request->invoice_project);
-        }
-
-        $invoices = $query->get();
-
-        return response()->json($invoices);
+        return datatables()
+            ->eloquent($query)
+            ->addIndexColumn()
+            ->addColumn('supplier_name', function ($invoice) {
+                return $invoice->supplier->name ?? 'N/A';
+            })
+            ->addColumn('invoice_type_name', function ($invoice) {
+                return $invoice->invoiceType->type_name ?? 'N/A';
+            })
+            ->addColumn('formatted_amount', function ($invoice) {
+                return number_format($invoice->amount, 2, '.', ',');
+            })
+            ->addColumn('action', function ($invoice) {
+                return '<div class="btn-group">
+                        <a href="' . route('accounting.invoices.edit', $invoice->id) . '" class="btn btn-xs btn-warning mr-2" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="' . route('accounting.invoices.show', $invoice->id) . '" class="btn btn-xs btn-info" title="View">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>';
+            })
+            ->rawColumns(['action'])
+            ->filter(function ($query) use ($request) {
+                if ($request->filled('invoice_number')) {
+                    $query->where('invoice_number', 'like', '%' . $request->invoice_number . '%');
+                }
+                if ($request->filled('po_no')) {
+                    $query->where('po_no', 'like', '%' . $request->po_no . '%');
+                }
+                if ($request->filled('supplier_id')) {
+                    $query->where('supplier_id', $request->supplier_id);
+                }
+                if ($request->filled('type_id')) {
+                    $query->where('type_id', $request->type_id);
+                }
+                if ($request->filled('invoice_project')) {
+                    $query->where('invoice_project', $request->invoice_project);
+                }
+            })
+            ->toJson();
     }
 }
