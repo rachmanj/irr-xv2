@@ -15,11 +15,11 @@
 
             <div class="row">
                 <div class="col-6">
-                    @include('accounting.additional-documents._addoc-outs')
+                    @include('accounting.additional-documents.dashboard.outs')
                 </div>
 
                 <div class="col-6">
-                    @include('accounting.additional-documents._addoc-bytype')
+                    @include('accounting.additional-documents.dashboard.bytype')
                 </div>
             </div>
 

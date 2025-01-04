@@ -18,4 +18,9 @@ class AdditionalDocument extends Model
     {
         return $this->belongsTo(AdditionalDocumentType::class, 'type_id');
     }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

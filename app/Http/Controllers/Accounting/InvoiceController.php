@@ -192,6 +192,7 @@ class InvoiceController extends Controller
         // Convert date fields to Carbon instances
         $invoice->invoice_date = \Carbon\Carbon::parse($invoice->invoice_date);
         $invoice->receive_date = \Carbon\Carbon::parse($invoice->receive_date);
+        $invoice->additionalDocs = $invoice->additionalDocuments;
 
         return view('accounting.invoices.show', compact('invoice'));
     }

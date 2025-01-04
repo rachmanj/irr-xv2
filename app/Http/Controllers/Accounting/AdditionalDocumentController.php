@@ -24,12 +24,6 @@ class AdditionalDocumentController extends Controller
         ];
 
         if ($page === 'create') {
-            // $invoices = Invoice::with('supplier')
-            //     ->join('suppliers', 'invoices.supplier_id', '=', 'suppliers.id')
-            //     ->orderBy('suppliers.name')
-            //     ->select('invoices.*')
-            //     ->get();
-
             $additionalDocumentTypes = AdditionalDocumentType::orderBy('type_name')->get();
 
             return view($views[$page], compact('additionalDocumentTypes'));
@@ -78,18 +72,25 @@ class AdditionalDocumentController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'type_id' => 'required|string|max:255',
+            'type_id' => 'required|exists:additional_document_types,id',
             'document_number' => 'required|string|max:255',
             'document_date' => 'required|date',
         ]);
 
         $additionalDocument = AdditionalDocument::findOrFail($id);
+        if ($request->has('receive_date')) {
+            $validatedData['receive_date'] = $request->receive_date;
+        }
+
+        if ($request->has('invoice_id')) {
+            $validatedData['invoice_id'] = $request->invoice_id;
+        }
         $additionalDocument->update($validatedData);
 
         saveLog('additional_document', $additionalDocument->id, 'update', Auth::user()->id, 5);
         Alert::success('Success', 'Additional Document updated successfully.');
 
-        return redirect()->route('accounting.additional-documents.index', ['page' => 'list']);
+        return redirect()->route('accounting.additional-documents.index', ['page' => 'search']);
     }
 
     public function destroy($id)
@@ -101,6 +102,13 @@ class AdditionalDocumentController extends Controller
         Alert::success('Success', 'Additional Document deleted successfully.');
 
         return redirect()->route('additional-documents.index');
+    }
+
+    public function show($id)
+    {
+        $additionalDocument = AdditionalDocument::findOrFail($id);
+
+        return view('accounting.additional-documents.show', compact('additionalDocument'));
     }
 
     public function checkDocumentCombination(Request $request)
@@ -135,20 +143,6 @@ class AdditionalDocumentController extends Controller
     {
         $poNo = $request->query('po_no');
         $documents = AdditionalDocument::where('po_no', $poNo)->with('documentType')->get();
-
-        return response()->json($documents);
-    }
-
-    public function searchAdditionalDocuments(Request $request)
-    {
-        $query = $request->query('query');
-        $documents = AdditionalDocument::where('document_number', 'LIKE', "%{$query}%")
-            ->orWhere('po_no', 'LIKE', "%{$query}%")
-            ->get()
-            ->map(function ($document) {
-                $document->receive_date = $document->receive_date ? $document->receive_date->format('d-M-Y') : 'not received';
-                return $document;
-            });
 
         return response()->json($documents);
     }
@@ -248,34 +242,47 @@ class AdditionalDocumentController extends Controller
         return $data;
     }
 
-    public function search(Request $request)
+    public function searchData(Request $request)
     {
-        $query = AdditionalDocument::with(['documentType', 'invoice']);
+        $query = AdditionalDocument::with('documentType');
 
-        if ($request->document_number) {
-            $query->where('document_number', 'LIKE', "%{$request->document_number}%");
-        }
-
-        if ($request->type_id) {
-            $query->where('type_id', $request->type_id);
-        }
-
-        if ($request->po_no) {
-            $query->where('po_no', 'LIKE', "%{$request->po_no}%");
-        }
-
-        if ($request->invoice_number) {
-            $query->whereHas('invoice', function ($q) use ($request) {
-                $q->where('invoice_number', 'LIKE', "%{$request->invoice_number}%");
-            });
-        }
-
-        if ($request->receive_date) {
-            $query->whereDate('receive_date', $request->receive_date);
-        }
-
-        $documents = $query->get();
-
-        return response()->json($documents);
+        return datatables()
+            ->eloquent($query)
+            ->addIndexColumn()
+            ->addColumn('type', function ($row) {
+                return $row->documentType ? $row->documentType->type_name : 'N/A';
+            })
+            ->addColumn('invoice_number', function ($row) {
+                return $row->invoice ? $row->invoice->invoice_number : '-';
+            })
+            ->editColumn('receive_date', function ($row) {
+                return $row->receive_date ? \Carbon\Carbon::parse($row->receive_date)->format('d-M-Y') : '-';
+            })
+            ->addColumn('action', function ($row) {
+                return '<div class="btn-group">
+                        <a href="' . route('accounting.additional-documents.edit', $row->id) . '" class="btn btn-xs btn-warning mr-2" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="' . route('accounting.additional-documents.show', $row->id) . '" class="btn btn-xs btn-info" title="View">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>';
+            })
+            ->rawColumns(['action'])
+            ->filter(function ($query) use ($request) {
+                if ($request->filled('document_number')) {
+                    $query->where('document_number', 'like', '%' . $request->document_number . '%');
+                }
+                if ($request->filled('type_id')) {
+                    $query->where('type_id', $request->type_id);
+                }
+                if ($request->filled('po_no')) {
+                    $query->where('po_no', 'like', '%' . $request->po_no . '%');
+                }
+                if ($request->filled('invoice_number')) {
+                    $query->where('invoice_number', 'like', '%' . $request->invoice_number . '%');
+                }
+            })
+            ->toJson();
     }
 }

@@ -15,9 +15,9 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Edit Additional Document</h3>
-                    <a href="{{ route('accounting.additional-documents.index', ['page' => 'list']) }}"
+                    <a href="{{ route('accounting.additional-documents.index', ['page' => 'search']) }}"
                         class="btn btn-sm btn-primary float-right">
-                        <i class="fas fa-arrow-left"></i> Back to Document List
+                        <i class="fas fa-arrow-left"></i> Back to Search
                     </a>
                 </div>
                 <div class="card-body">
@@ -115,7 +115,7 @@
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary btn-sm">Update</button>
-                        <a href="{{ route('accounting.additional-documents.index') }}"
+                        <a href="{{ route('accounting.additional-documents.index', ['page' => 'search']) }}"
                             class="btn btn-secondary btn-sm">Cancel</a>
                     </form>
                 </div>
