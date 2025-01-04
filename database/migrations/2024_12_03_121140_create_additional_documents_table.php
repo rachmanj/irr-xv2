@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users');
             $table->string('attachment')->nullable();
             $table->string('flag', 30)->nullable();
-            $table->string('status', 20)->nullable();
+            $table->string('status', 20)->default('open');
             $table->string('remarks')->nullable();
             $table->string('ito_creator', 50)->nullable();
             $table->string('grpo_no', 20)->nullable();

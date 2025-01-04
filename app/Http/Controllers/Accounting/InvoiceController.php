@@ -34,6 +34,10 @@ class InvoiceController extends Controller
             $invoiceTypes = InvoiceType::orderBy('type_name')->get();
             $projects = Project::orderBy('code')->get();
             return view($views[$page], compact('suppliers', 'invoiceTypes', 'projects'));
+        } elseif ($page === 'dashboard') {
+            $data['monthly_summary'] = $this->monthly_summary();
+
+            return view($views[$page], compact('data'));
         }
 
         return view($views[$page]);
@@ -280,5 +284,47 @@ class InvoiceController extends Controller
                 }
             })
             ->toJson();
+    }
+
+    public function monthly_summary()
+    {
+        // Get all years from receive_date
+        $years = Invoice::selectRaw('YEAR(receive_date) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        $data = [];
+
+        foreach ($years as $year) {
+            // Calculate year statistics
+            $yearData = Invoice::whereYear('receive_date', $year);
+
+            $yearStats = [
+                'year' => $year,
+                'year_average_duration' => round($yearData->avg('duration1'), 1),
+                'year_invoice_count' => $yearData->count(),
+                'monthly_data' => []
+            ];
+
+            // Calculate monthly statistics for current year
+            for ($month = 1; $month <= 12; $month++) {
+                $monthlyData = Invoice::whereYear('receive_date', $year)
+                    ->whereMonth('receive_date', $month);
+
+                $count = $monthlyData->count();
+
+                $yearStats['monthly_data'][] = [
+                    'month' => $month,
+                    'month_name' => date('M', mktime(0, 0, 0, $month, 1)),
+                    'receive_count' => $count,
+                    'average_duration' => $count > 0 ? round($monthlyData->avg('duration1'), 1) : 0
+                ];
+            }
+
+            $data[] = $yearStats;
+        }
+
+        return $data;
     }
 }

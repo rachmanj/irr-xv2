@@ -239,7 +239,12 @@ class AdditionalDocumentController extends Controller
             }
         }
 
-        return $data;
+        $totalCount = array_sum(array_column($data, 'count'));
+
+        return [
+            'data' => $data,
+            'total_count' => $totalCount,
+        ];
     }
 
     public function searchData(Request $request)

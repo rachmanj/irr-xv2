@@ -28,8 +28,8 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->string('status', 20)->default('open'); // pending / return / sap / payment / close / cancel
             $table->foreignId('created_by')->constrained('users');
-            $table->integer('duration1')->nullable(); // duration from receive_date to send_date
-            $table->integer('duration2')->nullable(); // duration from receive by BO to payment_date
+            $table->integer('duration1')->nullable(); // duration from receive_date to send_date/ accounting process
+            $table->integer('duration2')->nullable(); // duration from receive by BO to payment_date / finance process
             $table->string('flag', 30)->nullable();
             $table->timestamps();
         });

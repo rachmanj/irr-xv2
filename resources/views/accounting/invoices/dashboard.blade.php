@@ -13,39 +13,21 @@
         <div class="col-12">
             <x-acc-invoice-links page='dashboard' />
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Summary</h5>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-sm table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Desc</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Orphan</td>
-                                <td>25</td>
-                            </tr>
-                            <tr>
-                                <td>Belum diterima</td>
-                                <td>25</td>
-                            </tr>
-                            <tr>
-                                <td>Belum diinput</td>
-                                <td>25</td>
-                            </tr>
-                            <tr>
-                                <td>Data baru diupload</td>
-                                <td>25</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="row">
+                <div class="col-12">
+                    @include('accounting.invoices.dashboard.summary')
                 </div>
             </div>
+
+            {{-- <div class="row">
+                <div class="col-6">
+                    @include('accounting.invoices.dashboard.dashb1')
+                </div>
+                <div class="col-6">
+                    @include('accounting.invoices.dashboard.dashb2')
+                </div>
+            </div> --}}
+
         </div>
     </div>
 @endsection
