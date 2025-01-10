@@ -206,8 +206,7 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label for="remarks">Remarks</label>
-                                    <input type="text" name="remarks" id="remarks" class="form-control"
-                                        value="{{ old('remarks') }}">
+                                    <textarea name="remarks" id="remarks" class="form-control">{{ old('remarks') }}</textarea>
                                 </div>
                             </div>
                         </div>

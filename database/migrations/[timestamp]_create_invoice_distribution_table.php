@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('spi_invoice', function (Blueprint $table) {
+        Schema::create('invoice_distribution', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('spi_id')->constrained('spis')->onDelete('cascade');
             $table->foreignId('invoice_id')->constrained('invoices')->onDelete('cascade');
+            $table->foreignId('distribution_id')->constrained('distributions')->onDelete('cascade');
+            $table->decimal('amount', 15, 2);
             $table->timestamps();
+
+            // Optional: Add unique constraint to prevent duplicate entries
+            $table->unique(['invoice_id', 'distribution_id']);
         });
     }
 
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('spi_invoice');
+        Schema::dropIfExists('invoice_distribution');
     }
 };

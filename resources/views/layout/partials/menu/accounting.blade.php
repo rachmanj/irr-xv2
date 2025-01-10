@@ -6,6 +6,6 @@
                 class="dropdown-item">Invoices</a></li>
         <li><a href="{{ route('accounting.additional-documents.index', ['page' => 'dashboard']) }}"
                 class="dropdown-item">Additional Documents</a></li>
-        <li><a href="#" class="dropdown-item">SPI</a></li>
+        <li><a href="{{ route('accounting.spi.index', ['page' => 'dashboard']) }}" class="dropdown-item">SPI</a></li>
     </ul>
 </li>

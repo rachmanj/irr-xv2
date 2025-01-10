@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Accounting\AdditionalDocumentController;
 use App\Http\Controllers\Accounting\InvoiceController;
+use App\Http\Controllers\Accounting\SpiController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('accounting')->name('accounting.')->group(function () {
@@ -12,11 +13,17 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
         Route::resource('/', InvoiceController::class)->parameters(['' => 'invoice']);
     });
 
-
     // ADDITIONAL DOCUMENTS
     Route::prefix('additional-documents')->name('additional-documents.')->group(function () {
         Route::get('data', [AdditionalDocumentController::class, 'data'])->name('data');
         Route::get('search', [AdditionalDocumentController::class, 'searchData'])->name('search');
         Route::resource('/', AdditionalDocumentController::class)->parameters(['' => 'additionalDocument']);
+    });
+
+    // SPI
+    Route::prefix('spi')->name('spi.')->group(function () {
+        Route::get('data', [SpiController::class, 'data'])->name('data');
+        Route::get('search', [SpiController::class, 'searchData'])->name('search');
+        Route::resource('/', SpiController::class)->parameters(['' => 'spi']);
     });
 });

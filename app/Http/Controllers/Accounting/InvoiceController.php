@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Supplier;
 use App\Models\InvoiceType;
+use App\Models\AdditionalDocumentType;
 
 class InvoiceController extends Controller
 {
@@ -97,9 +98,9 @@ class InvoiceController extends Controller
         return redirect()->route('accounting.invoices.index', ['page' => 'create']);
     }
 
-    public function edit($id)
+    public function edit(Invoice $invoice)
     {
-        $invoice = Invoice::findOrFail($id);
+        $documentTypes = AdditionalDocumentType::orderBy('type_name')->get();
         $projects = Project::all();
         $suppliers = Supplier::all();
         $invoiceTypes = InvoiceType::all();
@@ -111,27 +112,28 @@ class InvoiceController extends Controller
             ->get();
 
         $invoiceAdditionalDocuments = AdditionalDocument::with('documentType')
-            ->where('invoice_id', $id)
+            ->where('invoice_id', $invoice->id)
             ->get();
 
         $additionalDocuments = $orphanAdditionalDocuments->merge($invoiceAdditionalDocuments);
 
         // Get IDs of documents already connected to this invoice
-        $connectedDocumentIds = AdditionalDocument::where('invoice_id', $id)
+        $connectedDocumentIds = AdditionalDocument::where('invoice_id', $invoice->id)
             ->pluck('id')
             ->toArray();
 
         $invoice->invoice_date = \Carbon\Carbon::parse($invoice->invoice_date);
         $invoice->receive_date = \Carbon\Carbon::parse($invoice->receive_date);
 
-        return view('accounting.invoices.edit', compact([
+        return view('accounting.invoices.edit', compact(
             'invoice',
+            'additionalDocuments',
+            'connectedDocumentIds',
+            'documentTypes',
             'projects',
             'suppliers',
-            'invoiceTypes',
-            'additionalDocuments',
-            'connectedDocumentIds'
-        ]));
+            'invoiceTypes'
+        ));
     }
 
     public function update(Request $request, $id)
@@ -326,5 +328,19 @@ class InvoiceController extends Controller
         }
 
         return $data;
+    }
+
+    public function getCompleteInvoices()
+    {
+        return Invoice::with(['additionalDocuments' => function ($query) {
+            $query->whereNotNull('receive_date');
+        }])
+            ->whereHas('additionalDocuments', function ($query) {
+                $query->whereNotNull('receive_date');
+            })
+            ->whereDoesntHave('additionalDocuments', function ($query) {
+                $query->whereNull('receive_date');
+            })
+            ->get();
     }
 }

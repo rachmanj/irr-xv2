@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('lpds', function (Blueprint $table) {
             $table->id();
+            $table->string('lpd_number', 50)->unique();
+            $table->date('date');
+            $table->string('origin', 20); // project code
+            $table->string('destination', 20); // project code
+            $table->string('person1', 50)->nullable();
+            $table->string('person2', 50)->nullable();
+            $table->foreignId('created_by')->constrained('users');
+            $table->dateTime('received_at')->nullable();
+            $table->foreignId('received_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }

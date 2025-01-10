@@ -42,7 +42,7 @@ class AdditionalDocumentController extends Controller
         return view($views[$page]);
     }
 
-    public function store(Request $request)
+    public function store_old(Request $request)
     {
         $validatedData = $request->validate([
             'type_id' => 'required|string|max:255',
@@ -289,5 +289,34 @@ class AdditionalDocumentController extends Controller
                 }
             })
             ->toJson();
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'type_id' => 'required|exists:additional_document_types,id',
+            'document_number' => 'required|string|max:255',
+            'document_date' => 'required|date',
+            'receive_date' => 'nullable|date',
+            'po_no' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string|max:255',
+            'invoice_id' => 'required|exists:invoices,id',
+        ]);
+
+        $validated['created_by'] = Auth::user()->id;
+
+        $additionalDocument = AdditionalDocument::create($validated);
+        saveLog('additional_document', $additionalDocument->id, 'create',  Auth::user()->id, 10);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $additionalDocument->id,
+                'document_type' => $additionalDocument->documentType->type_name,
+                'document_number' => $additionalDocument->document_number,
+                'document_date' => $additionalDocument->document_date,
+                'po_no' => $additionalDocument->po_no ?? '-',
+            ]
+        ]);
     }
 }
