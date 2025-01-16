@@ -11,7 +11,17 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
         Route::get('data', [InvoiceController::class, 'data'])->name('data');
         Route::get('/search', [InvoiceController::class, 'searchInvoices'])->name('search');
         Route::resource('/', InvoiceController::class)->parameters(['' => 'invoice']);
+
+        // Attachment routes
+        Route::post('{invoice}/upload-attachments', [InvoiceController::class, 'uploadAttachments'])
+            ->name('upload-attachments');
+
+        Route::get('{invoice}/attachments', [InvoiceController::class, 'getAttachments'])
+            ->name('get-attachments');
     });
+
+    Route::delete('attachments/{attachment}', [InvoiceController::class, 'deleteAttachment'])
+        ->name('attachments.destroy');
 
     // ADDITIONAL DOCUMENTS
     Route::prefix('additional-documents')->name('additional-documents.')->group(function () {

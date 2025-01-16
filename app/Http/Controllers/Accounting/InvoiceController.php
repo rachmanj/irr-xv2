@@ -12,6 +12,8 @@ use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Supplier;
 use App\Models\InvoiceType;
 use App\Models\AdditionalDocumentType;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Attachment;
 
 class InvoiceController extends Controller
 {
@@ -342,5 +344,67 @@ class InvoiceController extends Controller
                 $query->whereNull('receive_date');
             })
             ->get();
+    }
+
+    public function uploadAttachments(Request $request, Invoice $invoice)
+    {
+        $request->validate([
+            'attachments.*' => 'required|file|mimes:pdf,jpg,jpeg,png,gif|max:10240', // 10MB max
+        ]);
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('invoice-attachments', 'public');
+
+                $invoice->attachments()->create([
+                    'file_path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                    'uploaded_by' => Auth::user()->id,
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attachments uploaded successfully'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No files were uploaded'
+        ], 400);
+    }
+
+    public function deleteAttachment(Attachment $attachment)
+    {
+        try {
+            // Delete the file from storage
+            Storage::disk('public')->delete($attachment->file_path);
+
+            // Delete the database record
+            $attachment->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attachment deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting attachment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getAttachments(Invoice $invoice)
+    {
+        $attachments = $invoice->attachments()->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'attachments' => $attachments
+        ]);
     }
 }

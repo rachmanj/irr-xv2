@@ -26,11 +26,6 @@ class Invoice extends Model
         return $this->hasMany(AdditionalDocument::class);
     }
 
-    public function attachments(): HasMany
-    {
-        return $this->hasMany(InvoiceAttachment::class);
-    }
-
     public function invoiceType(): BelongsTo
     {
         return $this->belongsTo(InvoiceType::class, 'type_id');
@@ -39,5 +34,10 @@ class Invoice extends Model
     public function spi(): BelongsToMany
     {
         return $this->belongsToMany(Spi::class, 'spi_invoice');
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class);
     }
 }

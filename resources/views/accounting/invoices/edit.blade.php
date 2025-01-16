@@ -36,6 +36,11 @@
                                 Additional Documents
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="attachments-tab" data-toggle="tab" href="#attachments" role="tab">
+                                Attachments
+                            </a>
+                        </li>
                     </ul>
 
                     {{-- Tabs Content --}}
@@ -288,6 +293,53 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Attachments Tab --}}
+                        <div class="tab-pane fade" id="attachments" role="tabpanel">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <button type="button" class="btn btn-sm btn-success float-right"
+                                            data-toggle="modal" data-target="#uploadAttachmentsModal">
+                                            <i class="fas fa-upload"></i> Upload Attachments
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row" id="attachments-container">
+                                    @foreach ($invoice->attachments as $attachment)
+                                        <div class="col-md-3 col-sm-4 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-body p-2">
+                                                    <div class="text-center mb-2">
+                                                        @if (in_array(strtolower(pathinfo($attachment->file_path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
+                                                            <img src="{{ asset('storage/' . $attachment->file_path) }}"
+                                                                class="img-fluid" style="max-height: 100px;"
+                                                                alt="Attachment preview">
+                                                        @else
+                                                            <i class="fas fa-file fa-3x text-secondary"></i>
+                                                        @endif
+                                                    </div>
+                                                    <p class="small text-muted mb-1 text-truncate"
+                                                        title="{{ $attachment->original_name }}">
+                                                        {{ $attachment->original_name }}
+                                                    </p>
+                                                    <div class="btn-group btn-group-sm w-100">
+                                                        <a href="{{ asset('storage/' . $attachment->file_path) }}"
+                                                            class="btn btn-info" target="_blank">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <button type="button" class="btn btn-danger delete-attachment"
+                                                            data-attachment-id="{{ $attachment->id }}">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-footer">
@@ -298,6 +350,7 @@
         </div>
     </div>
     @include('accounting.invoices.edit._add_document_modal')
+    @include('accounting.invoices.edit._upload_attachments_modal')
 @endsection
 
 @section('styles')
@@ -325,12 +378,22 @@
 @endsection
 
 @section('scripts')
+    <script>
+        const asset_url = "{{ url('') }}";
+    </script>
     <!-- Select2 -->
     <script src="{{ asset('adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
     <!-- Toastr -->
     <script src="{{ asset('adminlte/plugins/toastr/toastr.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
+        // Add this at the start of your scripts
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         // Initialize toastr options if needed
         toastr.options = {
             "closeButton": true,
@@ -435,6 +498,153 @@
                         toastr.error('Error adding document');
                     }
                 });
+            });
+
+            // Function to refresh attachments content
+            function refreshAttachmentsTab(attachments) {
+                const container = $('#attachments-container');
+                container.empty();
+
+                attachments.forEach(attachment => {
+                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(
+                        attachment.file_path.split('.').pop().toLowerCase()
+                    );
+
+                    const preview = isImage ?
+                        `<img src="${asset_url}/storage/${attachment.file_path}" 
+                              class="img-fluid" style="max-height: 100px;" 
+                              alt="Attachment preview">` :
+                        `<i class="fas fa-file fa-3x text-secondary"></i>`;
+
+                    const attachmentHtml = `
+                        <div class="col-md-3 col-sm-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body p-2">
+                                    <div class="text-center mb-2">
+                                        ${preview}
+                                    </div>
+                                    <p class="small text-muted mb-1 text-truncate" 
+                                       title="${attachment.original_name}">
+                                        ${attachment.original_name}
+                                    </p>
+                                    <div class="btn-group btn-group-sm w-100">
+                                        <a href="${asset_url}/storage/${attachment.file_path}" 
+                                           class="btn btn-info" target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-danger delete-attachment" 
+                                                data-attachment-id="${attachment.id}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(attachmentHtml);
+                });
+
+                // Reattach delete event handlers
+                attachDeleteHandlers();
+            }
+
+            // Function to attach delete handlers
+            function attachDeleteHandlers() {
+                $('.delete-attachment').on('click', function() {
+                    if (confirm('Are you sure you want to delete this attachment?')) {
+                        const attachmentId = $(this).data('attachment-id');
+                        deleteAttachment(attachmentId);
+                    }
+                });
+            }
+
+            // Function to delete attachment
+            function deleteAttachment(attachmentId) {
+                $.ajax({
+                    url: '{{ route('accounting.attachments.destroy', '') }}/' + attachmentId,
+                    method: 'DELETE',
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success('Attachment deleted successfully');
+
+                            // Fetch updated attachments
+                            fetchAttachments();
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.error('Error deleting attachment: ' + xhr.responseJSON.message);
+                    }
+                });
+            }
+
+            // Function to fetch current attachments
+            function fetchAttachments() {
+                $.ajax({
+                    url: '{{ route('accounting.invoices.get-attachments', $invoice->id) }}',
+                    method: 'GET',
+                    success: function(response) {
+                        refreshAttachmentsTab(response.attachments);
+                    },
+                    error: function(xhr) {
+                        toastr.error('Error fetching attachments');
+                    }
+                });
+            }
+
+            // Handle attachment upload
+            $('#uploadAttachmentsForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const $form = $(this); // Store reference to the form
+
+                $.ajax({
+                    url: '{{ route('accounting.invoices.upload-attachments', $invoice->id) }}',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success('Attachments uploaded successfully');
+                            $('#uploadAttachmentsModal').modal('hide');
+                            $form[0].reset(); // Use stored form reference
+                            $('.custom-file-label').html('Choose files');
+                            $('#selected-files').empty();
+
+                            // Fetch updated attachments
+                            fetchAttachments();
+
+                            // Switch to attachments tab
+                            $('#attachments-tab').tab('show');
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.error('Error uploading attachments: ' + xhr.responseJSON
+                            .message);
+                    }
+                });
+            });
+
+            // Initial attachment of delete handlers
+            attachDeleteHandlers();
+
+            // Add this before the upload handler
+            $('#attachments').on('change', function() {
+                const files = $(this)[0].files;
+                const fileList = $('#selected-files');
+                fileList.empty();
+
+                for (let i = 0; i < files.length; i++) {
+                    fileList.append('<div class="small">' + files[i].name + '</div>');
+                }
+
+                if (files.length > 0) {
+                    $(this).next('.custom-file-label').html(files.length + ' files selected');
+                } else {
+                    $(this).next('.custom-file-label').html('Choose files');
+                }
             });
         });
     </script>
