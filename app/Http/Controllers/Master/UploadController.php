@@ -12,12 +12,11 @@ class UploadController extends Controller
 {
     public function index()
     {
-        $page = request()->query('page', 'ito');
+        $page = request()->query('page', 'dashboard');
 
         $views = [
             'dashboard' => 'master.upload.dashboard',
-            'ito' => 'master.upload.ito',
-            'list' => 'master.upload.list',
+            'search' => 'master.upload.search',
         ];
 
         return view($views[$page]);

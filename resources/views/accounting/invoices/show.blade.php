@@ -39,10 +39,10 @@
 
                 <div class="card-body">
                     <div class="tab-content">
-                        @include('accounting.invoices.tabs.details')
-                        @include('accounting.invoices.tabs.additional_docs')
-                        @include('accounting.invoices.tabs.distribution')
-                        @include('accounting.invoices.tabs.attachments')
+                        @include('accounting.invoices.show.details')
+                        @include('accounting.invoices.show.additional_docs')
+                        @include('accounting.invoices.show.distribution')
+                        @include('accounting.invoices.show.attachments')
                     </div>
                 </div>
 

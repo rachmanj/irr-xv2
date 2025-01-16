@@ -32,7 +32,8 @@ Route::prefix('master')->name('master.')->group(function () {
         Route::get('/', [UploadController::class, 'index'])->name('index');
         Route::prefix('ito')->name('ito.')->group(function () {
             Route::get('/data', [ItoController::class, 'data'])->name('data');
-            Route::post('/ito-upload', [ItoController::class, 'upload'])->name('upload');
+            Route::post('/upload', [ItoController::class, 'upload'])->name('upload');
+            Route::get('/search-data', [ItoController::class, 'searchData'])->name('search.data');
         });
     });
 });

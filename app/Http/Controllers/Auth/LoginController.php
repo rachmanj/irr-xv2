@@ -20,6 +20,8 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
+        $credentials['is_active'] = 1;
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
@@ -27,7 +29,7 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
+            'username' => 'The provided credentials do not match our records or the account is inactive.',
         ]);
     }
 

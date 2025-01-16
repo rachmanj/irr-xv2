@@ -191,7 +191,8 @@
                     },
                     {
                         data: 'formatted_amount',
-                        name: 'amount'
+                        name: 'amount',
+                        className: 'text-right'
                     },
                     {
                         data: 'action',

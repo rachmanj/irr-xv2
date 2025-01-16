@@ -47,7 +47,8 @@
         $(document).ready(function() {
             $('#check-target').on('click', function() {
                 $.ajax({
-                    url: "http://payreq-one.local/api/customers",
+                    // url: "http://payreq-one.local/api/customers",
+                    url: "http://192.168.32.17/payreq-x-v3/api/customers",
                     type: 'GET',
                     success: function(response) {
                         $('dd:eq(0)').text(response.customer_count);
@@ -61,7 +62,8 @@
 
             $('#import-data').on('click', function() {
                 $.ajax({
-                    url: "http://payreq-one.local/api/customers",
+                    // url: "http://payreq-one.local/api/customers",
+                    url: "http://192.168.32.17/payreq-x-v3/api/customers",
                     type: 'GET',
                     success: function(response) {
                         $.ajax({

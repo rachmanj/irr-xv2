@@ -297,7 +297,7 @@
             </div>
         </div>
     </div>
-    @include('accounting.invoices._add_document_modal')
+    @include('accounting.invoices.edit._add_document_modal')
 @endsection
 
 @section('styles')
