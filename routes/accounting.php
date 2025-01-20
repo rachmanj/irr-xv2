@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Accounting\AdditionalDocumentController;
+use App\Http\Controllers\Accounting\DeliveryController;
 use App\Http\Controllers\Accounting\InvoiceController;
+use App\Http\Controllers\Accounting\LpdController;
 use App\Http\Controllers\Accounting\SpiController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +35,27 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
     // SPI
     Route::prefix('spi')->name('spi.')->group(function () {
         Route::get('data', [SpiController::class, 'data'])->name('data');
+        Route::get('ready-to-deliver/data', [SpiController::class, 'readyToDeliverData'])
+            ->name('ready-to-deliver.data');
         Route::get('search', [SpiController::class, 'searchData'])->name('search');
         Route::resource('/', SpiController::class)->parameters(['' => 'spi']);
+    });
+
+    // LPD
+    Route::prefix('lpd')->name('lpd.')->group(function () {
+        Route::get('data', [LpdController::class, 'data'])->name('data');
+        Route::get('search', [LpdController::class, 'searchData'])->name('search');
+        Route::resource('/', LpdController::class)->parameters(['' => 'lpd']);
+    });
+
+    // DELIVERIES -- NOT USEd
+    Route::prefix('deliveries')->name('deliveries.')->group(function () {
+        Route::resource('/', DeliveryController::class)->parameters(['' => 'delivery']);
+        Route::post('{delivery}/receive', [DeliveryController::class, 'markAsReceived'])
+            ->name('receive');
+        Route::get('{delivery}/show', [DeliveryController::class, 'show'])
+            ->name('show');
+        Route::get('/ready-to-deliver/data', [DeliveryController::class, 'readyToDeliverData'])
+            ->name('ready-to-deliver.data');
     });
 });

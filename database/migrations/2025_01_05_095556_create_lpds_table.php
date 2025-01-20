@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lpds', function (Blueprint $table) {
             $table->id();
-            $table->string('lpd_number', 50)->unique();
+            $table->string('nomor', 50)->unique();
             $table->date('date');
             $table->string('origin', 20); // project code
             $table->string('destination', 20); // project code
@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users');
             $table->dateTime('received_at')->nullable();
             $table->foreignId('received_by')->nullable()->constrained('users');
+            $table->date('received_date')->nullable();
             $table->timestamps();
         });
     }

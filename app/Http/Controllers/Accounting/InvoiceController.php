@@ -80,6 +80,7 @@ class InvoiceController extends Controller
         $invoice->invoice_project = $request->invoice_project; // Added field
         $invoice->payment_project = $request->payment_project; // Added field
         $invoice->remarks = $request->remarks; // Added field for remarks
+        $invoice->cur_loc = $request->receive_project;
         $invoice->created_by = Auth::user()->id;
         $invoice->save();
 
@@ -365,6 +366,7 @@ class InvoiceController extends Controller
                 ]);
             }
 
+            saveLog('invoice', $invoice->id, 'upload-attachments', Auth::user()->id, 15);
             return response()->json([
                 'success' => true,
                 'message' => 'Attachments uploaded successfully'
@@ -406,5 +408,26 @@ class InvoiceController extends Controller
             'success' => true,
             'attachments' => $attachments
         ]);
+    }
+
+    public function getReadyToDeliverInvoices()
+    {
+        // Get invoices where all additional documents have receive_date and status open
+        $invoicesWithDocuments = Invoice::whereHas('additionalDocuments')
+            ->whereDoesntHave('additionalDocuments', function ($query) {
+                $query->whereNull('receive_date')
+                    ->orWhere('status', '!=', 'open');
+            })
+            ->get();
+
+        // Get invoices that have no additional documents and are not in deliveries
+        $invoicesWithoutDocuments = Invoice::doesntHave('additionalDocuments')
+            ->whereDoesntHave('deliveries')
+            ->get();
+
+        // Merge both collections
+        $readyToDeliverInvoices = $invoicesWithDocuments->merge($invoicesWithoutDocuments);
+
+        return $readyToDeliverInvoices;
     }
 }

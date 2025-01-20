@@ -9,7 +9,8 @@ class TestController extends Controller
 {
     public function index()
     {
-        $test = app(InvoiceController::class)->monthly_summary();
+
+        $test = app(InvoiceController::class)->getReadyToDeliverInvoices();
 
         return $test;
     }

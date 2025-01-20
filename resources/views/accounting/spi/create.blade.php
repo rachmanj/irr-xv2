@@ -10,52 +10,69 @@
 
             <x-acc-spi-links page='create' />
 
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDistributionModal">
+            {{-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDistributionModal">
                 Create New Distribution
-            </button>
+            </button> --}}
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Select Invoices to Deliver</h5>
+                </div>
+                <div class="card-body">
+                    <table id="invoices-table" class="table table-sm table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="select-all">
+                                </th>
+                                <th>Inv No</th>
+                                <th>Inv Date</th>
+                                <th>Rcv Date</th>
+                                <th>Vendor</th>
+                                <th>Project</th>
+                                <th>Days</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <button type="button" class="btn btn-sm btn-primary" id="create-spi-btn" disabled>
+                        Create SPI
+                    </button>
+                </div>
+            </div>
 
         </div>
     </div>
 
-    <div class="modal fade" id="createDistributionModal" tabindex="-1" role="dialog"
-        aria-labelledby="createDistributionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document"> <!-- Changed to modal-lg for a larger modal -->
+    <!-- Create SPI Modal -->
+    <div class="modal fade" id="createSpiModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createDistributionModalLabel">Create New Distribution</h5>
+                    <h5 class="modal-title">Create New SPI</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('accounting.spi.store') }}" method="POST">
+                <form id="spi-form" action="{{ route('accounting.spi.store') }}" method="POST">
                     @csrf
                     <div class="modal-body">
+                        <!-- Hidden input for selected invoices -->
+                        <input type="hidden" name="invoices" id="selected-invoices">
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="distribution_number">Distribution Number <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text"
-                                        class="form-control @error('distribution_number') is-invalid @enderror"
-                                        id="distribution_number" name="distribution_number"
-                                        value="{{ old('distribution_number') }}" required>
-                                    @error('distribution_number')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <label>SPI Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="spi_number" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="type">Type <span class="text-danger">*</span></label>
-                                    <select class="form-control @error('type') is-invalid @enderror" id="type"
-                                        name="type" required>
-                                        <option value="">-- Select Type --</option>
-                                        <option value="SPI" {{ old('type') == 'SPI' ? 'selected' : '' }}>SPI</option>
-                                        <option value="LPD" {{ old('type') == 'LPD' ? 'selected' : '' }}>LPD</option>
-                                    </select>
-                                    @error('type')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <label>Date <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" name="date" value="{{ date('Y-m-d') }}"
+                                        required>
                                 </div>
                             </div>
                         </div>
@@ -63,51 +80,29 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="date">Date <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control @error('date') is-invalid @enderror"
-                                        id="date" name="date" value="{{ old('date', date('Y-m-d')) }}" required>
-                                    @error('date')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="origin">Origin Project <span class="text-danger">*</span></label>
-                                    <select class="form-control select2bs4 @error('origin') is-invalid @enderror"
-                                        id="origin" name="origin" required>
-                                        <option value="">-- Select Origin Project --</option>
+                                    <label>Origin Project <span class="text-danger">*</span></label>
+                                    <select class="form-control select2bs4" name="origin" required>
+                                        <option value="">Select Project</option>
                                         @foreach ($projects as $project)
                                             <option value="{{ $project->code }}"
-                                                {{ old('origin', '000H') == $project->code ? 'selected' : '' }}>
+                                                {{ $project->code === '000H' ? 'selected' : '' }}>
                                                 {{ $project->code }} - {{ $project->name }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('origin')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="destination">Destination Project <span class="text-danger">*</span></label>
-                                    <select class="form-control select2bs4 @error('destination') is-invalid @enderror"
-                                        id="destination" name="destination" required>
-                                        <option value="">-- Select Destination Project --</option>
+                                    <label>Destination Project <span class="text-danger">*</span></label>
+                                    <select class="form-control select2bs4" name="destination" required>
+                                        <option value="">Select Project</option>
                                         @foreach ($projects as $project)
-                                            <option value="{{ $project->code }}"
-                                                {{ old('destination', '001H') == $project->code ? 'selected' : '' }}>
+                                            <option value="{{ $project->code }}">
                                                 {{ $project->code }} - {{ $project->name }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('destination')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -115,29 +110,22 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="person1">Person 1</label>
-                                    <input type="text" class="form-control @error('person1') is-invalid @enderror"
-                                        id="person1" name="person1" value="{{ old('person1') }}">
-                                    @error('person1')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <label>Person 1</label>
+                                    <input type="text" class="form-control" name="person1">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="person2">Person 2</label>
-                                    <input type="text" class="form-control @error('person2') is-invalid @enderror"
-                                        id="person2" name="person2" value="{{ old('person2') }}">
-                                    @error('person2')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <label>Person 2</label>
+                                    <input type="text" class="form-control" name="person2">
                                 </div>
                             </div>
                         </div>
+
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Create SPI</button>
                     </div>
                 </form>
             </div>
@@ -146,6 +134,11 @@
 @endsection
 
 @section('styles')
+    <!-- DataTables -->
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('adminlte/plugins/datatables/css/datatables.min.css') }}" />
     <!-- Select2 -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
@@ -154,18 +147,194 @@
             color: black;
             text-transform: uppercase;
         }
+
+        .document-details {
+            background-color: #f8f9fa;
+        }
+
+        tr.document-details {
+            display: none;
+            /* Initial state */
+        }
+
+        tr.has-details {
+            cursor: pointer;
+        }
+
+        tr.has-details:hover {
+            background-color: #f5f5f5;
+        }
+
+        tr.details-shown {
+            background-color: #f0f0f0;
+        }
+
+        /* Ensure the details row takes full width */
+        tr.document-details td {
+            padding: 1rem;
+        }
+
+        /* Add a subtle border to separate the details */
+        tr.document-details {
+            border-top: 2px solid #dee2e6;
+        }
     </style>
 @endsection
 
 @section('scripts')
+    <!-- DataTables  & Plugins -->
+    <script src="{{ asset('adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables/datatables.min.js') }}"></script>
     <!-- Select2 -->
     <script src="{{ asset('adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
     <script>
-        $(function() {
-            //Initialize Select2 Elements
+        $(document).ready(function() {
+            // initialize select2
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             });
+
+            const table = $('#invoices-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '{{ route('accounting.spi.ready-to-deliver.data') }}',
+                columns: [{
+                        data: null,
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `<input type="checkbox" class="invoice-checkbox" value="${row.id}">`;
+                        }
+                    },
+                    {
+                        data: 'invoice_number'
+                    },
+                    {
+                        data: 'invoice_date'
+                    },
+                    {
+                        data: 'receive_date'
+                    },
+                    {
+                        data: 'supplier_name'
+                    },
+                    {
+                        data: 'invoice_project'
+                    },
+                    {
+                        data: 'days'
+                    }
+                ],
+                order: [
+                    [1, 'asc']
+                ],
+                drawCallback: function(settings) {
+                    // After table is drawn, reapply the detail rows
+                    const api = this.api();
+                    const rows = api.rows().nodes();
+
+                    $(rows).each(function() {
+                        const $row = $(this);
+                        const data = api.row($row).data();
+
+                        if (data && data.additional_documents && Array.isArray(data
+                                .additional_documents) &&
+                            data.additional_documents.length > 0) {
+
+                            // Remove any existing details row
+                            $row.next('.document-details').remove();
+
+                            let documentsHtml = `
+                                <tr class="document-details" data-parent="${data.id}">
+                                    <td colspan="7">
+                                        <div class="pl-5 py-2 bg-light">
+                                            <h6 class="mb-2"><strong>Additional Documents:</strong></h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-borderless mb-0">
+                                                    <thead class="text-muted">
+                                                        <tr>
+                                                            <th>Type</th>
+                                                            <th>Number</th>
+                                                            <th>Document Date</th>
+                                                            <th>Receive Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        ${data.additional_documents.map(doc => `
+                                                                <tr>
+                                                                    <td><span class="badge badge-info">${doc.type || ''}</span></td>
+                                                                    <td>${doc.number || ''}</td>
+                                                                    <td>${doc.document_date || ''}</td>
+                                                                    <td>${doc.receive_date || ''}</td>
+                                                                </tr>
+                                                            `).join('')}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>`;
+
+                            $row.after(documentsHtml);
+                            $row.addClass('has-details');
+
+                            // If this row was previously expanded, show the details
+                            if ($row.hasClass('details-shown')) {
+                                $row.next('.document-details').show();
+                            } else {
+                                $row.next('.document-details').hide();
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Update the click handler
+            $('#invoices-table tbody').on('click', 'tr', function(e) {
+                const $clickedRow = $(this);
+
+                // Don't trigger for document detail rows or checkbox clicks
+                if ($clickedRow.hasClass('document-details') || $(e.target).is(':checkbox')) {
+                    return;
+                }
+
+                const $detailsRow = $clickedRow.next('.document-details');
+
+                if ($detailsRow.length) {
+                    $detailsRow.toggle();
+                    $clickedRow.toggleClass('details-shown');
+                }
+            });
+
+            // Handle select all checkbox
+            $('#select-all').on('change', function() {
+                $('.invoice-checkbox').prop('checked', $(this).prop('checked'));
+                updateCreateButton();
+            });
+
+            // Handle individual checkbox changes
+            $('#invoices-table').on('change', '.invoice-checkbox', function() {
+                updateCreateButton();
+            });
+
+            // Update create button state
+            function updateCreateButton() {
+                const checkedCount = $('.invoice-checkbox:checked').length;
+                $('#create-spi-btn').prop('disabled', checkedCount === 0);
+            }
+
+            // Handle create delivery button click
+            $('#create-spi-btn').on('click', function() {
+                const selectedInvoices = $('.invoice-checkbox:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                $('#selected-invoices').val(JSON.stringify(selectedInvoices));
+                $('#createSpiModal').modal('show');
+            });
+
         });
     </script>
 @endsection

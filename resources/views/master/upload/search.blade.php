@@ -15,6 +15,7 @@
 
             <div class="card">
                 <div class="card-header">
+                    <h5 class="card-title">Search ITO</h5>
                     <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal"
                         data-target="#uploadModal">
                         Upload File
@@ -107,8 +108,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Upload</button>
                     </div>
                 </form>
             </div>

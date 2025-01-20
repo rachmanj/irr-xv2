@@ -51,7 +51,8 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label for="supplier_id">Select Vendor</label>
+                                            <label for="supplier_id">Select Vendor <span
+                                                    class="text-danger">*</span></label>
                                             <select name="supplier_id" id="supplier_id" class="form-control select2bs4">
                                                 <option value="">Select Vendor</option>
                                                 @foreach (App\Models\Supplier::where('type', 'vendor')->where('is_active', 1)->orderBy('name', 'asc')->get() as $supplier)
@@ -70,7 +71,8 @@
                                 <div class="row">
                                     <div class="col-3">
                                         <div class="form-group">
-                                            <label for="invoice_type">Invoice Type</label>
+                                            <label for="invoice_type">Invoice Type <span
+                                                    class="text-danger">*</span></label>
                                             <select name="invoice_type" id="invoice_type" class="form-control select2bs4">
                                                 <option value="">Select Type</option>
                                                 @foreach (App\Models\InvoiceType::orderBy('type_name', 'asc')->get() as $invoiceType)
@@ -87,7 +89,8 @@
                                     </div>
                                     <div class="col-5">
                                         <div class="form-group">
-                                            <label for="invoice_number">Invoice Number</label>
+                                            <label for="invoice_number">Invoice Number <span
+                                                    class="text-danger">*</span></label>
                                             <input type="text" name="invoice_number" id="invoice_number"
                                                 class="form-control @error('invoice_number') is-invalid @enderror"
                                                 value="{{ old('invoice_number', $invoice->invoice_number) }}">
@@ -115,7 +118,8 @@
                                 <div class="row">
                                     <div class="col-3">
                                         <div class="form-group">
-                                            <label for="invoice_date">Invoice Date</label>
+                                            <label for="invoice_date">Invoice Date <span
+                                                    class="text-danger">*</span></label>
                                             <input type="date" name="invoice_date" id="invoice_date" class="form-control"
                                                 value="{{ old('invoice_date', $invoice->invoice_date->format('Y-m-d')) }}">
                                             @error('invoice_date')
@@ -125,7 +129,8 @@
                                     </div>
                                     <div class="col-3">
                                         <div class="form-group">
-                                            <label for="receive_date">Receive Date</label>
+                                            <label for="receive_date">Receive Date <span
+                                                    class="text-danger">*</span></label>
                                             <input type="date" name="receive_date" id="receive_date" class="form-control"
                                                 value="{{ old('receive_date', $invoice->receive_date->format('Y-m-d')) }}">
                                             @error('receive_date')
@@ -137,7 +142,7 @@
                                         <div class="row">
                                             <div class="col-3">
                                                 <div class="form-group">
-                                                    <label for="currency">Curr</label>
+                                                    <label for="currency">Curr <span class="text-danger">*</span></label>
                                                     <select name="currency" id="currency" class="form-control">
                                                         <option value="IDR"
                                                             {{ old('currency', $invoice->currency) == 'IDR' ? 'selected' : '' }}>
@@ -152,7 +157,8 @@
                                             </div>
                                             <div class="col-9">
                                                 <div class="form-group">
-                                                    <label for="amount">Amount</label>
+                                                    <label for="amount">Amount <span
+                                                            class="text-danger">*</span></label>
                                                     <input type="text" name="amount" id="amount"
                                                         class="form-control"
                                                         value="{{ old('amount', number_format($invoice->amount, 2, '.', ',')) }}"
@@ -187,7 +193,8 @@
                                 <div class="row">
                                     <div class="col-4">
                                         <div class="form-group">
-                                            <label for="receive_project">Received in</label>
+                                            <label for="receive_project">Received in <span
+                                                    class="text-danger">*</span></label>
                                             <select name="receive_project" id="receive_project"
                                                 class="form-control select2bs4">
                                                 <option value="000H"
@@ -204,7 +211,8 @@
                                     </div>
                                     <div class="col-4">
                                         <div class="form-group">
-                                            <label for="invoice_project">For Project</label>
+                                            <label for="invoice_project">For Project <span
+                                                    class="text-danger">*</span></label>
                                             <select name="invoice_project" id="invoice_project"
                                                 class="form-control select2bs4">
                                                 <option value="000H"
@@ -221,7 +229,8 @@
                                     </div>
                                     <div class="col-4">
                                         <div class="form-group">
-                                            <label for="payment_project">Payment in</label>
+                                            <label for="payment_project">Payment in <span
+                                                    class="text-danger">*</span></label>
                                             <select name="payment_project" id="payment_project"
                                                 class="form-control select2bs4">
                                                 <option value="">Select Project</option>
@@ -267,6 +276,7 @@
                                                     <td class="py-1">DocType</td>
                                                     <td class="py-1">DocNum</td>
                                                     <td class="py-1">DocDate</td>
+                                                    <td class="py-1">ReceiveDate</td>
                                                     <td class="py-1">PO No</td>
                                                     <td class="py-1">checkbox</td>
                                                 </tr>
@@ -279,7 +289,8 @@
                                                         </td>
                                                         <td>{{ $additionalDocument->document_number }}</td>
                                                         <td>{{ $additionalDocument->document_date }}</td>
-                                                        <td>{{ $additionalDocument->po_no }}</td>
+                                                        <td>{{ $additionalDocument->receive_date ?? '-' }}</td>
+                                                        <td>{{ $additionalDocument->po_no ?? '-' }}</td>
                                                         <td>
                                                             <input type="checkbox" name="selected_documents[]"
                                                                 value="{{ $additionalDocument->id }}"
@@ -359,7 +370,7 @@
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
     <!-- Toastr -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/toastr/toastr.min.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"> --}}
     <style>
         .nav-tabs .nav-link.active {
             font-weight: bold;

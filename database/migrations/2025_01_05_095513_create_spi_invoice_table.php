@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('spi_invoice', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('spi_id');
-            $table->unsignedBigInteger('invoice_id');
+            $table->foreignId('spi_id');
+            $table->foreignId('invoice_id');
+            $table->unique(['spi_id', 'invoice_id']);
             $table->timestamps();
 
             $table->foreign('spi_id')

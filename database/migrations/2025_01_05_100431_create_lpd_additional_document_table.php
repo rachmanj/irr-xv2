@@ -14,13 +14,18 @@ return new class extends Migration
         Schema::create('lpd_additional_document', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('lpd_id');
-            $table->foreignId('additional_document_id')->constrained('additional_documents')->onDelete('cascade');
+            $table->foreignId('additional_document_id');
             $table->unique(['lpd_id', 'additional_document_id']); // Ensure unique combination of lpd_id and additional_document_id
             $table->timestamps();
 
             $table->foreign('lpd_id')
                 ->references('id')
                 ->on('lpds')
+                ->onDelete('cascade');
+
+            $table->foreign('additional_document_id')
+                ->references('id')
+                ->on('additional_documents')
                 ->onDelete('cascade');
         });
     }

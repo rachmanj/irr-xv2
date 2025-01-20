@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Invoice extends Model
 {
@@ -21,7 +22,7 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function additionalDocuments(): HasMany
+    public function additionalDocuments()
     {
         return $this->hasMany(AdditionalDocument::class);
     }
@@ -31,13 +32,13 @@ class Invoice extends Model
         return $this->belongsTo(InvoiceType::class, 'type_id');
     }
 
-    public function spi(): BelongsToMany
-    {
-        return $this->belongsToMany(Spi::class, 'spi_invoice');
-    }
-
     public function attachments()
     {
         return $this->hasMany(Attachment::class);
+    }
+
+    public function deliveries(): MorphToMany
+    {
+        return $this->morphToMany(Delivery::class, 'documentable', 'delivery_documents');
     }
 }

@@ -33,6 +33,9 @@
         <dt class="col-sm-4">Payment in</dt>
         <dd class="col-sm-8">: {{ $invoice->payment_project }}</dd>
 
+        <dt class="col-sm-4">Current Location</dt>
+        <dd class="col-sm-8">: {{ $invoice->cur_loc }}</dd>
+
         <dt class="col-sm-4">Remarks</dt>
         <dd class="col-sm-8">: {{ $invoice->remarks }}</dd>
 

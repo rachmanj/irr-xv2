@@ -22,9 +22,10 @@ return new class extends Migration
             $table->date('receive_date')->nullable();
             $table->foreignId('created_by')->constrained('users');
             $table->string('attachment')->nullable();
+            $table->string('remarks')->nullable();
             $table->string('flag', 30)->nullable();
             $table->string('status', 20)->default('open');
-            $table->string('remarks')->nullable();
+            $table->string('cur_loc', 30)->nullable();
             $table->string('ito_creator', 50)->nullable();
             $table->string('grpo_no', 20)->nullable();
             $table->string('origin_wh', 20)->nullable();

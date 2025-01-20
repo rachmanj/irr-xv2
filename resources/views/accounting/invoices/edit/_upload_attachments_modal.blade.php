@@ -24,8 +24,8 @@
                     <div id="selected-files" class="mt-3"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Upload Files</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Upload Files</button>
                 </div>
             </form>
         </div>

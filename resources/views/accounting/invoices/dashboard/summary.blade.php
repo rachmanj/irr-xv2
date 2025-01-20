@@ -1,10 +1,10 @@
 <div class="card">
-    <div class="card-header">
+    <div class="card-header bg-primary py-1 px-2">
         <h3 class="card-title">Monthly Summary Report</h3>
     </div>
     @foreach ($data['monthly_summary'] as $yearData)
         <div class="card-body p-0">
-            <h3 class="card-title px-2 pt-2">Year: {{ $yearData['year'] }}</h3>
+            <h3 class="card-title px-2 py-1">Year: {{ $yearData['year'] }}</h3>
             <table class="table table-sm table-bordered table-striped">
                 <thead>
                     <tr>
@@ -24,9 +24,9 @@
                     <tr>
                         <td><small>Avg Duration</small></td>
                         @foreach ($yearData['monthly_data'] as $monthData)
-                            <td class="text-right">{{ $monthData['average_duration'] }}</td>
+                            <td class="text-right"><small>{{ $monthData['average_duration'] }}</small></td>
                         @endforeach
-                        <td class="text-right">{{ $yearData['year_average_duration'] }}</td>
+                        <td class="text-right"><small>{{ $yearData['year_average_duration'] }}</small></td>
                     </tr>
                 </thead>
             </table>

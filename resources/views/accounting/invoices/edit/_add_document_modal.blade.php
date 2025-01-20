@@ -13,9 +13,9 @@
                 <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label for="document_type">Document Type</label>
+                                <label for="document_type">Document Type <span class="text-danger">*</span></label>
                                 <select class="form-control" id="document_type" name="type_id" required>
                                     <option value="">Select Document Type</option>
                                     @foreach ($documentTypes as $type)
@@ -24,37 +24,37 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label for="document_number">Document Number</label>
+                                <label for="document_number">Document Number <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="document_number" name="document_number"
                                     required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="po_no">PO Number</label>
+                                <input type="text" class="form-control" id="po_no" name="po_no">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="document_date">Document Date</label>
+                                <label for="document_date">Document Date <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control" id="document_date" name="document_date"
                                     required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="receive_date">Receive Date</label>
+                                <label for="receive_date">Receive Date <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control" id="receive_date" name="receive_date">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="po_no">PO Number</label>
-                                <input type="text" class="form-control" id="po_no" name="po_no">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="remarks">Remarks</label>
                                 <input type="text" class="form-control" id="remarks" name="remarks">

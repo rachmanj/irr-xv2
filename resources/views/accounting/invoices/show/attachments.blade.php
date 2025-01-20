@@ -7,17 +7,25 @@
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="fas fa-file"></i> {{ $attachment->original_name }}
-                            </h5>
+                            <div class="text-center">
+                                @if (in_array(strtolower(pathinfo($attachment->file_path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
+                                    <img src="{{ asset('storage/' . $attachment->file_path) }}" class="img-fluid"
+                                        style="max-height: 100px;" alt="Attachment preview">
+                                @else
+                                    <i class="fas fa-file fa-3x text-secondary"></i>
+                                @endif
+                            </div>
+                            <p class="small text-muted mb-1 text-truncate" title="{{ $attachment->original_name }}">
+                                {{ $attachment->original_name }}
+                            </p>
                             <p class="card-text">
                                 <small class="text-muted">
                                     Uploaded: {{ $attachment->created_at->format('d-M-Y H:i') }}
                                 </small>
                             </p>
-                            <a href="{{ route('accounting.invoices.attachments.download', $attachment->id) }}"
-                                class="btn btn-sm btn-primary">
-                                <i class="fas fa-download"></i> Download
+                            <a href="{{ asset('storage/' . $attachment->file_path) }}" class="btn btn-sm btn-primary"
+                                target="_blank">
+                                <i class="fas fa-eye"></i>
                             </a>
                         </div>
                     </div>

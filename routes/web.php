@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Accounting\InvoiceController;
 use App\Http\Controllers\Master\SupplierController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Accounting\DeliveryController;
 
 Route::middleware('guest')->group(function () {
     Route::controller(LoginController::class)->group(function () {
