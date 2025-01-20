@@ -46,3 +46,9 @@ Route::get('/additional-documents/search', [AdditionalDocumentController::class,
     ->name('additional-documents.search');
 Route::get('/accounting/invoices/search', [InvoiceController::class, 'search'])
     ->name('accounting.invoices.search');
+
+Route::post(
+    'accounting/additional-documents/{document}/update-receive-date',
+    [App\Http\Controllers\Accounting\AdditionalDocumentController::class, 'updateReceiveDate']
+)
+    ->name('accounting.additional-documents.update-receive-date');

@@ -319,4 +319,29 @@ class AdditionalDocumentController extends Controller
             ]
         ]);
     }
+
+    public function updateReceiveDate(Request $request, AdditionalDocument $document)
+    {
+        try {
+            $request->validate([
+                'receive_date' => 'required|date'
+            ]);
+
+            $document->receive_date = $request->receive_date;
+            $document->save();
+
+            // Log the change if you have a logging system
+            saveLog('additional_document', $document->id, 'update-receive-date', Auth::user()->id, 5);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Receive date updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating receive date: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

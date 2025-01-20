@@ -289,7 +289,13 @@
                                                         </td>
                                                         <td>{{ $additionalDocument->document_number }}</td>
                                                         <td>{{ $additionalDocument->document_date }}</td>
-                                                        <td>{{ $additionalDocument->receive_date ?? '-' }}</td>
+                                                        <td>
+                                                            <input type="date"
+                                                                class="form-control form-control-sm edit-receive-date"
+                                                                data-document-id="{{ $additionalDocument->id }}"
+                                                                value="{{ $additionalDocument->receive_date }}"
+                                                                style="width: 140px;">
+                                                        </td>
                                                         <td>{{ $additionalDocument->po_no ?? '-' }}</td>
                                                         <td>
                                                             <input type="checkbox" name="selected_documents[]"
@@ -656,6 +662,41 @@
                 } else {
                     $(this).next('.custom-file-label').html('Choose files');
                 }
+            });
+
+            // Add this inside your existing $(document).ready() function
+            $('.edit-receive-date').on('change', function() {
+                const documentId = $(this).data('document-id');
+                const receiveDate = $(this).val();
+                const $input = $(this);
+
+                $.ajax({
+                    url: `${asset_url}/accounting/additional-documents/${documentId}/update-receive-date`,
+                    method: 'POST',
+                    data: {
+                        receive_date: receiveDate,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success('Receive date updated successfully');
+                        } else {
+                            toastr.error('Error updating receive date');
+                            // Reset to previous value if there's an error
+                            $input.val($input.data('previous-value'));
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.error('Error updating receive date');
+                        // Reset to previous value if there's an error
+                        $input.val($input.data('previous-value'));
+                    }
+                });
+            });
+
+            // Store previous value when focusing on input
+            $('.edit-receive-date').on('focus', function() {
+                $(this).data('previous-value', $(this).val());
             });
         });
     </script>
