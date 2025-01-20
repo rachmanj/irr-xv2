@@ -249,25 +249,25 @@
                             let documentsHtml = `
                                 <tr class="document-details" data-parent="${data.id}">
                                     <td colspan="7">
-                                        <div class="pl-5 py-2 bg-light">
-                                            <h6 class="mb-2"><strong>Additional Documents:</strong></h6>
+                                        <div class="pl-5 py-1 mt-0 bg-light">
+                                            <h6 class="mt-1"><strong><small>Additional Documents:</small></strong></h6>
                                             <div class="table-responsive">
                                                 <table class="table table-sm table-borderless mb-0">
                                                     <thead class="text-muted">
                                                         <tr>
-                                                            <th>Type</th>
-                                                            <th>Number</th>
-                                                            <th>Document Date</th>
-                                                            <th>Receive Date</th>
+                                                            <th class="py-0"><small>Type</small></th>
+                                                            <th class="py-0"><small>Number</small></th>
+                                                            <th class="py-0"><small>Document Date</small></th>
+                                                            <th class="py-0"><small>Receive Date</small></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         ${data.additional_documents.map(doc => `
                                                                 <tr>
-                                                                    <td><span class="badge badge-info">${doc.type || ''}</span></td>
-                                                                    <td>${doc.number || ''}</td>
-                                                                    <td>${doc.document_date || ''}</td>
-                                                                    <td>${doc.receive_date || ''}</td>
+                                                                    <td class="py-0"><span class="badge badge-info"><small>${doc.type || ''}</small></span></td>
+                                                                    <td class="py-0"><small>${doc.number || ''}</small></td>
+                                                                    <td class="py-0"><small>${doc.document_date || ''}</small></td>
+                                                                    <td class="py-0"><small>${doc.receive_date || ''}</small></td>
                                                                 </tr>
                                                             `).join('')}
                                                     </tbody>
