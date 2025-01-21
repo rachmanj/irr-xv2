@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('nomor')->unique();
             $table->date('date');
+            $table->date('sent_date')->nullable();
             $table->date('received_date')->nullable();
             $table->string('origin', 20); // project code
             $table->string('destination', 20); // project code

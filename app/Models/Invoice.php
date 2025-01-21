@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Invoice extends Model
 {
@@ -40,5 +41,10 @@ class Invoice extends Model
     public function deliveries(): MorphToMany
     {
         return $this->morphToMany(Delivery::class, 'documentable', 'delivery_documents');
+    }
+
+    public function deliveryDocuments()
+    {
+        return $this->morphMany(DeliveryDocument::class, 'documentable');
     }
 }

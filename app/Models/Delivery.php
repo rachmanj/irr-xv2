@@ -4,56 +4,40 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Delivery extends Model
 {
-    protected $fillable = [
-        'delivery_number',
-        'date_sent',
-        'date_received',
-        'origin_project',
-        'destination_project',
-        'creator_id',
-        'receiver_id',
-        'attention_person',
-        'delivery_type',
-        'notes'
-    ];
+    protected $guarded = [];
 
     protected $casts = [
-        'date_sent' => 'date',
-        'date_received' => 'date',
+        'sent_date' => 'date',
+        'received_date' => 'date',
     ];
 
-    public function originProject(): BelongsTo
+    public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'origin_project', 'code');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function destinationProject(): BelongsTo
+    public function receivedBy(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'destination_project', 'code');
+        return $this->belongsTo(User::class, 'received_by');
     }
 
-    public function creator(): BelongsTo
+    public function documents(): HasMany
     {
-        return $this->belongsTo(User::class, 'creator_id');
+        return $this->hasMany(DeliveryDocument::class);
     }
 
-    public function receiver(): BelongsTo
+    // Helper method to attach documents
+    public function attachDocuments(array $documentIds, string $documentType)
     {
-        return $this->belongsTo(User::class, 'receiver_id');
-    }
-
-    public function invoices(): MorphToMany
-    {
-        return $this->belongsToMany(Invoice::class, 'delivery_documents')
-            ->withTimestamps();
-    }
-
-    public function additionalDocuments(): MorphToMany
-    {
-        return $this->morphedByMany(AdditionalDocument::class, 'documentable', 'delivery_documents');
+        foreach ($documentIds as $documentId) {
+            $this->documents()->create([
+                'documentable_id' => $documentId,
+                'documentable_type' => $documentType
+            ]);
+        }
     }
 }

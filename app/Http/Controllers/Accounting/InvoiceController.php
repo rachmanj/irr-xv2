@@ -412,17 +412,26 @@ class InvoiceController extends Controller
 
     public function getReadyToDeliverInvoices()
     {
+        $userProject = Auth::user()->project;
+
         // Get invoices where all additional documents have receive_date and status open
         $invoicesWithDocuments = Invoice::whereHas('additionalDocuments')
             ->whereDoesntHave('additionalDocuments', function ($query) {
                 $query->whereNull('receive_date')
                     ->orWhere('status', '!=', 'open');
             })
+            ->where('receive_project', $userProject)
+            ->whereDoesntHave('deliveryDocuments', function ($query) {
+                $query->where('documentable_type', Invoice::class);
+            })
             ->get();
 
         // Get invoices that have no additional documents and are not in deliveries
         $invoicesWithoutDocuments = Invoice::doesntHave('additionalDocuments')
-            ->whereDoesntHave('deliveries')
+            ->where('receive_project', $userProject)
+            ->whereDoesntHave('deliveryDocuments', function ($query) {
+                $query->where('documentable_type', Invoice::class);
+            })
             ->get();
 
         // Merge both collections

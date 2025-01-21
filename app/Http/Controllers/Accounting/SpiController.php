@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Accounting;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\Delivery;
+use App\Models\Invoice;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class SpiController extends Controller
 {
@@ -27,6 +29,43 @@ class SpiController extends Controller
         }
 
         return view($views[$page]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'spi_number' => 'required|string',
+            'date' => 'required|date',
+            'destination' => 'required|string',
+            'attention_person' => 'required|string',
+            'invoices' => 'required|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $spi = Delivery::create([
+            'nomor' => $validated['spi_number'],
+            'type' => 'SPI',
+            'date' => $validated['date'],
+            'origin' => Auth::user()->project,
+            'destination' => $validated['destination'],
+            'attention_person' => $validated['attention_person'],
+            'notes' => Auth::user()->username . ' says: ' . ($validated['notes'] ?? '') . ';',
+            'created_by' => Auth::id(),
+        ]);
+
+        // decode JSON string to array
+        $invoiceIds = json_decode($validated['invoices'], true);
+
+        if (!is_array($invoiceIds)) {
+            return back()->withErrors(['invoices' => 'Invalid invoice data format']);
+        }
+
+        // Attach invoices
+        $spi->attachDocuments($invoiceIds, Invoice::class);
+
+        Alert::success('Success', 'SPI created successfully');
+
+        return redirect()->route('accounting.spi.index')->with('success', 'SPI created successfully');
     }
 
     public function readyToDeliverData()
@@ -63,12 +102,6 @@ class SpiController extends Controller
                         'document_date' => $doc->document_date ? \Carbon\Carbon::parse($doc->document_date)->format('d M Y') : '',
                     ];
                 })->toArray();
-
-                // Debug logging
-                Log::info('Additional documents for invoice:', [
-                    'invoice_number' => $invoice->invoice_number,
-                    'documents' => $mapped
-                ]);
 
                 return $mapped;
             })

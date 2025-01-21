@@ -62,44 +62,27 @@
                         <input type="hidden" name="invoices" id="selected-invoices">
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label>SPI Number <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="spi_number" required>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Date <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control" name="date" value="{{ date('Y-m-d') }}"
                                         required>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Origin Project <span class="text-danger">*</span></label>
-                                    <select class="form-control select2bs4" name="origin" required>
-                                        <option value="">Select Project</option>
-                                        @foreach ($projects as $project)
-                                            <option value="{{ $project->code }}"
-                                                {{ $project->code === '000H' ? 'selected' : '' }}>
-                                                {{ $project->code }} - {{ $project->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Destination Project <span class="text-danger">*</span></label>
                                     <select class="form-control select2bs4" name="destination" required>
                                         <option value="">Select Project</option>
                                         @foreach ($projects as $project)
                                             <option value="{{ $project->code }}">
-                                                {{ $project->code }} - {{ $project->name }}
+                                                {{ $project->code }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -108,16 +91,19 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>Person 1</label>
-                                    <input type="text" class="form-control" name="person1">
+                                    <label>Attention Person <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="attention_person" required>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>Person 2</label>
-                                    <input type="text" class="form-control" name="person2">
+                                    <label>Notes</label>
+                                    <textarea class="form-control" name="notes" rows="3"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -221,10 +207,12 @@
                         data: 'supplier_name'
                     },
                     {
-                        data: 'invoice_project'
+                        data: 'invoice_project',
+                        className: 'text-center'
                     },
                     {
-                        data: 'days'
+                        data: 'days',
+                        className: 'text-right'
                     }
                 ],
                 order: [
@@ -263,13 +251,13 @@
                                                     </thead>
                                                     <tbody>
                                                         ${data.additional_documents.map(doc => `
-                                                                <tr>
-                                                                    <td class="py-0"><span class="badge badge-info"><small>${doc.type || ''}</small></span></td>
-                                                                    <td class="py-0"><small>${doc.number || ''}</small></td>
-                                                                    <td class="py-0"><small>${doc.document_date || ''}</small></td>
-                                                                    <td class="py-0"><small>${doc.receive_date || ''}</small></td>
-                                                                </tr>
-                                                            `).join('')}
+                                                                                                        <tr>
+                                                                                                            <td class="py-0"><span class="badge badge-info"><small>${doc.type || ''}</small></span></td>
+                                                                                                            <td class="py-0"><small>${doc.number || ''}</small></td>
+                                                                                                            <td class="py-0"><small>${doc.document_date || ''}</small></td>
+                                                                                                            <td class="py-0"><small>${doc.receive_date || ''}</small></td>
+                                                                                                        </tr>
+                                                                                                    `).join('')}
                                                     </tbody>
                                                 </table>
                                             </div>
