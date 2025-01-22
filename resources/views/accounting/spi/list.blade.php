@@ -41,6 +41,8 @@
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('adminlte/plugins/datatables/css/datatables.min.css') }}" />
+    <!-- Toastr -->
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/toastr/toastr.min.css') }}">
     <style>
         .card-header .active {
             color: black;
@@ -56,9 +58,18 @@
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables/datatables.min.js') }}"></script>
+    <!-- Toastr -->
+    <script src="{{ asset('adminlte/plugins/toastr/toastr.min.js') }}"></script>
 
     <script>
         $(document).ready(function() {
+            // Configure Toastr
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+            }
+
             $('#spi-table').DataTable({
                 responsive: true,
                 autoWidth: false,
@@ -94,6 +105,33 @@
                         searchable: false
                     }
                 ]
+            });
+
+            // Handle send SPI click
+            $(document).on('click', '.send-spi', function(e) {
+                e.preventDefault();
+                const spiId = $(this).data('id');
+
+                if (confirm('Are you sure you want to send this SPI? This action cannot be undone.')) {
+                    $.ajax({
+                        url: "{{ route('accounting.spi.send', ':id') }}".replace(':id', spiId),
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                toastr.success(response.message);
+                                $('#spi-table').DataTable().ajax.reload();
+                            } else {
+                                toastr.error(response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            toastr.error('Failed to send SPI. Please try again.');
+                        }
+                    });
+                }
             });
         });
     </script>

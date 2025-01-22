@@ -19,19 +19,51 @@
             .print-button {
                 display: none;
             }
+
+            .print-content-button {
+                display: none;
+            }
         }
 
         .print-button {
             position: fixed;
             bottom: 20px;
-            right: 20px;
-            padding: 10px 20px;
+            right: 140px;
+            padding: 8px 16px;
             background-color: #3498db;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-content-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-button:hover,
+        .print-content-button:hover {
+            opacity: 0.9;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+            color: white;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -158,6 +190,10 @@
     <button onclick="window.print()" class="print-button">
         Print Document
     </button>
+
+    <a href="{{ route('accounting.spi.print-content', $spi->id) }}" class="print-content-button" target="_blank">
+        Print Content
+    </a>
 
     {{-- <script>
         window.onload = function() {

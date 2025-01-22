@@ -31,6 +31,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users');
             $table->integer('duration1')->nullable(); // duration from receive_date to send_date/ accounting process
             $table->integer('duration2')->nullable(); // duration from receive by BO to payment_date / finance process
+            $table->string('sap_doc', 20)->nullable(); // sap document number
             $table->string('flag', 30)->nullable();
             $table->timestamps();
         });

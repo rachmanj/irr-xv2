@@ -13,6 +13,11 @@ class Invoice extends Model
 {
     protected $guarded = [];
 
+    protected $fillable = [
+        // ... other fillable fields ...
+        'status'
+    ];
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);

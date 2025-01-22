@@ -9,7 +9,7 @@ use App\Models\Invoice;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Spi;
+use Illuminate\Support\Facades\DB;
 
 class SpiController extends Controller
 {
@@ -119,6 +119,9 @@ class SpiController extends Controller
             ->addColumn('document_count', function ($delivery) {
                 return $delivery->documents()->count();
             })
+            ->addColumn('status', function ($delivery) {
+                return $delivery->sent_date ? 'Sent' : 'Pending';
+            })
             ->addColumn('action', function ($delivery) {
                 return view('accounting.spi.action', compact('delivery'))->render();
             })
@@ -138,5 +141,51 @@ class SpiController extends Controller
             ->findOrFail($id);
 
         return view('accounting.spi.print-preview', compact('spi'));
+    }
+
+    public function printContent($id)
+    {
+        $spi = Delivery::with([
+            'documents.documentable.supplier'
+        ])->findOrFail($id);
+
+        return view('accounting.spi.print-content', compact('spi'));
+    }
+
+    public function send($id)
+    {
+        $spi = Delivery::with('documents.documentable')->findOrFail($id);
+
+        DB::beginTransaction();
+
+        try {
+            // Update delivery sent_date only
+            $spi->update([
+                'sent_date' => now()
+            ]);
+
+            // Update all associated invoices status
+            foreach ($spi->documents as $document) {
+                if ($document->documentable_type === 'App\Models\Invoice') {
+                    $document->documentable->update([
+                        'status' => 'SENT'
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'SPI has been sent successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send SPI: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
