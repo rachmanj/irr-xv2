@@ -9,14 +9,14 @@ class AdditionalDocument extends Model
 {
     protected $guarded = [];
 
-    public function invoice()
+    public function type(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo(AdditionalDocumentType::class, 'type_id', 'id');
     }
 
-    public function documentType(): BelongsTo
+    public function invoice(): BelongsTo
     {
-        return $this->belongsTo(AdditionalDocumentType::class, 'type_id');
+        return $this->belongsTo(Invoice::class);
     }
 
     public function createdBy(): BelongsTo

@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Spi;
 
 class SpiController extends Controller
 {
@@ -108,5 +109,34 @@ class SpiController extends Controller
             ->toJson();
 
         return $response;
+    }
+
+    public function data()
+    {
+        $deliveries = Delivery::where('type', 'SPI')->get();
+
+        return datatables()->of($deliveries)
+            ->addColumn('document_count', function ($delivery) {
+                return $delivery->documents()->count();
+            })
+            ->addColumn('action', function ($delivery) {
+                return view('accounting.spi.action', compact('delivery'))->render();
+            })
+            ->addColumn('formatted_date', function ($delivery) {
+                return $delivery->date ? \Carbon\Carbon::parse($delivery->date)->format('d M Y') : '';
+            })
+            ->addIndexColumn()
+            ->toJson();
+    }
+
+    public function printPreview($id)
+    {
+        $spi = Delivery::with([
+            'documents.documentable.supplier',
+            'documents.documentable.additionalDocuments.type'
+        ])
+            ->findOrFail($id);
+
+        return view('accounting.spi.print-preview', compact('spi'));
     }
 }

@@ -38,6 +38,8 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
         Route::get('ready-to-deliver/data', [SpiController::class, 'readyToDeliverData'])
             ->name('ready-to-deliver.data');
         Route::get('search', [SpiController::class, 'searchData'])->name('search');
+        Route::get('{spi}/print', [SpiController::class, 'print'])->name('print');
+        Route::get('/{id}/print-preview', [SpiController::class, 'printPreview'])->name('print-preview');
         Route::resource('/', SpiController::class)->parameters(['' => 'spi']);
     });
 

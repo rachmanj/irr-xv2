@@ -4,15 +4,15 @@
     Distribution
 @endsection
 
+@section('breadcrumb_title')
+    <small>accounting / spi / create</small>
+@endsection
+
 @section('content')
     <div class="row">
         <div class="col-12">
 
             <x-acc-spi-links page='create' />
-
-            {{-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDistributionModal">
-                Create New Distribution
-            </button> --}}
 
             <div class="card">
                 <div class="card-header">
@@ -251,13 +251,13 @@
                                                     </thead>
                                                     <tbody>
                                                         ${data.additional_documents.map(doc => `
-                                                                                                        <tr>
-                                                                                                            <td class="py-0"><span class="badge badge-info"><small>${doc.type || ''}</small></span></td>
-                                                                                                            <td class="py-0"><small>${doc.number || ''}</small></td>
-                                                                                                            <td class="py-0"><small>${doc.document_date || ''}</small></td>
-                                                                                                            <td class="py-0"><small>${doc.receive_date || ''}</small></td>
-                                                                                                        </tr>
-                                                                                                    `).join('')}
+                                                                                                                <tr>
+                                                                                                                    <td class="py-0"><span class="badge badge-info"><small>${doc.type || ''}</small></span></td>
+                                                                                                                    <td class="py-0"><small>${doc.number || ''}</small></td>
+                                                                                                                    <td class="py-0"><small>${doc.document_date || ''}</small></td>
+                                                                                                                    <td class="py-0"><small>${doc.receive_date || ''}</small></td>
+                                                                                                                </tr>
+                                                                                                            `).join('')}
                                                     </tbody>
                                                 </table>
                                             </div>
