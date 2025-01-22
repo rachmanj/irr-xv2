@@ -309,6 +309,8 @@ class InvoiceController extends Controller
                 'year' => $year,
                 'year_average_duration' => round($yearData->avg('duration1'), 1),
                 'year_invoice_count' => $yearData->count(),
+                'year_sent_count' => $yearData->where('status', 'sent')->count(),
+                'year_sent_percentage' => $yearData->count() > 0 ? round(($yearData->where('status', 'sent')->count() / $yearData->count()) * 100, 1) : 0,
                 'monthly_data' => []
             ];
 
@@ -318,11 +320,15 @@ class InvoiceController extends Controller
                     ->whereMonth('receive_date', $month);
 
                 $count = $monthlyData->count();
+                $sentCount = (clone $monthlyData)->where('status', 'sent')->count();
+                $sentPercentage = $count > 0 ? round(($sentCount / $count) * 100, 1) : 0;
 
                 $yearStats['monthly_data'][] = [
                     'month' => $month,
                     'month_name' => date('M', mktime(0, 0, 0, $month, 1)),
                     'receive_count' => $count,
+                    'sent_count' => $sentCount,
+                    'sent_percentage' => $sentPercentage,
                     'average_duration' => $count > 0 ? round($monthlyData->avg('duration1'), 1) : 0
                 ];
             }

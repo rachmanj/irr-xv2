@@ -22,11 +22,29 @@
                         <td class="text-right"><small>{{ $yearData['year_invoice_count'] }}</small></td>
                     </tr>
                     <tr>
+                        <td><small>Sent Count</small></td>
+                        @foreach ($yearData['monthly_data'] as $monthData)
+                            <td class="text-right"><small>{{ $monthData['sent_count'] }}</small></td>
+                        @endforeach
+                        <td class="text-right"><small>{{ $yearData['year_invoice_count'] }}</small></td>
+                    </tr>
+                    <tr>
+                        <td><small>Sent Percentage</small></td>
+                        @foreach ($yearData['monthly_data'] as $monthData)
+                            <td class="text-right"><small>{{ $monthData['sent_percentage'] }}%</small></td>
+                        @endforeach
+                        <td class="text-right">
+                            <small>{{ $yearData['year_sent_percentage'] }}%</small>
+                        </td>
+                    </tr>
+                    <tr>
                         <td><small>Avg Duration</small></td>
                         @foreach ($yearData['monthly_data'] as $monthData)
-                            <td class="text-right"><small>{{ $monthData['average_duration'] }}</small></td>
+                            <td class="text-right @if ($monthData['average_duration'] > 7) text-danger @endif">
+                                <small>{{ $monthData['average_duration'] }}</small></td>
                         @endforeach
-                        <td class="text-right"><small>{{ $yearData['year_average_duration'] }}</small></td>
+                        <td class="text-right @if ($yearData['year_average_duration'] > 7) text-danger @endif">
+                            <small>{{ $yearData['year_average_duration'] }}</small></td>
                     </tr>
                 </thead>
             </table>

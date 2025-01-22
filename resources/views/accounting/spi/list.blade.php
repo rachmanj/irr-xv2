@@ -23,8 +23,8 @@
                                 <th><small>SPI No</small></th>
                                 <th><small>Date</small></th>
                                 <th><small>Destination</small></th>
-                                {{-- <th><small>Status</small></th> --}}
                                 <th><small>Documents</small></th>
+                                <th><small>Status</small></th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -96,6 +96,11 @@
                     {
                         data: 'document_count',
                         name: 'document_count',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
                         className: 'text-center'
                     },
                     {

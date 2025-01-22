@@ -164,11 +164,12 @@ class SpiController extends Controller
                 'sent_date' => now()
             ]);
 
-            // Update all associated invoices status
+            // Update all associated invoices status and duration1
             foreach ($spi->documents as $document) {
                 if ($document->documentable_type === 'App\Models\Invoice') {
                     $document->documentable->update([
-                        'status' => 'SENT'
+                        'status' => 'sent',
+                        'duration1' => (int) \Carbon\Carbon::parse($document->documentable->receive_date)->diffInDays(now()),
                     ]);
                 }
             }
