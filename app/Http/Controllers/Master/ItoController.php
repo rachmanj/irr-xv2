@@ -62,7 +62,7 @@ class ItoController extends Controller
         }
 
         $query = AdditionalDocument::query()
-            ->whereHas('documentType', function ($query) {
+            ->whereHas('type', function ($query) {
                 $query->where('type_name', 'ito');
             });
 

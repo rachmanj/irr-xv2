@@ -11,7 +11,10 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
     // INVOICES
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('data', [InvoiceController::class, 'data'])->name('data');
+        Route::get('not-posted/data', [InvoiceController::class, 'notPostedData'])->name('not-posted.data');
         Route::get('/search', [InvoiceController::class, 'searchInvoices'])->name('search');
+        Route::post('/{invoice}/update-sap-doc', [InvoiceController::class, 'updateSapDoc'])
+            ->name('update-sap-doc');
         Route::resource('/', InvoiceController::class)->parameters(['' => 'invoice']);
 
         // Attachment routes
@@ -47,6 +50,8 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
     // LPD
     Route::prefix('lpd')->name('lpd.')->group(function () {
         Route::get('data', [LpdController::class, 'data'])->name('data');
+        Route::get('ready-to-deliver/data', [LpdController::class, 'readyToDeliverData'])
+            ->name('ready-to-deliver.data');
         Route::get('search', [LpdController::class, 'searchData'])->name('search');
         Route::resource('/', LpdController::class)->parameters(['' => 'lpd']);
     });

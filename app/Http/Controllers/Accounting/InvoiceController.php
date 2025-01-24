@@ -14,6 +14,7 @@ use App\Models\InvoiceType;
 use App\Models\AdditionalDocumentType;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Attachment;
+use Illuminate\Validation\Rule;
 
 class InvoiceController extends Controller
 {
@@ -25,6 +26,7 @@ class InvoiceController extends Controller
             'dashboard' => 'accounting.invoices.dashboard',
             'search' => 'accounting.invoices.search',
             'create' => 'accounting.invoices.create',
+            'not-posted' => 'accounting.invoices.not-posted',
             'list' => 'accounting.invoices.list',
         ];
 
@@ -111,10 +113,10 @@ class InvoiceController extends Controller
         // Get all additional documents related to the PO number with documentType relationship
         $orphanAdditionalDocuments = AdditionalDocument::where('invoice_id', null)
             ->where('po_no', $invoice->po_no)
-            ->with('documentType') // Added documentType relationship
+            ->with('type') // Added documentType relationship
             ->get();
 
-        $invoiceAdditionalDocuments = AdditionalDocument::with('documentType')
+        $invoiceAdditionalDocuments = AdditionalDocument::with('type')
             ->where('invoice_id', $invoice->id)
             ->get();
 
@@ -244,6 +246,39 @@ class InvoiceController extends Controller
             ->toJson();
     }
 
+    public function notPostedData()
+    {
+        $invoices = Invoice::whereNull('sap_doc')->get();
+
+        return datatables()->of($invoices)
+            ->addColumn('vendor', function ($invoice) {
+                return $invoice->supplier->name;
+            })
+            ->addColumn('invoice_date', function ($invoice) {
+                return \Carbon\Carbon::parse($invoice->invoice_date)->format('d M Y');
+            })
+            ->addColumn('receive_date', function ($invoice) {
+                return \Carbon\Carbon::parse($invoice->receive_date)->format('d M Y');
+            })
+            ->addColumn('amount', function ($invoice) {
+                return number_format($invoice->amount, 2, '.', ',');
+            })
+            ->addColumn('days', function ($invoice) {
+                $receiveDate = \Carbon\Carbon::parse($invoice->receive_date)->startOfDay();
+                $currentDate = \Carbon\Carbon::now()->startOfDay();
+                return $receiveDate->diffInDays($currentDate);
+            })
+            ->addIndexColumn()
+            ->addColumn('action', function ($invoice) {
+                return '<div class="btn-group">
+                        <button class="btn btn-xs btn-warning mr-2" title="Update SAP Doc No" onclick="openUpdateModal(' . $invoice->id . ')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>';
+            })
+            ->toJson();
+    }
+
     public function search(Request $request)
     {
         $query = Invoice::with(['supplier', 'invoiceType']);
@@ -308,9 +343,11 @@ class InvoiceController extends Controller
             $yearStats = [
                 'year' => $year,
                 'year_average_duration' => round($yearData->avg('duration1'), 1),
-                'year_invoice_count' => $yearData->count(),
+                'year_receive_count' => $yearData->count(),
+                'year_not_posted' => $yearData->whereNull('sap_doc')->count(),
                 'year_sent_count' => $yearData->where('status', 'sent')->count(),
                 'year_sent_percentage' => $yearData->count() > 0 ? round(($yearData->where('status', 'sent')->count() / $yearData->count()) * 100, 1) : 0,
+                'invoices' => $yearData->select('invoice_number', 'receive_date', 'duration1')->get(),
                 'monthly_data' => []
             ];
 
@@ -327,9 +364,12 @@ class InvoiceController extends Controller
                     'month' => $month,
                     'month_name' => date('M', mktime(0, 0, 0, $month, 1)),
                     'receive_count' => $count,
+                    'not_posted' => $monthlyData->whereNull('sap_doc')->count(),
                     'sent_count' => $sentCount,
                     'sent_percentage' => $sentPercentage,
-                    'average_duration' => $count > 0 ? round($monthlyData->avg('duration1'), 1) : 0
+                    'average_duration' => $count > 0 ? (int)($monthlyData->avg('duration1')) : 0,
+                    'check_total_duration1' => (int) $monthlyData->sum('duration1'),
+                    'invoices' => $monthlyData->select('invoice_number', 'receive_date', 'duration1')->get()
                 ];
             }
 
@@ -444,5 +484,30 @@ class InvoiceController extends Controller
         $readyToDeliverInvoices = $invoicesWithDocuments->merge($invoicesWithoutDocuments);
 
         return $readyToDeliverInvoices;
+    }
+
+    public function updateSapDoc(Request $request, Invoice $invoice)
+    {
+        $request->validate([
+            'sap_doc' => [
+                'required',
+                'string',
+                Rule::unique('invoices', 'sap_doc')->ignore($invoice->id),
+            ]
+        ], [
+            'sap_doc.unique' => 'This SAP DocNum is already in use by another invoice.'
+        ]);
+
+        $invoice->update([
+            'sap_doc' => $request->sap_doc
+        ]);
+
+        saveLog('invoice', $invoice->id, 'update-sap-doc', Auth::user()->id, 5);
+        Alert::success('Success', 'SAP DocNum updated successfully');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'SAP DocNum updated successfully'
+        ]);
     }
 }

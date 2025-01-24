@@ -48,7 +48,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="receive_date">Receive Date <span class="text-danger">*</span></label>
+                                <label for="receive_date">Receive Date</label>
                                 <input type="date" class="form-control" id="receive_date" name="receive_date">
                             </div>
                         </div>
@@ -63,8 +63,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Document</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Save Document</button>
                 </div>
             </form>
         </div>

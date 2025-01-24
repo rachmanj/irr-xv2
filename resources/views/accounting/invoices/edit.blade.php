@@ -285,7 +285,7 @@
                                                 @foreach ($additionalDocuments as $additionalDocument)
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
-                                                        <td>{{ $additionalDocument->documentType ? $additionalDocument->documentType->type_name : 'N/A' }}
+                                                        <td>{{ $additionalDocument->type ? $additionalDocument->type->type_name : 'N/A' }}
                                                         </td>
                                                         <td>{{ $additionalDocument->document_number }}</td>
                                                         <td>{{ $additionalDocument->document_date }}</td>
@@ -402,7 +402,6 @@
     <script src="{{ asset('adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
     <!-- Toastr -->
     <script src="{{ asset('adminlte/plugins/toastr/toastr.min.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         // Add this at the start of your scripts
         $.ajaxSetup({
@@ -487,14 +486,21 @@
                     data: $(this).serialize(),
                     success: function(response) {
                         if (response.success) {
-                            // Add new row to table
+                            console.log(response);
                             var newRow = `
                                 <tr>
                                     <td>${$('#similar-documents-tbody tr').length + 1}</td>
                                     <td>${response.data.document_type}</td>
                                     <td>${response.data.document_number}</td>
                                     <td>${response.data.document_date}</td>
-                                    <td>${response.data.po_no}</td>
+                                    <td>
+                                        <input type="date"
+                                            class="form-control form-control-sm edit-receive-date"
+                                            data-document-id="${response.data.id}"
+                                            value="${response.data.receive_date || ''}"
+                                            style="width: 140px;">
+                                    </td>
+                                    <td>${response.data.po_no ? response.data.po_no : '-'}</td>
                                     <td>
                                         <input type="checkbox" name="selected_documents[]" 
                                             value="${response.data.id}" checked>

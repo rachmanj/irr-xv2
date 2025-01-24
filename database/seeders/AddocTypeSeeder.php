@@ -28,7 +28,6 @@ class AddocTypeSeeder extends Seeder
             ['type_name' => 'Kwitansi'],
             ['type_name' => 'Good Return'],
             ['type_name' => 'Sertifikat Uji Emisi Genset'],
-            ['type_name' => 'Credit Note'],
             ['type_name' => 'Calibration Sertificate'],
             ['type_name' => 'PO'],
             ['type_name' => 'BA'],

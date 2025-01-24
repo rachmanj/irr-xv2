@@ -130,7 +130,7 @@ class AdditionalDocumentController extends Controller
 
         $documents = AdditionalDocument::where('po_no', $poNo)
             ->whereNull('invoice_id')
-            ->with('documentType')
+            ->with('type')
             ->get();
 
         return response()->json([
@@ -142,7 +142,8 @@ class AdditionalDocumentController extends Controller
     public function searchAdditionalDocumentsByPo(Request $request)
     {
         $poNo = $request->query('po_no');
-        $documents = AdditionalDocument::where('po_no', $poNo)->with('documentType')->get();
+
+        $documents = AdditionalDocument::where('po_no', $poNo)->with('type')->get();
 
         return response()->json($documents);
     }
@@ -150,7 +151,7 @@ class AdditionalDocumentController extends Controller
     public function data()
     {
         $documents = AdditionalDocument::query();
-        $documents = $documents->whereHas('documentType', function ($query) {
+        $documents = $documents->whereHas('type', function ($query) {
             $query->where('type_name', 'ito');
         })
             // ->whereNull('invoice_id')
@@ -249,13 +250,13 @@ class AdditionalDocumentController extends Controller
 
     public function searchData(Request $request)
     {
-        $query = AdditionalDocument::with('documentType');
+        $query = AdditionalDocument::with('type');
 
         return datatables()
             ->eloquent($query)
             ->addIndexColumn()
             ->addColumn('type', function ($row) {
-                return $row->documentType ? $row->documentType->type_name : 'N/A';
+                return $row->type ? $row->type->type_name : 'N/A';
             })
             ->addColumn('invoice_number', function ($row) {
                 return $row->invoice ? $row->invoice->invoice_number : '-';
@@ -312,9 +313,10 @@ class AdditionalDocumentController extends Controller
             'success' => true,
             'data' => [
                 'id' => $additionalDocument->id,
-                'document_type' => $additionalDocument->documentType->type_name,
+                'document_type' => $additionalDocument->type->type_name,
                 'document_number' => $additionalDocument->document_number,
-                'document_date' => $additionalDocument->document_date,
+                'document_date' => \Carbon\Carbon::parse($additionalDocument->document_date)->format('d M Y'),
+                'receive_date' => $additionalDocument->receive_date,
                 'po_no' => $additionalDocument->po_no ?? '-',
             ]
         ]);
@@ -343,5 +345,15 @@ class AdditionalDocumentController extends Controller
                 'message' => 'Error updating receive date: ' . $e->getMessage()
             ], 500);
         }
+    }
+    public function getReadyToSendDocuments()
+    {
+        $documents = AdditionalDocument::whereNotNull('receive_date')
+            ->whereHas('invoice', function ($query) {
+                $query->whereDoesntHave('delivery'); // Filter to ensure the invoice has no delivery yet
+            })
+            ->get();
+
+        return $documents;
     }
 }

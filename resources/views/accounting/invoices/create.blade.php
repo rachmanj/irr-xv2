@@ -334,7 +334,7 @@
                                 $.each(response, function(index, document) {
                                     $('#similar-documents-tbody').append('<tr><td>' + (
                                             index + 1) + '</td><td>' + document
-                                        .document_type.type_name + '</td><td>' +
+                                        .type.type_name + '</td><td>' +
                                         document.document_number + '</td><td>' +
                                         document.document_date +
                                         '</td><td><input type="checkbox" name="selected_documents[]" value="' +
