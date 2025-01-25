@@ -45,6 +45,9 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
         Route::get('/{id}/print-content', [SpiController::class, 'printContent'])->name('print-content');
         Route::resource('/', SpiController::class)->parameters(['' => 'spi']);
         Route::post('/{id}/send', [SpiController::class, 'send'])->name('send');
+        Route::get('/{id}/edit', [SpiController::class, 'edit'])->name('spi.edit');
+        Route::put('/{id}', [SpiController::class, 'update'])->name('spi.update');
+        Route::delete('/{id}', [SpiController::class, 'destroy'])->name('spi.destroy');
     });
 
     // LPD

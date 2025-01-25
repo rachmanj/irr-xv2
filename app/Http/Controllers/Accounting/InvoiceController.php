@@ -467,6 +467,7 @@ class InvoiceController extends Controller
                     ->orWhere('status', '!=', 'open');
             })
             ->where('receive_project', $userProject)
+            ->whereNotNull('sap_doc') // Added filter to check sap_doc is not null
             ->whereDoesntHave('deliveryDocuments', function ($query) {
                 $query->where('documentable_type', Invoice::class);
             })
@@ -475,6 +476,7 @@ class InvoiceController extends Controller
         // Get invoices that have no additional documents and are not in deliveries
         $invoicesWithoutDocuments = Invoice::doesntHave('additionalDocuments')
             ->where('receive_project', $userProject)
+            ->whereNotNull('sap_doc') // Added filter to check sap_doc is not null
             ->whereDoesntHave('deliveryDocuments', function ($query) {
                 $query->where('documentable_type', Invoice::class);
             })

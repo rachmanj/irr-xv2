@@ -81,7 +81,7 @@
                                 <h4>PT Arkananta Apta Pratista</h4>
                             </td>
                             <td rowspan="2" class="text-center">
-                                <h3><b>Supplier Payment Instruction</b></h3>
+                                <h3><b>Delivery Invoices</b></h3>
                                 <h4>Number: {{ $spi->nomor }}</h4>
                             </td>
                             <td class="text-right">ARKA/ACC/IV/01.01</td>
