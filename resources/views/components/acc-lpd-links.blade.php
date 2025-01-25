@@ -1,12 +1,24 @@
-<div class="card">
+<div class="card mb-3">
     <div class="card-header">
-        <a href="{{ route('accounting.lpd.index', ['page' => 'dashboard']) }}"
-            class="{{ request()->get('page') == 'dashboard' ? 'active' : '' }}">Dashboard</a> |
-        <a href="{{ route('accounting.lpd.index', ['page' => 'search']) }}"
-            class="{{ request()->get('page') == 'search' ? 'active' : '' }}">Search</a> |
-        <a href="{{ route('accounting.lpd.index', ['page' => 'create']) }}"
-            class="{{ request()->get('page') == 'create' ? 'active' : '' }}">New</a> |
-        <a href="{{ route('accounting.lpd.index', ['page' => 'list']) }}"
-            class="{{ request()->get('page') == 'list' ? 'active' : '' }}">List</a>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <a href="{{ route('accounting.lpd.index', ['page' => 'dashboard']) }}"
+                    class="btn {{ $page == 'dashboard' ? 'btn-secondary' : 'btn-light' }} btn-sm">
+                    <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                </a>
+                <a href="{{ route('accounting.lpd.index', ['page' => 'create']) }}"
+                    class="btn {{ $page == 'create' ? 'btn-secondary' : 'btn-light' }} btn-sm">
+                    <i class="fas fa-plus-circle mr-1"></i> Create
+                </a>
+                <a href="{{ route('accounting.lpd.index', ['page' => 'list']) }}"
+                    class="btn {{ $page == 'list' ? 'btn-secondary' : 'btn-light' }} btn-sm">
+                    <i class="fas fa-list mr-1"></i> List
+                </a>
+                <a href="{{ route('accounting.lpd.index', ['page' => 'search']) }}"
+                    class="btn {{ $page == 'search' ? 'btn-secondary' : 'btn-light' }} btn-sm">
+                    <i class="fas fa-search mr-1"></i> Search
+                </a>
+            </div>
+        </div>
     </div>
 </div>

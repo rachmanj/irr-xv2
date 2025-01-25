@@ -1,119 +1,139 @@
 @extends('layout.main')
 
 @section('title_page')
-    Create New LPD
+    Create LPD
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / lpd / create</small>
+    <small>accounting / deliveries / create</small>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12">
-
             <x-acc-lpd-links page='create' />
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Select Additional Documents to Create LPD</h5>
-                </div>
-                <div class="card-body">
-                    <table id="documents-table" class="table table-sm table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <input type="checkbox" id="select-all">
-                                </th>
-                                <th>Type</th>
-                                <th>Number</th>
-                                <th>Doc Date</th>
-                                <th>Inv No</th>
-                                <th>PO No</th>
-                                <th>Rcv Date</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-                <div class="card-footer">
-                    <button type="button" class="btn btn-sm btn-primary" id="create-lpd-btn" disabled>
-                        Create LPD
-                    </button>
-                </div>
-            </div>
+            <form action="{{ route('accounting.lpd.store') }}" method="POST" id="create-lpd-form">
+                @csrf
+                <input type="hidden" name="lpd_number" id="lpd_number">
+                <input type="hidden" name="date" id="date">
+                <input type="hidden" name="destination" id="destination">
+                <input type="hidden" name="attention_person" id="attention_person">
+                <input type="hidden" name="notes" id="notes">
 
+                <!-- Documents Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-list-alt mr-2"></i>
+                            Select Documents to Send
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="ready-documents-table" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 30px;">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="select-all">
+                                                <label class="custom-control-label" for="select-all"></label>
+                                            </div>
+                                        </th>
+                                        <th>Invoice No</th>
+                                        <th>Supplier</th>
+                                        <th>Document Type</th>
+                                        <th>Document No</th>
+                                        <th>Receive Date</th>
+                                        <th>Days</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <input type="hidden" name="documents" id="selected-documents" required>
+                        @error('documents')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="card">
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary" id="openDeliveryModal" disabled>
+                            <i class="fas fa-file-invoice mr-1"></i> Create LPD
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Create LPD Modal -->
-    <div class="modal fade" id="createLpdModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+    <!-- Delivery Info Modal -->
+    <div class="modal fade" id="deliveryInfoModal" tabindex="-1" role="dialog" aria-labelledby="deliveryInfoModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Create New LPD</h5>
+                    <h5 class="modal-title" id="deliveryInfoModalLabel">
+                        <i class="fas fa-file-invoice mr-2"></i>
+                        Input Delivery Info
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="lpd-form" action="{{ route('accounting.lpd.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <!-- Hidden input for selected invoices -->
-                        <input type="hidden" name="invoices" id="selected-invoices">
-
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>LPD Number <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="lpd_number" required>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Date <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" name="date" value="{{ date('Y-m-d') }}"
-                                        required>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Destination Project <span class="text-danger">*</span></label>
-                                    <select class="form-control select2bs4" name="destination" required>
-                                        <option value="">Select Project</option>
-                                        @foreach ($projects as $project)
-                                            <option value="{{ $project->code }}">
-                                                {{ $project->code }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Attention Person <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="attention_person" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Notes</label>
-                                    <textarea class="form-control" name="notes" rows="3"></textarea>
-                                </div>
-                            </div>
-                        </div>
-
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="lpd_number">LPD Number</label>
+                        <input type="text" class="form-control @error('lpd_number') is-invalid @enderror" id="lpd_number"
+                            name="lpd_number" value="{{ old('lpd_number') }}" required>
+                        @error('lpd_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-sm btn-primary">Create LPD</button>
+
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" class="form-control @error('date') is-invalid @enderror" id="date"
+                            name="date" value="{{ old('date', date('Y-m-d')) }}" required>
+                        @error('date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                </form>
+
+                    <div class="form-group">
+                        <label for="destination">Destination</label>
+                        <input type="text" class="form-control @error('destination') is-invalid @enderror"
+                            id="destination" name="destination" value="{{ old('destination') }}" required>
+                        @error('destination')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="attention_person">Attention Person</label>
+                        <input type="text" class="form-control @error('attention_person') is-invalid @enderror"
+                            id="attention_person" name="attention_person" value="{{ old('attention_person') }}" required>
+                        @error('attention_person')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea class="form-control @error('notes') is-invalid @enderror" id="notes" name="notes" rows="3">{{ old('notes') }}</textarea>
+                        @error('notes')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-sm btn-primary" id="submitForm">
+                        <i class="fas fa-save mr-1"></i> Save
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -122,49 +142,10 @@
 @section('styles')
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('adminlte/plugins/datatables/css/datatables.min.css') }}" />
-    <!-- Select2 -->
-    <link rel="stylesheet" href="{{ asset('adminlte/plugins/select2/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('adminlte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
-    <style>
-        .card-header .active {
-            color: black;
-            text-transform: uppercase;
-        }
-
-        .document-details {
-            background-color: #f8f9fa;
-        }
-
-        tr.document-details {
-            display: none;
-            /* Initial state */
-        }
-
-        tr.has-details {
-            cursor: pointer;
-        }
-
-        tr.has-details:hover {
-            background-color: #f5f5f5;
-        }
-
-        tr.details-shown {
-            background-color: #f0f0f0;
-        }
-
-        /* Ensure the details row takes full width */
-        tr.document-details td {
-            padding: 1rem;
-        }
-
-        /* Add a subtle border to separate the details */
-        tr.document-details {
-            border-top: 2px solid #dee2e6;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/toastr/toastr.min.css') }}">
 @endsection
 
 @section('scripts')
@@ -173,154 +154,199 @@
     <script src="{{ asset('adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('adminlte/plugins/datatables/datatables.min.js') }}"></script>
-    <!-- Select2 -->
-    <script src="{{ asset('adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/toastr/toastr.min.js') }}"></script>
+
     <script>
         $(document).ready(function() {
-            // initialize select2
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            });
+            toastr.options = {
+                "closeButton": true,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": true,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "30000",
+                "extendedTimeOut": "10000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut",
+                "tapToDismiss": false
+            };
 
-            const table = $('#documents-table').DataTable({
+            // Initialize DataTable
+            const table = $('#ready-documents-table').DataTable({
+                responsive: true,
                 processing: true,
                 serverSide: true,
                 ajax: '{{ route('accounting.lpd.ready-to-deliver.data') }}',
                 columns: [{
                         data: null,
                         orderable: false,
+                        searchable: false,
+                        className: 'text-center',
                         render: function(data, type, row) {
-                            return `<input type="checkbox" class="invoice-checkbox" value="${row.id}">`;
+                            return `
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input document-checkbox" 
+                                        id="document-${row.DT_RowIndex}" value="${row.id}">
+                                    <label class="custom-control-label" for="document-${row.DT_RowIndex}"></label>
+                                </div>
+                            `;
                         }
                     },
                     {
-                        data: 'type'
+                        data: 'invoice_number',
+                        name: 'invoice_number'
                     },
                     {
-                        data: 'document_number'
+                        data: 'supplier_name',
+                        name: 'supplier_name'
                     },
                     {
-                        data: 'document_date'
+                        data: 'document_type',
+                        name: 'document_type'
                     },
                     {
-                        data: 'invoice_number'
+                        data: 'document_number',
+                        name: 'document_number'
                     },
                     {
-                        data: 'receive_date'
+                        data: 'receive_date',
+                        name: 'receive_date'
                     },
                     {
-                        data: 'action'
+                        data: 'days',
+                        name: 'days',
+                        className: 'text-right'
                     }
                 ],
                 order: [
-                    [1, 'asc']
+                    [6, 'desc']
                 ],
-                drawCallback: function(settings) {
-                    // After table is drawn, reapply the detail rows
-                    const api = this.api();
-                    const rows = api.rows().nodes();
-
-                    $(rows).each(function() {
-                        const $row = $(this);
-                        const data = api.row($row).data();
-
-                        if (data && data.additional_documents && Array.isArray(data
-                                .additional_documents) &&
-                            data.additional_documents.length > 0) {
-
-                            // Remove any existing details row
-                            $row.next('.document-details').remove();
-
-                            let documentsHtml = `
-                                <tr class="document-details" data-parent="${data.id}">
-                                    <td colspan="7">
-                                        <div class="pl-5 py-1 mt-0 bg-light">
-                                            <h6 class="mt-1"><strong><small>Additional Documents:</small></strong></h6>
-                                            <div class="table-responsive">
-                                                <table class="table table-sm table-borderless mb-0">
-                                                        <thead class="text-muted">
-                                                            <tr>
-                                                                <th class="py-0"><small>Type</small></th>
-                                                                <th class="py-0"><small>Number</small></th>
-                                                                <th class="py-0"><small>Document Date</small></th>
-                                                                <th class="py-0"><small>Receive Date</small></th>
-                                                            </tr>
-                                                        </thead>
-                                                    <tbody>
-                                                    ${data.additional_documents.map(doc => `
-                                                                                    <tr>
-                                                                                        <td class="py-0"><span class="badge badge-info"><small>${doc.type || ''}</small></span></td>
-                                                                                        <td class="py-0"><small>${doc.number || ''}</small></td>
-                                                                                        <td class="py-0"><small>${doc.document_date || ''}</small></td>
-                                                                                        <td class="py-0"><small>${doc.receive_date || ''}</small></td>
-                                                                                    </tr>
-                                                                                `).join('')}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>`;
-
-                            $row.after(documentsHtml);
-                            $row.addClass('has-details');
-
-                            // If this row was previously expanded, show the details
-                            if ($row.hasClass('details-shown')) {
-                                $row.next('.document-details').show();
-                            } else {
-                                $row.next('.document-details').hide();
-                            }
-                        }
-                    });
-                }
-            });
-
-            // Update the click handler
-            $('#invoices-table tbody').on('click', 'tr', function(e) {
-                const $clickedRow = $(this);
-
-                // Don't trigger for document detail rows or checkbox clicks
-                if ($clickedRow.hasClass('document-details') || $(e.target).is(':checkbox')) {
-                    return;
-                }
-
-                const $detailsRow = $clickedRow.next('.document-details');
-
-                if ($detailsRow.length) {
-                    $detailsRow.toggle();
-                    $clickedRow.toggleClass('details-shown');
+                drawCallback: function() {
+                    updateSelectAllCheckbox();
                 }
             });
 
             // Handle select all checkbox
-            $('#select-all').on('change', function() {
-                $('.invoice-checkbox').prop('checked', $(this).prop('checked'));
-                updateCreateButton();
+            $('#select-all').change(function() {
+                const isChecked = $(this).prop('checked');
+                $('.document-checkbox:visible').prop('checked', isChecked);
+                updateSelectedDocuments();
             });
 
             // Handle individual checkbox changes
-            $('#invoices-table').on('change', '.invoice-checkbox', function() {
-                updateCreateButton();
+            $(document).on('change', '.document-checkbox', function() {
+                updateSelectAllCheckbox();
+                updateSelectedDocuments();
             });
 
-            // Update create button state
-            function updateCreateButton() {
-                const checkedCount = $('.invoice-checkbox:checked').length;
-                $('#create-lpd-btn').prop('disabled', checkedCount === 0);
+            // Update select all checkbox state
+            function updateSelectAllCheckbox() {
+                const totalVisible = $('.document-checkbox:visible').length;
+                const totalChecked = $('.document-checkbox:visible:checked').length;
+                $('#select-all').prop('checked', totalVisible === totalChecked && totalVisible > 0);
             }
 
-            // Handle create delivery button click
-            $('#create-lpd-btn').on('click', function() {
-                const selectedInvoices = $('.invoice-checkbox:checked').map(function() {
+            // Update hidden input with selected document IDs
+            function updateSelectedDocuments() {
+                const selectedIds = $('.document-checkbox:checked').map(function() {
                     return $(this).val();
                 }).get();
+                $('#selected-documents').val(JSON.stringify(selectedIds));
+                $('#openDeliveryModal').prop('disabled', selectedIds.length === 0);
+            }
 
-                $('#selected-invoices').val(JSON.stringify(selectedInvoices));
-                $('#createLpdModal').modal('show');
+            // Handle opening modal
+            $('#openDeliveryModal').click(function() {
+                // Clear previous values
+                $('#deliveryInfoModal input').val('');
+                $('#deliveryInfoModal textarea').val('');
+                $('#deliveryInfoModal input[name="date"]').val('{{ date('Y-m-d') }}');
+                $('#deliveryInfoModal .is-invalid').removeClass('is-invalid');
+
+                $('#deliveryInfoModal').modal('show');
             });
 
+            // Handle form submission in modal
+            $('#submitForm').click(function(e) {
+                e.preventDefault();
+
+                // Validate required fields
+                let isValid = true;
+                $('#deliveryInfoModal input[required]').each(function() {
+                    if (!$(this).val()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+
+                if (!isValid) {
+                    return;
+                }
+
+                // Transfer values to hidden form
+                const fields = ['lpd_number', 'date', 'destination', 'attention_person', 'notes'];
+                fields.forEach(field => {
+                    const value = $(`#deliveryInfoModal [name="${field}"]`).val();
+                    $(`#create-lpd-form #${field}`).val(value);
+                });
+
+                // Close modal
+                $('#deliveryInfoModal').modal('hide');
+
+                // Submit the form
+                $('#create-lpd-form').submit();
+            });
+
+            // Clear validation on input
+            $('#deliveryInfoModal input').on('input', function() {
+                $(this).removeClass('is-invalid');
+            });
+
+            // Handle form submission with AJAX
+            $('#create-lpd-form').submit(function(e) {
+                e.preventDefault();
+                const selectedDocuments = JSON.parse($('#selected-documents').val() || '[]');
+
+                if (selectedDocuments.length === 0) {
+                    toastr.error('Please select at least one document.');
+                    return false;
+                }
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        toastr.success('LPD created successfully');
+                        window.location.href =
+                            "{{ route('accounting.lpd.index', ['page' => 'list']) }}";
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            // Validation errors
+                            if (xhr.responseJSON.errors) {
+                                const errors = xhr.responseJSON.errors;
+                                Object.keys(errors).forEach(key => {
+                                    toastr.error(errors[key][0]);
+                                });
+                            } else {
+                                toastr.error(xhr.responseJSON.message);
+                            }
+                        } else {
+                            // Other errors including duplicate entry
+                            const error = xhr.responseJSON?.message ||
+                                'An error occurred while creating LPD';
+                            toastr.error(error);
+                        }
+                    }
+                });
+            });
         });
     </script>
 @endsection

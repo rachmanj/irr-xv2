@@ -56,7 +56,15 @@ Route::prefix('accounting')->name('accounting.')->group(function () {
         Route::get('ready-to-deliver/data', [LpdController::class, 'readyToDeliverData'])
             ->name('ready-to-deliver.data');
         Route::get('search', [LpdController::class, 'searchData'])->name('search');
-        Route::resource('/', LpdController::class)->parameters(['' => 'lpd']);
+        Route::get('/{id}/edit', [LpdController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [LpdController::class, 'update'])->name('update');
+        Route::delete('/{id}', [LpdController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/show', [LpdController::class, 'show'])->name('show');
+        Route::get('/', [LpdController::class, 'index'])->name('index');
+        Route::get('/{id}/send', [LpdController::class, 'send'])->name('send');
+        Route::post('/', [LpdController::class, 'store'])->name('store');
+        Route::get('/{id}/print-preview', [LpdController::class, 'printPreview'])->name('print-preview');
+        // Route::resource('/', LpdController::class)->parameters(['' => 'lpd']);
     });
 
     // DELIVERIES -- NOT USEd
