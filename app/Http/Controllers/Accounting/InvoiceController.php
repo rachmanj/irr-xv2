@@ -198,7 +198,9 @@ class InvoiceController extends Controller
 
     public function show($id)
     {
-        $invoice = Invoice::findOrFail($id);
+        $invoice = Invoice::with(['deliveries' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }])->findOrFail($id);
 
         // Convert date fields to Carbon instances
         $invoice->invoice_date = \Carbon\Carbon::parse($invoice->invoice_date);
