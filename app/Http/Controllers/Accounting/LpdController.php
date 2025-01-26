@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Accounting;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ToolController;
 use App\Models\AdditionalDocument;
 use App\Models\Delivery;
 use App\Models\Project;
@@ -139,7 +140,7 @@ class LpdController extends Controller
                 ->addIndexColumn()
                 ->toJson();
         } catch (\Exception $e) {
-            Log::error('Error in readyToDeliverData: ' . $e->getMessage());
+            // Log::error('Error in readyToDeliverData: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -315,6 +316,7 @@ class LpdController extends Controller
                 if ($document->documentable_type === 'App\Models\AdditionalDocument') {
                     $document->documentable->update([
                         'status' => 'sent',
+                        'cur_loc' => app(ToolController::class)->getTransitLocationName($lpd->destination),
                     ]);
                 }
             }

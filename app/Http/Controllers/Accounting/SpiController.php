@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Accounting;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ToolController;
 use App\Models\Project;
 use App\Models\Delivery;
 use App\Models\Invoice;
@@ -175,6 +176,13 @@ class SpiController extends Controller
                     $document->documentable->update([
                         'status' => 'sent',
                         'duration1' => (int) \Carbon\Carbon::parse($document->documentable->receive_date)->diffInDays(now()),
+                        'cur_loc' => app(ToolController::class)->getTransitLocationName($spi->destination),
+                    ]);
+                }
+
+                if ($document->documentable_type === 'App\Models\AdditionalDocument') {
+                    $document->documentable->update([
+                        'cur_loc' => app(ToolController::class)->getTransitLocationName($spi->destination),
                     ]);
                 }
             }

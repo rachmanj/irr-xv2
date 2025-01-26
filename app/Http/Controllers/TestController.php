@@ -11,7 +11,8 @@ class TestController extends Controller
     public function index()
     {
         // $test = app(AdditionalDocumentController::class)->getReadyToSendDocuments();
-        $test = app(InvoiceController::class)->monthly_summary();
+        // $test = app(InvoiceController::class)->monthly_summary();
+        $test = app(ToolController::class)->getLocationName('000H');
 
         return $test;
     }
