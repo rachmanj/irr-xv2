@@ -65,6 +65,7 @@ class LpdController extends Controller
             }
 
             $lpd->attachDocuments($documentIds, AdditionalDocument::class);
+            saveLog('delivery', $lpd->id, 'create', Auth::id(), 15);
 
             DB::commit();
 
@@ -252,6 +253,8 @@ class LpdController extends Controller
             // Attach new documents
             $lpd->attachDocuments($documentIds, AdditionalDocument::class);
 
+            saveLog('delivery', $lpd->id, 'update', Auth::id(), 15);
+
             DB::commit();
 
             Alert::success('Success', 'LPD updated successfully');
@@ -283,6 +286,8 @@ class LpdController extends Controller
 
             // Delete the LPD
             $lpd->delete();
+
+            saveLog('delivery', $lpd->id, 'delete', Auth::id(), 15);
 
             DB::commit();
 
@@ -320,6 +325,8 @@ class LpdController extends Controller
                     ]);
                 }
             }
+
+            saveLog('delivery', $lpd->id, 'send', Auth::id(), 5);
 
             DB::commit();
 

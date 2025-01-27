@@ -66,6 +66,7 @@ class SpiController extends Controller
         // Attach invoices
         $spi->attachDocuments($invoiceIds, Invoice::class);
 
+        saveLog('delivery', $spi->id, 'create', Auth::id(), 15);
         Alert::success('Success', 'SPI created successfully');
 
         return redirect()->route('accounting.spi.index')->with('success', 'SPI created successfully');
@@ -187,6 +188,8 @@ class SpiController extends Controller
                 }
             }
 
+            saveLog('delivery', $spi->id, 'send', Auth::id(), 15);
+
             DB::commit();
 
             return response()->json([
@@ -274,6 +277,8 @@ class SpiController extends Controller
             // Attach new invoices
             $spi->attachDocuments($invoiceIds, Invoice::class);
 
+            saveLog('delivery', $spi->id, 'update', Auth::id(), 15);
+
             DB::commit();
 
             Alert::success('Success', 'SPI updated successfully');
@@ -304,6 +309,8 @@ class SpiController extends Controller
 
             // Delete the SPI
             $spi->delete();
+
+            saveLog('delivery', $spi->id, 'delete', Auth::id(), 15);
 
             DB::commit();
 
