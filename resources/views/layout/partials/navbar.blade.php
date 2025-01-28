@@ -25,6 +25,10 @@
                     @include('layout.partials.menu.accounting')
                 @endcan
 
+                @can('akses_logistic')
+                    @include('layout.partials.menu.logistic')
+                @endcan
+
                 @can('akses_master')
                     @include('layout.partials.menu.master')
                 @endcan
