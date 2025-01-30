@@ -36,6 +36,7 @@ class AdditionalDocumentController extends Controller
             return view($views[$page], compact('dashboardData'));
         } elseif ($page === 'search') {
             $documentTypes = AdditionalDocumentType::orderBy('type_name')->get();
+
             return view($views[$page], compact('documentTypes'));
         }
 

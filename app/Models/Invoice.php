@@ -5,9 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Invoice extends Model
 {
@@ -38,13 +35,8 @@ class Invoice extends Model
         return $this->hasMany(Attachment::class);
     }
 
-    public function deliveries(): MorphToMany
+    public function spis(): BelongsToMany
     {
-        return $this->morphToMany(Delivery::class, 'documentable', 'delivery_documents');
-    }
-
-    public function deliveryDocuments()
-    {
-        return $this->morphMany(DeliveryDocument::class, 'documentable');
+        return $this->belongsToMany(Spi::class);
     }
 }

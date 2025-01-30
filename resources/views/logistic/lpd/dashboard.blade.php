@@ -1,27 +1,23 @@
 @extends('layout.main')
 
 @section('title_page')
-    ADDITIONAL DOCUMENTS
+    LPD
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / addocs / dashboard</small>
+    <small>logistic / lpd / dashboard</small>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-addoc-links page='dashboard' />
+            <x-log-lpd-links page='dashboard' />
 
-            <div class="row">
+            {{-- <div class="row">
                 <div class="col-6">
-                    @include('accounting.additional-documents.dashboard.outs')
+                    @include('logistic.lpd.dashboard')
                 </div>
-
-                <div class="col-6">
-                    @include('accounting.additional-documents.dashboard.bytype')
-                </div>
-            </div>
+            </div> --}}
 
         </div>
     </div>

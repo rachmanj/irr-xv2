@@ -17,12 +17,13 @@ return new class extends Migration
             $table->date('date');
             $table->string('origin', 20); // project code
             $table->string('destination', 20); // project code
-            $table->string('person1', 50)->nullable();
-            $table->string('person2', 50)->nullable();
+            $table->string('attention_person', 50)->nullable();
             $table->foreignId('created_by')->constrained('users');
             $table->dateTime('received_at')->nullable();
             $table->foreignId('received_by')->nullable()->constrained('users');
             $table->date('received_date')->nullable();
+            $table->text('notes')->nullable();
+            $table->string('status', 20)->default('draft');
             $table->timestamps();
         });
     }
@@ -32,6 +33,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('spis');
+        Schema::enableForeignKeyConstraints();
     }
 };

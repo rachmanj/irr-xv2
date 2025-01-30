@@ -23,7 +23,7 @@
 <body class="hold-transition register-page">
     <div class="register-box">
         <div class="register-logo">
-            <h2><b>IRR</b> - X<small> | v.1.0</small></h2>
+            <h2><b>IRR</b> - X<small> | v.2.0</small></h2>
         </div>
 
         <div class="card">

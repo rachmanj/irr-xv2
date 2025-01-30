@@ -22,19 +22,24 @@ class ItoController extends Controller
         $filename = 'ito_' . uniqid() . '.' . $file->getClientOriginalExtension();
         $file->move(public_path('uploads'), $filename);
 
-        Excel::import(new ItoImport, public_path('uploads/' . $filename));
-        unlink(public_path('uploads/' . $filename));
+        try {
+            $import = new ItoImport(true);
+            Excel::import($import, public_path('uploads/' . $filename));
+            Alert::success('Success', 'File berhasil diupload. ' . $import->getSuccessCount() . ' records imported, ' . $import->getSkippedCount() . ' records skipped.');
+        } catch (\Exception $e) {
+            Alert::error('Error', 'Failed to upload file: ' . $e->getMessage());
+        } finally {
+            unlink(public_path('uploads/' . $filename));
+        }
 
         saveLog('additional_document', null, 'upload', Auth::user()->id, 20);
-        Alert::success('Success', 'File berhasil diupload');
-
         return redirect()->back();
     }
 
     public function data()
     {
         $itos = AdditionalDocument::query();
-        $itos = $itos->whereHas('documentType', function ($query) {
+        $itos = $itos->whereHas('type', function ($query) {
             $query->where('type_name', 'ito');
         })->whereNull('invoice_id')
             ->whereNull('receive_date');

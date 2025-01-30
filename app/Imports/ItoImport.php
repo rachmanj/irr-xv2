@@ -12,15 +12,33 @@ class ItoImport implements ToModel, WithHeadingRow
 {
     public $itoTypeId;
     public $batchNo;
+    protected $checkDuplicates;
+    protected $successCount = 0;
+    protected $skippedCount = 0;
 
-    public function __construct()
+    public function __construct($checkDuplicates = false)
     {
         $this->itoTypeId = $this->getItoTypeId();
         $this->batchNo = $this->getBatchNo();
+        $this->checkDuplicates = $checkDuplicates;
     }
 
     public function model(array $row)
     {
+        if ($this->checkDuplicates) {
+            // Check for existing document with same document_number
+            $exists = AdditionalDocument::whereHas('type', function ($query) {
+                $query->where('type_name', 'ito');
+            })->where('document_number', $row['ito_no'])
+                ->exists();
+
+            if ($exists) {
+                $this->skippedCount++;
+                return null; // Skip this record
+            }
+        }
+
+        $this->successCount++;
         return new AdditionalDocument([
             'type_id' => $this->itoTypeId,
             'document_number' => $row['ito_no'],
@@ -32,6 +50,7 @@ class ItoImport implements ToModel, WithHeadingRow
             'grpo_no' => $row['grpo_no'],
             'origin_wh' => $row['origin_whs'],
             'destination_wh' => $row['destination_whs'],
+            'cur_loc' => '000H-LOG',
             'batch_no' => $this->batchNo,
         ]);
     }
@@ -59,5 +78,15 @@ class ItoImport implements ToModel, WithHeadingRow
     {
         $batch_no = AdditionalDocument::max('batch_no');
         return $batch_no + 1;
+    }
+
+    public function getSuccessCount()
+    {
+        return $this->successCount;
+    }
+
+    public function getSkippedCount()
+    {
+        return $this->skippedCount;
     }
 }

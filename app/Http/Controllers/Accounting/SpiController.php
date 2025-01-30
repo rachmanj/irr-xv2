@@ -7,6 +7,7 @@ use App\Http\Controllers\ToolController;
 use App\Models\Project;
 use App\Models\Delivery;
 use App\Models\Invoice;
+use App\Models\Spi;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,7 +46,7 @@ class SpiController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $spi = Delivery::create([
+        $spi = Spi::create([
             'nomor' => $validated['spi_number'],
             'type' => 'SPI',
             'date' => $validated['date'],
@@ -80,7 +81,7 @@ class SpiController extends Controller
 
             // If editing, include current SPI's invoices
             if (request()->has('include_current') && request('current_spi_id')) {
-                $currentSpi = Delivery::find(request('current_spi_id'));
+                $currentSpi = Spi::find(request('current_spi_id'));
                 if ($currentSpi) {
                     $currentInvoiceIds = $currentSpi->documents()
                         ->where('documentable_type', Invoice::class)
@@ -120,7 +121,7 @@ class SpiController extends Controller
 
     public function data()
     {
-        $deliveries = Delivery::where('type', 'SPI')->get();
+        $deliveries = Spi::where('type', 'SPI')->get();
 
         return datatables()->of($deliveries)
             ->addColumn('document_count', function ($delivery) {
@@ -141,7 +142,7 @@ class SpiController extends Controller
 
     public function printPreview($id)
     {
-        $spi = Delivery::with([
+        $spi = Spi::with([
             'documents.documentable.supplier',
             'documents.documentable.additionalDocuments.type'
         ])
@@ -152,7 +153,7 @@ class SpiController extends Controller
 
     public function printContent($id)
     {
-        $spi = Delivery::with([
+        $spi = Spi::with([
             'documents.documentable.supplier'
         ])->findOrFail($id);
 
@@ -161,7 +162,7 @@ class SpiController extends Controller
 
     public function send($id)
     {
-        $spi = Delivery::with('documents.documentable')->findOrFail($id);
+        $spi = Spi::with('documents.documentable')->findOrFail($id);
 
         DB::beginTransaction();
 
@@ -208,7 +209,7 @@ class SpiController extends Controller
 
     public function show($id)
     {
-        $spi = Delivery::with([
+        $spi = Spi::with([
             'documents.documentable.supplier',
             'documents.documentable.additionalDocuments.type',
         ])->findOrFail($id);
@@ -218,7 +219,7 @@ class SpiController extends Controller
 
     public function edit($id)
     {
-        $spi = Delivery::with([
+        $spi = Spi::with([
             'documents.documentable.supplier',
             'documents.documentable.additionalDocuments.type'
         ])->findOrFail($id);
@@ -235,7 +236,7 @@ class SpiController extends Controller
 
     public function update(Request $request, $id)
     {
-        $spi = Delivery::findOrFail($id);
+        $spi = Spi::findOrFail($id);
 
         if ($spi->sent_date) {
             return response()->json([
@@ -292,7 +293,7 @@ class SpiController extends Controller
 
     public function destroy($id)
     {
-        $spi = Delivery::findOrFail($id);
+        $spi = Spi::findOrFail($id);
 
         if ($spi->sent_date) {
             return response()->json([

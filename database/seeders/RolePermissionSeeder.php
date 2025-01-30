@@ -15,6 +15,7 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'user', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'accounting', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'finance', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'logistic', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
         ];
 
         DB::table('roles')->insert($roles);
@@ -35,6 +36,8 @@ class RolePermissionSeeder extends Seeder
 
         // Get superadmin role ID
         $superadminRole = DB::table('roles')->where('name', 'superadmin')->first()->id;
+        $logisticRole = DB::table('roles')->where('name', 'logistic')->first()->id;
+        $accountingRole = DB::table('roles')->where('name', 'accounting')->first()->id;
 
         // Get permission IDs
         $aksesAdmin = DB::table('permissions')->where('name', 'akses_admin')->first()->id;
@@ -58,6 +61,10 @@ class RolePermissionSeeder extends Seeder
             ['role_id' => $superadminRole, 'permission_id' => $aksesLogistic],
             ['role_id' => $superadminRole, 'permission_id' => $aksesReport],
             ['role_id' => $superadminRole, 'permission_id' => $aksesMigrasi],
+            ['role_id' => $logisticRole, 'permission_id' => $aksesLogistic],
+            ['role_id' => $logisticRole, 'permission_id' => $aksesReport],
+            ['role_id' => $accountingRole, 'permission_id' => $aksesAccounting],
+            ['role_id' => $accountingRole, 'permission_id' => $aksesReport],
         ];
 
         DB::table('role_has_permissions')->insert($rolePermissions);
