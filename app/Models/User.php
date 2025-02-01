@@ -55,4 +55,11 @@ class User extends Authenticatable
             'department_name' => 'n/a',
         ]);
     }
+
+    public function curLoc()
+    {
+        return $this->belongsTo(Department::class, 'cur_loc')->withDefault([
+            'location_code' => 'n/a'
+        ]);
+    }
 }

@@ -32,11 +32,16 @@ class Invoice extends Model
 
     public function attachments()
     {
-        return $this->hasMany(Attachment::class);
+        return $this->hasMany(InvoiceAttachment::class);
     }
 
     public function spis(): BelongsToMany
     {
-        return $this->belongsToMany(Spi::class);
+        return $this->belongsToMany(Spi::class, 'spi_invoice');
+    }
+
+    public function curLoc()
+    {
+        return $this->belongsTo(Department::class, 'cur_loc');
     }
 }

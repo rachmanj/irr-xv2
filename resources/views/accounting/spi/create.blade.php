@@ -1,7 +1,7 @@
 @extends('layout.main')
 
 @section('title_page')
-    Distribution
+    SPI
 @endsection
 
 @section('breadcrumb_title')
@@ -251,13 +251,13 @@
                                                     </thead>
                                                     <tbody>
                                                         ${data.additional_documents.map(doc => `
-                                                                                                                <tr>
-                                                                                                                    <td class="py-0"><span class="badge badge-info"><small>${doc.type || ''}</small></span></td>
-                                                                                                                    <td class="py-0"><small>${doc.number || ''}</small></td>
-                                                                                                                    <td class="py-0"><small>${doc.document_date || ''}</small></td>
-                                                                                                                    <td class="py-0"><small>${doc.receive_date || ''}</small></td>
-                                                                                                                </tr>
-                                                                                                            `).join('')}
+                                                                                                                    <tr>
+                                                                                                                        <td class="py-0"><span class="badge badge-info"><small>${doc.type || ''}</small></span></td>
+                                                                                                                        <td class="py-0"><small>${doc.number || ''}</small></td>
+                                                                                                                        <td class="py-0"><small>${doc.document_date || ''}</small></td>
+                                                                                                                        <td class="py-0"><small>${doc.receive_date || ''}</small></td>
+                                                                                                                    </tr>
+                                                                                                                `).join('')}
                                                     </tbody>
                                                 </table>
                                             </div>

@@ -12,8 +12,8 @@ class TestController extends Controller
     {
         // $test = app(AdditionalDocumentController::class)->getReadyToSendDocuments();
         // $test = app(InvoiceController::class)->monthly_summary();
-        $test = app(ToolController::class)->getLocationName('000H');
-
+        // $test = app(ToolController::class)->getLocationName('000H');
+        $test = app(InvoiceController::class)->getReadyToDeliverInvoices();
         return $test;
     }
 }

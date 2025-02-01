@@ -32,4 +32,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // MIGRASI
     Route::get('migrasi', [MigrasiController::class, 'index'])->name('migrasi.index');
     Route::post('migrasi/copy-invoice', [MigrasiController::class, 'copyInvoiceIRR5'])->name('migrasi.copyInvoiceIRR5');
+
+    Route::get('/departments-by-project', [UserController::class, 'getDepartmentsByProject'])
+        ->name('departments.by.project');
 });

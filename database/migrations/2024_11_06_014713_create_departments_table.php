@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('department_name', 100)->nullable();
+            $table->string('project', 10)->nullable();
+            $table->string('location_code', 30)->nullable();
+            $table->string('transit_code', 30)->nullable();
             $table->string('akronim', 10)->nullable();
             $table->string('sap_code', 10)->nullable();
             $table->timestamps();

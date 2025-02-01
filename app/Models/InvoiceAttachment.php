@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Attachment extends Model
+class InvoiceAttachment extends Model
 {
     use HasFactory;
 
@@ -19,7 +19,7 @@ class Attachment extends Model
 
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo(Invoice::class)->onDelete('cascade');
     }
 
     public function uploader()

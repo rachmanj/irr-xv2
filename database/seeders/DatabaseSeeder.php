@@ -6,6 +6,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -52,9 +53,18 @@ class DatabaseSeeder extends Seeder
         $superuser->assignRole('superadmin');
 
         $user = User::where('username', 'prana')->first();
-        $user->assignRole('admin');
+        $user->assignRole('accounting');
 
         $user = User::where('username', 'adminlog')->first();
         $user->assignRole('logistic');
+
+        $departmentId = DB::table('departments')->where('akronim', 'IT')->value('id');
+        User::where('username', 'superadmin')->update(['department_id' => $departmentId]);
+
+        $departmentId = DB::table('departments')->where('akronim', 'LOG')->value('id');
+        User::where('username', 'adminlog')->update(['department_id' => $departmentId]);
+
+        $departmentId = DB::table('departments')->where('akronim', 'ACC')->value('id');
+        User::where('username', 'prana')->update(['department_id' => $departmentId]);
     }
 }

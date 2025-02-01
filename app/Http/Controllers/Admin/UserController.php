@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\Department;
 
 
 class UserController extends Controller
@@ -154,5 +155,16 @@ class UserController extends Controller
             ->addColumn('action', 'admin.users.action')
             ->rawColumns(['action', 'is_active'])
             ->toJson();
+    }
+
+    public function getDepartmentsByProject(Request $request)
+    {
+        $project = $request->input('project');
+
+        $departments = Department::where('project', $project)
+            ->orderBy('department_name')
+            ->get(['id', 'department_name']);
+
+        return response()->json($departments);
     }
 }

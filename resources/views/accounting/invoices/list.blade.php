@@ -42,6 +42,7 @@
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('adminlte/plugins/datatables/css/datatables.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.css') }}">
     <style>
         .card-header .active {
             color: black;
@@ -51,13 +52,13 @@
 @endsection
 
 @section('scripts')
-@section('scripts')
     <!-- DataTables  & Plugins -->
     <script src="{{ asset('adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables/datatables.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 
     <script>
         $(document).ready(function() {
@@ -106,6 +107,46 @@
                     }
                 ]
             });
+
+            // Add delete handler function
+            window.deleteInvoice = function(invoiceId) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/accounting/invoices/${invoiceId}`,
+                            type: 'DELETE',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Invoice has been deleted.',
+                                    'success'
+                                ).then(() => {
+                                    // Reload the DataTable
+                                    $('#suppliers').DataTable().ajax.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire(
+                                    'Error!',
+                                    'There was a problem deleting the invoice.',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            }
         });
     </script>
 @endsection

@@ -36,7 +36,7 @@
                         </div>
                         <div class="form-group">
                             <label for='project'>Project</label>
-                            <select name="project" class="form-control select2bs4">
+                            <select name="project" id="project" class="form-control select2bs4">
                                 <option value="">-- Select Project --</option>
                                 @foreach (\App\Models\Project::orderBy('code')->get() as $project)
                                     <option value="{{ $project->code }}"
@@ -47,9 +47,9 @@
                         </div>
                         <div class="form-group">
                             <label for='department_id'>Department</label>
-                            <select name="department_id" class="form-control select2bs4">
+                            <select name="department_id" id="department_id" class="form-control select2bs4">
                                 <option value="">-- Select Department --</option>
-                                @foreach (\App\Models\Department::orderBy('department_name')->get() as $department)
+                                @foreach (\App\Models\Department::where('project', $user->project)->orderBy('department_name')->get() as $department)
                                     <option value="{{ $department->id }}"
                                         {{ $user->department_id == $department->id ? 'selected' : '' }}>
                                         {{ $department->department_name }}</option>
@@ -110,5 +110,39 @@
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             });
+
+            // Handle project change
+            $('#project').on('change', function() {
+                var project = $(this).val();
+                var departmentSelect = $('#department_id');
+
+                // Clear current options
+                departmentSelect.empty().append('<option value="">-- Select Department --</option>');
+
+                if (project) {
+                    // Fetch departments for selected project
+                    $.ajax({
+                        url: '{{ route('admin.departments.by.project') }}',
+                        type: 'GET',
+                        data: {
+                            project: project
+                        },
+                        success: function(response) {
+                            $.each(response, function(key, value) {
+                                departmentSelect.append(
+                                    $('<option>', {
+                                        value: value.id,
+                                        text: value.department_name
+                                    })
+                                );
+                            });
+
+                            // Trigger Select2 to update
+                            departmentSelect.trigger('change');
+                        }
+                    });
+                }
+            });
         });
-    @endsection
+    </script>
+@endsection

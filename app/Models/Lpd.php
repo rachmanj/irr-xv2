@@ -13,6 +13,13 @@ class Lpd extends Model
 
     protected $guarded = [];
 
+    // Add date casting
+    protected $casts = [
+        'date' => 'date',
+        'received_at' => 'datetime',
+        'received_date' => 'date',
+    ];
+
     public function documents()
     {
         return $this->belongsToMany(AdditionalDocument::class, 'lpd_additional_document', 'lpd_id', 'additional_document_id');

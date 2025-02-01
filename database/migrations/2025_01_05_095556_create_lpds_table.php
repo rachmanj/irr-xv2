@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('nomor', 50)->unique();
             $table->date('date');
-            $table->string('origin', 20); // project code
-            $table->string('destination', 20); // project code
+            $table->foreignId('origin_department')->constrained('departments');
+            $table->foreignId('destination_department')->constrained('departments');
             $table->string('attention_person', 50)->nullable();
             $table->foreignId('created_by')->constrained('users');
+            $table->dateTime('sent_at')->nullable();
             $table->dateTime('received_at')->nullable();
             $table->foreignId('received_by')->nullable()->constrained('users');
-            $table->date('received_date')->nullable();
             $table->text('notes')->nullable();
             $table->string('status', 20)->default('draft');
             $table->timestamps();

@@ -13,7 +13,7 @@ use App\Models\Supplier;
 use App\Models\InvoiceType;
 use App\Models\AdditionalDocumentType;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Attachment;
+use App\Models\InvoiceAttachment;
 use Illuminate\Validation\Rule;
 
 class InvoiceController extends Controller
@@ -82,7 +82,7 @@ class InvoiceController extends Controller
         $invoice->invoice_project = $request->invoice_project; // Added field
         $invoice->payment_project = $request->payment_project; // Added field
         $invoice->remarks = $request->remarks; // Added field for remarks
-        $invoice->cur_loc = $request->receive_project;
+        $invoice->cur_loc = Auth::user()->department_id;
         $invoice->created_by = Auth::user()->id;
         $invoice->save();
 
@@ -198,7 +198,7 @@ class InvoiceController extends Controller
 
     public function show($id)
     {
-        $invoice = Invoice::with(['deliveries' => function ($query) {
+        $invoice = Invoice::with(['spis' => function ($query) {
             $query->orderBy('created_at', 'desc');
         }])->findOrFail($id);
 
@@ -243,7 +243,16 @@ class InvoiceController extends Controller
                 return \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y');
             })
             ->addIndexColumn()
-            ->addColumn('action', 'accounting.invoices.action')
+            ->addColumn('action', function ($invoice) {
+                return '<div class="btn-group">
+                        <a href="' . route('accounting.invoices.show', $invoice->id) . '" class="btn btn-xs btn-info mr-1" title="View">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <button onclick="deleteInvoice(' . $invoice->id . ')" class="btn btn-xs btn-danger" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>';
+            })
             ->rawColumns(['action'])
             ->toJson();
     }
@@ -427,7 +436,7 @@ class InvoiceController extends Controller
         ], 400);
     }
 
-    public function deleteAttachment(Attachment $attachment)
+    public function deleteAttachment(InvoiceAttachment $attachment)
     {
         try {
             // Delete the file from storage
@@ -460,7 +469,7 @@ class InvoiceController extends Controller
 
     public function getReadyToDeliverInvoices()
     {
-        $userProject = Auth::user()->project;
+        $userDepartment = Auth::user()->curLoc?->location_code ?? 'n/a';
 
         // Get invoices where all additional documents have receive_date and status open
         $invoicesWithDocuments = Invoice::whereHas('additionalDocuments')
@@ -468,20 +477,16 @@ class InvoiceController extends Controller
                 $query->whereNull('receive_date')
                     ->orWhere('status', '!=', 'open');
             })
-            ->where('receive_project', $userProject)
-            ->whereNotNull('sap_doc') // Added filter to check sap_doc is not null
-            ->whereDoesntHave('deliveryDocuments', function ($query) {
-                $query->where('documentable_type', Invoice::class);
-            })
+            ->where('cur_loc', $userDepartment)
+            ->whereNotNull('sap_doc')
+            ->whereDoesntHave('spis') // Check if invoice is not already in any SPI
             ->get();
 
-        // Get invoices that have no additional documents and are not in deliveries
+        // Get invoices that have no additional documents and are not in SPIs
         $invoicesWithoutDocuments = Invoice::doesntHave('additionalDocuments')
-            ->where('receive_project', $userProject)
-            ->whereNotNull('sap_doc') // Added filter to check sap_doc is not null
-            ->whereDoesntHave('deliveryDocuments', function ($query) {
-                $query->where('documentable_type', Invoice::class);
-            })
+            ->where('cur_loc', $userDepartment)
+            ->whereNotNull('sap_doc')
+            ->whereDoesntHave('spis') // Check if invoice is not already in any SPI
             ->get();
 
         // Merge both collections
@@ -513,5 +518,15 @@ class InvoiceController extends Controller
             'success' => true,
             'message' => 'SAP DocNum updated successfully'
         ]);
+    }
+
+    public function destroy(Invoice $invoice)
+    {
+        try {
+            $invoice->delete();
+            return response()->json(['message' => 'Invoice deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error deleting invoice'], 500);
+        }
     }
 }

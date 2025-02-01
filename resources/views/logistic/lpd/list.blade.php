@@ -1,11 +1,11 @@
 @extends('layout.main')
 
 @section('title_page')
-    LPD
+    LPD List
 @endsection
 
 @section('breadcrumb_title')
-    <small>logistic / lpd / list</small>
+    <small>accounting / deliveries / list</small>
 @endsection
 
 @section('content')
@@ -14,23 +14,28 @@
             <x-log-lpd-links page='list' />
 
             <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-list-alt mr-2"></i>
+                        List of LPDs
+                    </h3>
+                </div>
                 <div class="card-body">
                     <table id="lpd-table" class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>LPD No</th>
+                                <th>LPD Number</th>
                                 <th>Date</th>
                                 <th>Destination</th>
                                 <th>Documents</th>
                                 <th>Status</th>
-                                <th></th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 @endsection
@@ -40,49 +45,29 @@
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
-    <!-- Toastr -->
-    <link rel="stylesheet" href="{{ asset('adminlte/plugins/toastr/toastr.min.css') }}">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 @endsection
 
 @section('scripts')
-    <!-- DataTables  & Plugins -->
+    <!-- DataTables & Plugins -->
     <script src="{{ asset('adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
-    <!-- Toastr -->
-    <script src="{{ asset('adminlte/plugins/toastr/toastr.min.js') }}"></script>
     <!-- SweetAlert2 -->
     <script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 
     <script>
         $(document).ready(function() {
-            // Configure Toastr
-            toastr.options = {
-                "closeButton": true,
-                "newestOnTop": true,
-                "progressBar": true,
-                "positionClass": "toast-top-right",
-                "preventDuplicates": true,
-                "timeOut": "30000",
-                "extendedTimeOut": "10000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut",
-                "tapToDismiss": false
-            };
-
             const table = $('#lpd-table').DataTable({
-                responsive: true,
-                autoWidth: false,
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: '{{ route('logistic.lpd.data') }}',
                 columns: [{
                         data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
                     },
@@ -101,12 +86,19 @@
                     {
                         data: 'document_count',
                         name: 'document_count',
-                        className: 'text-center'
+                        searchable: false
                     },
                     {
                         data: 'status',
                         name: 'status',
-                        className: 'text-center'
+                        render: function(data) {
+                            const badges = {
+                                'draft': 'badge-warning',
+                                'sent': 'badge-success',
+                                'received': 'badge-info'
+                            };
+                            return `<span class="badge ${badges[data] || 'badge-secondary'}">${data}</span>`;
+                        }
                     },
                     {
                         data: 'action',
@@ -114,70 +106,72 @@
                         orderable: false,
                         searchable: false
                     }
+                ],
+                order: [
+                    [1, 'desc']
                 ]
             });
 
-            // Handle send LPD click
-            $(document).on('click', '.send-lpd', function(e) {
-                e.preventDefault();
-                const lpdId = $(this).data('id');
-
-                if (confirm('Are you sure you want to send this LPD? This action cannot be undone.')) {
-                    $.ajax({
-                        url: "{{ route('accounting.lpd.send', ':id') }}".replace(':id', lpdId),
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                toastr.success(response.message);
+            // Handle send button click
+            $(document).on('click', '.btn-send', function() {
+                const id = $(this).data('id');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This will mark the LPD as sent. You won't be able to edit it afterwards.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, send it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `{{ url('logistic/lpd') }}/${id}/send`,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.fire('Sent!', response.message, 'success');
                                 table.ajax.reload();
-                            } else {
-                                toastr.error(response.message);
+                            },
+                            error: function(xhr) {
+                                Swal.fire('Error!', xhr.responseJSON?.message ||
+                                    'Something went wrong',
+                                    'error');
                             }
-                        },
-                        error: function(xhr) {
-                            toastr.error('Failed to send LPD. Please try again.');
-                        }
-                    });
-                }
+                        });
+                    }
+                });
             });
 
             // Handle delete button click
-            $(document).on('click', '.delete-lpd', function(e) {
-                e.preventDefault();
-                const lpdId = $(this).data('id');
-
+            $(document).on('click', '.btn-delete', function() {
+                const id = $(this).data('id');
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "This LPD will be permanently deleted!",
+                    text: "You won't be able to revert this!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
                     confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('accounting.lpd.destroy', ':id') }}".replace(
-                                ':id', lpdId),
+                            url: `{{ url('logistic/lpd') }}/${id}`,
                             type: 'DELETE',
                             data: {
                                 _token: '{{ csrf_token() }}'
                             },
                             success: function(response) {
-                                if (response.success) {
-                                    toastr.success('LPD deleted successfully');
-                                    table.ajax.reload();
-                                } else {
-                                    toastr.error(response.message);
-                                }
+                                Swal.fire('Deleted!', response.message, 'success');
+                                table.ajax.reload();
                             },
                             error: function(xhr) {
-                                const error = xhr.responseJSON?.message ||
-                                    'Failed to delete LPD';
-                                toastr.error(error);
+                                Swal.fire('Error!', xhr.responseJSON?.message ||
+                                    'Something went wrong',
+                                    'error');
                             }
                         });
                     }

@@ -14,11 +14,15 @@ Route::prefix('logistic')->name('logistic.')->group(function () {
     });
 
     Route::prefix('lpd')->name('lpd.')->group(function () {
-        Route::get('data', [LpdController::class, 'data'])->name('data');
         Route::get('/', [LpdController::class, 'index'])->name('index');
-        Route::get('search', [LpdController::class, 'searchData'])->name('search');
-        Route::get('create', [LpdController::class, 'create'])->name('create');
-        Route::post('store', [LpdController::class, 'store'])->name('store');
-        Route::get('ready-to-send', [LpdController::class, 'getReadyToSendDocuments'])->name('ready-to-send.data');
+        Route::get('/data', [LpdController::class, 'data'])->name('data');
+        Route::get('/ready-to-send/data', [LpdController::class, 'getReadyToSendDocuments'])->name('ready-to-send.data');
+        Route::post('/', [LpdController::class, 'store'])->name('store');
+        Route::get('/{id}', [LpdController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [LpdController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [LpdController::class, 'update'])->name('update');
+        Route::get('/{id}/print', [LpdController::class, 'print'])->name('print');
+        Route::post('/{id}/send', [LpdController::class, 'send'])->name('send');
+        Route::delete('/{id}', [LpdController::class, 'destroy'])->name('destroy');
     });
 });

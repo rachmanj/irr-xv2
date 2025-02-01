@@ -5,7 +5,7 @@
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / deliveries / create</small>
+    <small>logistic / lpd / create</small>
 @endsection
 
 @section('content')
@@ -19,9 +19,10 @@
                 <!-- Add after the @csrf token in the form -->
                 <input type="hidden" name="lpd_number" id="lpd_number">
                 <input type="hidden" name="date" id="date">
-                <input type="hidden" name="destination" id="destination">
+                <input type="hidden" name="destination_department" id="destination_department">
                 <input type="hidden" name="attention_person" id="attention_person">
                 <input type="hidden" name="notes" id="notes">
+                <input type="hidden" name="documents" id="selected-documents" required>
 
                 <!-- Documents Card -->
                 <div class="card">
@@ -50,7 +51,6 @@
                                 </tr>
                             </thead>
                         </table>
-                        <input type="hidden" name="documents" id="selected-documents" required>
                         @error('documents')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
@@ -72,7 +72,7 @@
     <!-- Delivery Info Modal -->
     <div class="modal fade" id="deliveryInfoModal" tabindex="-1" role="dialog" aria-labelledby="deliveryInfoModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deliveryInfoModalLabel">
@@ -84,55 +84,52 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="lpd_number">LPD Number</label>
-                        <input type="text" class="form-control @error('lpd_number') is-invalid @enderror" id="lpd_number"
-                            name="lpd_number" value="{{ old('lpd_number') }}" required>
-                        @error('lpd_number')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <form id="modal-form">
+                        <div class="form-group">
+                            <label for="lpd_number">LPD Number</label>
+                            <input type="text" class="form-control" id="lpd_number" name="lpd_number" required>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="date">Date</label>
-                        <input type="date" class="form-control @error('date') is-invalid @enderror" id="date"
-                            name="date" value="{{ old('date', date('Y-m-d')) }}" required>
-                        @error('date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" class="form-control" id="date" name="date"
+                                value="{{ date('Y-m-d') }}" required>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="destination">Destination</label>
-                        <input type="text" class="form-control @error('destination') is-invalid @enderror"
-                            id="destination" name="destination" value="{{ old('destination') }}" required>
-                        @error('destination')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <div class="form-group">
+                            <label for="destination_project">Destination Project</label>
+                            <select class="form-control select2bs4" id="destination_project" name="destination_project"
+                                style="width: 100%;" required>
+                                <option value="">Select Project</option>
+                                @foreach ($projects as $project)
+                                    <option value="{{ $project->code }}">{{ $project->code }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="attention_person">Attention Person</label>
-                        <input type="text" class="form-control @error('attention_person') is-invalid @enderror"
-                            id="attention_person" name="attention_person" value="{{ old('attention_person') }}" required>
-                        @error('attention_person')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <div class="form-group">
+                            <label for="destination_department">Destination Department</label>
+                            <select class="form-control select2bs4" id="destination_department"
+                                name="destination_department" style="width: 100%;" required>
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="notes">Notes</label>
-                        <textarea class="form-control @error('notes') is-invalid @enderror" id="notes" name="notes" rows="3">{{ old('notes') }}</textarea>
-                        @error('notes')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <div class="form-group">
+                            <label for="attention_person">Attention Person</label>
+                            <input type="text" class="form-control" id="attention_person" name="attention_person"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-sm btn-primary" id="submitForm">
-                        <i class="fas fa-save mr-1"></i> Save
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="submitForm">Create LPD</button>
                 </div>
             </div>
         </div>
@@ -142,11 +139,26 @@
 @section('styles')
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet"
-        href="{{ asset('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+    <!-- Select2 -->
+    <link href="{{ asset('adminlte/plugins/select2/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('adminlte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}" rel="stylesheet">
+    <style>
+        .select2-container {
+            z-index: 9999;
+        }
+
+        .modal-body .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--bootstrap4 .select2-selection--single {
+            height: calc(2.25rem + 2px) !important;
+        }
+    </style>
 @endsection
 
 @section('scripts')
@@ -157,6 +169,8 @@
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
     <!-- SweetAlert2 -->
     <script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <!-- Select2 -->
+    <script src="{{ asset('adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
 
     <script>
         $(document).ready(function() {
@@ -244,68 +258,144 @@
                 $('#openDeliveryModal').prop('disabled', selectedIds.length === 0);
             }
 
-            // Handle opening modal
-            $('#openDeliveryModal').click(function() {
-                // Clear previous values
-                $('#deliveryInfoModal input').val('');
-                $('#deliveryInfoModal textarea').val('');
-                $('#deliveryInfoModal input[name="date"]').val('{{ date('Y-m-d') }}');
-                $('#deliveryInfoModal .is-invalid').removeClass('is-invalid');
+            // Initialize modal selects when modal is shown
+            $('#deliveryInfoModal').on('shown.bs.modal', function() {
+                // Initialize project select
+                if (!$('#destination_project').data('select2')) {
+                    $('#destination_project').select2({
+                        theme: 'bootstrap4',
+                        placeholder: 'Select Project',
+                        dropdownParent: $('#deliveryInfoModal'),
+                        width: '100%'
+                    });
+                }
 
+                // Initialize department select
+                if (!$('#destination_department').data('select2')) {
+                    $('#destination_department').select2({
+                        theme: 'bootstrap4',
+                        placeholder: 'Select Department',
+                        dropdownParent: $('#deliveryInfoModal'),
+                        width: '100%'
+                    });
+                }
+            });
+
+            // Destroy Select2 when modal is hidden
+            $('#deliveryInfoModal').on('hidden.bs.modal', function() {
+                $('#destination_project, #destination_department').select2('destroy');
+            });
+
+            // Handle project change
+            $('#destination_project').on('change', function() {
+                const projectCode = $(this).val();
+                const departmentSelect = $('#destination_department');
+
+                // Clear departments
+                departmentSelect.empty().append('<option value="">Select Department</option>');
+
+                if (!projectCode) {
+                    return;
+                }
+
+                // Show loading state
+                departmentSelect.prop('disabled', true);
+
+                // Fetch departments
+                $.ajax({
+                    url: "{{ route('api.projects.departments', ['projectCode' => ':projectCode']) }}"
+                        .replace(':projectCode', projectCode),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log('Departments received:', response);
+
+                        if (Array.isArray(response)) {
+                            // Destroy and reinitialize select2
+                            if (departmentSelect.data('select2')) {
+                                departmentSelect.select2('destroy');
+                            }
+
+                            // Add options
+                            response.forEach(function(dept) {
+                                departmentSelect.append(new Option(
+                                    `${dept.department_name} - ${dept.akronim}`,
+                                    dept.id,
+                                    false,
+                                    false
+                                ));
+                            });
+
+                            // Reinitialize select2
+                            departmentSelect.select2({
+                                theme: 'bootstrap4',
+                                placeholder: 'Select Department',
+                                dropdownParent: $('#deliveryInfoModal'),
+                                width: '100%'
+                            });
+
+                            // Trigger change event to update the display
+                            departmentSelect.trigger('change.select2');
+                        } else {
+                            console.error('Invalid response format:', response);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Invalid response format from server',
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error loading departments:', xhr);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load departments'
+                        });
+                    },
+                    complete: function() {
+                        departmentSelect.prop('disabled', false);
+                    }
+                });
+            });
+
+            // Handle modal open
+            $('#openDeliveryModal').click(function() {
+                // Reset form
+                $('#modal-form')[0].reset();
+
+                // Set default date
+                $('#date').val('{{ date('Y-m-d') }}');
+
+                // Show modal
                 $('#deliveryInfoModal').modal('show');
             });
 
-            // Handle form submission in modal
-            $('#submitForm').click(function(e) {
-                e.preventDefault();
-
-                // Validate required fields
-                let isValid = true;
-                $('#deliveryInfoModal input[required]').each(function() {
-                    if (!$(this).val()) {
-                        isValid = false;
-                        $(this).addClass('is-invalid');
-                    } else {
-                        $(this).removeClass('is-invalid');
-                    }
-                });
-
-                if (!isValid) {
+            // Handle form submission
+            $('#submitForm').click(function() {
+                // Validate form
+                if (!$('#modal-form')[0].checkValidity()) {
+                    $('#modal-form')[0].reportValidity();
                     return;
                 }
 
                 // Transfer values to hidden form
-                const fields = ['lpd_number', 'date', 'destination', 'attention_person', 'notes'];
+                const fields = ['lpd_number', 'date', 'destination_department', 'attention_person',
+                    'notes'
+                ];
                 fields.forEach(field => {
-                    const value = $(`#deliveryInfoModal [name="${field}"]`).val();
-                    $(`#create-lpd-form #${field}`).val(value);
+                    const value = $(`#modal-form [name="${field}"]`).val();
+                    $(`#create-lpd-form [name="${field}"]`).val(value);
                 });
 
-                // Close modal
+                // Close modal and submit form
                 $('#deliveryInfoModal').modal('hide');
-
-                // Submit the form
                 $('#create-lpd-form').submit();
             });
 
-            // Clear validation on input
-            $('#deliveryInfoModal input').on('input', function() {
-                $(this).removeClass('is-invalid');
-            });
-
             // Handle form submission with AJAX
-            $('#create-lpd-form').submit(function(e) {
+            $('#create-lpd-form').on('submit', function(e) {
                 e.preventDefault();
-                const selectedDocuments = JSON.parse($('#selected-documents').val() || '[]');
-
-                if (selectedDocuments.length === 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Please select at least one document.',
-                    });
-                    return false;
-                }
 
                 $.ajax({
                     url: $(this).attr('action'),
@@ -314,37 +404,39 @@
                     success: function(response) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success!',
-                            text: response.message || 'LPD created successfully',
-                            showConfirmButton: true,
+                            title: 'Success',
+                            text: response.message,
+                            showConfirmButton: false,
                             timer: 1500
                         }).then(() => {
-                            window.location.href =
-                                "{{ route('logistic.lpd.index', ['page' => 'list']) }}";
+                            window.location.href = response.redirect;
                         });
                     },
                     error: function(xhr) {
-                        let errorMessage = 'An error occurred while creating LPD';
-
-                        if (xhr.status === 422) {
-                            // Validation errors
-                            errorMessage = xhr.responseJSON?.errors ?
-                                Object.values(xhr.responseJSON.errors).flat().join('\n') :
-                                xhr.responseJSON?.message || errorMessage;
-                        } else {
-                            // Other errors
-                            errorMessage = xhr.responseJSON?.message || errorMessage;
+                        let errorMessage = 'An error occurred';
+                        if (xhr.responseJSON) {
+                            errorMessage = xhr.responseJSON.message || Object.values(xhr
+                                .responseJSON.errors).flat().join('\n');
                         }
-
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: errorMessage,
-                            showConfirmButton: true
+                            text: errorMessage
                         });
                     }
                 });
             });
+
+            // For edit page, trigger the change event on load to populate departments
+            @if (isset($lpd))
+                $(function() {
+                    $('#destination_project').trigger('change');
+                    // Set the selected department after departments are loaded
+                    setTimeout(() => {
+                        $('#destination_department').val('{{ $lpd->destination_department }}');
+                    }, 500);
+                });
+            @endif
 
         });
     </script>

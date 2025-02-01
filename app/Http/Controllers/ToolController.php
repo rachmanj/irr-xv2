@@ -9,20 +9,20 @@ class ToolController extends Controller
     public function getLocationName($code)
     {
         $locations = [
-            '000H' => 'HO Balikpapan',
-            '000H-TRN' => 'HO Transit',
-            '001H' => 'BO Jakarta',
-            '001H-TRN' => 'BO Transit',
-            '000H-LOG' => 'HO Logistic',
-            '000H-LOG-TRN' => 'HO Logistic Transit',
+            '000H-ACC' => 'Accounting HO Balikpapan',
+            '000H-ACC-TRN' => 'Accounting HO Balikpapan',
+            '001H-FIN' => 'Finance BO Jakarta',
+            '001H-FIN-TRN' => 'Finance BO Jakarta',
+            '000H-LOG' => 'Logistic HO Balikpapan',
+            '000H-LOG-TRN' => 'Logistic HO Balikpapan',
             '017C' => '017C',
-            '017C-TRN' => '017C Transit',
+            '017C-TRN' => '017C',
             '021C' => '021C',
-            '021C-TRN' => '021C Transit',
+            '021C-TRN' => '021C',
             '022C' => '022C',
-            '022C-TRN' => '022C Transit',
+            '022C-TRN' => '022C',
             '023C' => '023C',
-            '023C-TRN' => '023C Transit',
+            '023C-TRN' => '023C',
         ];
 
         return $locations[$code] ?? '';
@@ -31,8 +31,8 @@ class ToolController extends Controller
     public function getTransitLocationName($code)
     {
         $transitLocations = [
-            '000H' => '000H-TRN',
-            '001H' => '001H-TRN',
+            '000H-ACC' => '000H-ACC-TRN',
+            '001H-FIN' => '001H-FIN-TRN',
             '000H-LOG' => '000H-LOG-TRN',
             '017C' => '017C-TRN',
             '021C' => '021C-TRN',

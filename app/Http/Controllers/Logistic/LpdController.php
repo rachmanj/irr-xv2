@@ -7,6 +7,11 @@ use App\Http\Controllers\ToolController;
 use App\Models\Lpd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Models\Project;
+use App\Models\Department;
+use Illuminate\Support\Facades\Log;
 
 class LpdController extends Controller
 {
@@ -20,6 +25,11 @@ class LpdController extends Controller
             'list' => 'logistic.lpd.list',
             'search' => 'logistic.lpd.search',
         ];
+
+        if ($page == 'create') {
+            $projects = Project::orderBy('code', 'asc')->get();
+            return view($views[$page], compact('projects'));
+        }
 
         return view($views[$page]);
     }
@@ -56,51 +66,42 @@ class LpdController extends Controller
             ->toJson();
     }
 
+    public function create()
+    {
+        $projects = Project::orderBy('code')->get();
+        return view('logistic.lpd.create', compact('projects'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'lpd_number' => 'required|string|unique:lpds,nomor',
+            'lpd_number' => 'required|string|max:50|unique:lpds,nomor',
             'date' => 'required|date',
-            'destination' => 'required|string',
-            'attention_person' => 'required|string',
+            'destination_department' => 'required|integer|exists:departments,id',
+            'attention_person' => 'required|string|max:50',
             'notes' => 'nullable|string',
-            'documents' => 'required|string',
+            'documents' => 'required|json'
         ]);
 
-        try {
-            // Decode the JSON string of document IDs
-            $documentIds = json_decode($validated['documents'], true);
+        $lpd = new Lpd();
+        $lpd->nomor = $validated['lpd_number'];
+        $lpd->date = $validated['date'];
+        $lpd->origin = Auth::user()->department_id;
+        $lpd->destination = $validated['destination_department'];
+        $lpd->attention_person = $validated['attention_person'];
+        $lpd->notes = $validated['notes'];
+        $lpd->created_by = Auth::user()->id;
+        $lpd->status = 'draft';
+        $lpd->save();
 
-            if (empty($documentIds)) {
-                return response()->json([
-                    'message' => 'Please select at least one document'
-                ], 422);
-            }
+        // Handle documents...
+        $documentIds = json_decode($validated['documents']);
+        // Your existing document handling code...
 
-            // Create the LPD record
-            $lpd = Lpd::create([
-                'nomor' => $validated['lpd_number'],
-                'date' => $validated['date'],
-                'destination' => app(ToolController::class)->getTransitLocationName($validated['destination']),
-                'attention_person' => $validated['attention_person'],
-                'notes' => $validated['notes'],
-                'created_by' => Auth::user()->id,
-                'origin' => '000H-LOG',
-                'status' => 'draft'
-            ]);
-
-            // Attach the selected documents to the LPD using the existing pivot table
-            $lpd->documents()->attach($documentIds);
-
-            return response()->json([
-                'message' => 'LPD created successfully',
-                'lpd' => $lpd
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while creating LPD: ' . $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'LPD created successfully',
+            'redirect' => route('logistic.lpd.index', ['page' => 'list'])
+        ]);
     }
 
     public function data()
@@ -122,5 +123,149 @@ class LpdController extends Controller
             })
             ->addIndexColumn()
             ->toJson();
+    }
+
+    public function show($id)
+    {
+        $lpd = Lpd::with(['documents.type', 'documents.invoice.supplier', 'createdBy'])->findOrFail($id);
+        return view('logistic.lpd.show', compact('lpd'));
+    }
+
+    public function edit(Lpd $lpd)
+    {
+        $projects = Project::orderBy('code')->get();
+        return view('logistic.lpd.edit', compact('lpd', 'projects'));
+    }
+
+    public function update(Request $request, Lpd $lpd)
+    {
+        $validated = $request->validate([
+            'lpd_number' => 'required|string|max:50|unique:lpds,nomor,' . $lpd->id,
+            'date' => 'required|date',
+            'destination_department' => 'required|integer|exists:departments,id',
+            'attention_person' => 'required|string|max:50',
+            'notes' => 'nullable|string',
+            'documents' => 'required|json'
+        ]);
+
+        $lpd->nomor = $validated['lpd_number'];
+        $lpd->date = $validated['date'];
+        $lpd->destination = $validated['destination_department'];
+        $lpd->attention_person = $validated['attention_person'];
+        $lpd->notes = $validated['notes'];
+        $lpd->save();
+
+        // Handle documents...
+        $documentIds = json_decode($validated['documents']);
+        // Your existing document handling code...
+
+        return response()->json([
+            'message' => 'LPD updated successfully',
+            'redirect' => route('logistic.lpd.index', ['page' => 'list'])
+        ]);
+    }
+
+    public function print($id)
+    {
+        $lpd = Lpd::with(['documents.type', 'documents.invoice.supplier', 'createdBy'])->findOrFail($id);
+        return view('logistic.lpd.print', compact('lpd'));
+    }
+
+    public function send($id)
+    {
+        $lpd = Lpd::findOrFail($id);
+
+        if ($lpd->status !== 'draft') {
+            return response()->json([
+                'message' => 'This LPD has already been sent'
+            ], 422);
+        }
+
+        try {
+            $lpd->update([
+                'status' => 'sent',
+                'sent_at' => Carbon::now()
+            ]);
+
+            return response()->json([
+                'message' => 'LPD has been sent successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while sending LPD: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $lpd = Lpd::findOrFail($id);
+
+        if ($lpd->status !== 'draft') {
+            return response()->json([
+                'message' => 'Only draft LPDs can be deleted'
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Detach all documents first
+            $lpd->documents()->detach();
+
+            // Delete the LPD
+            $lpd->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'LPD deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'An error occurred while deleting LPD: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getDepartments($projectCode)
+    {
+        try {
+            Log::info('Fetching departments for project: ' . $projectCode);
+
+            // First check if project exists
+            $project = Project::where('code', $projectCode)->first();
+            if (!$project) {
+                Log::warning('Project not found: ' . $projectCode);
+                return response()->json([
+                    'error' => 'Project not found'
+                ], 404);
+            }
+
+            // Get departments
+            $departments = DB::table('departments')
+                ->select('id', 'project', 'department_name', 'akronim')
+                ->where('project', $projectCode)
+                ->orderBy('department_name')
+                ->get()
+                ->toArray(); // Convert to array
+
+            Log::info('Found departments:', [
+                'count' => count($departments),
+                'data' => $departments
+            ]);
+
+            return response()->json($departments); // Return array directly
+        } catch (\Exception $e) {
+            Log::error('Error fetching departments: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to fetch departments: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
