@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use RealRashid\SweetAlert\Facades\Alert;
 use Yajra\DataTables\Facades\DataTables;
 
 class RoleController extends Controller
@@ -40,9 +39,7 @@ class RoleController extends Controller
 
         $this->syncPermissions($role, $request->permissions);
 
-        Alert::success('Success', 'Role created successfully');
-
-        return redirect()->route('admin.roles.index');
+        return redirect()->route('admin.roles.index')->with('success', 'Role created successfully');
     }
 
     public function edit($id)
@@ -62,53 +59,52 @@ class RoleController extends Controller
 
         $this->syncPermissions($role, $request->permissions);
 
-        Alert::success('Success', 'Role updated successfully');
-
-        return redirect()->route('admin.roles.index');
+        return redirect()->route('admin.roles.index')->with('success', 'Role updated successfully');
     }
 
     public function destroy($id)
     {
         $role = $this->role->findById($id);
-
-        // Remove all permissions attached to this role
-        $role->syncPermissions([]);
-
-        // Delete the role
+        
+        if($role->name === 'superadmin') {
+            return redirect()->route('admin.roles.index')->with('error', 'Superadmin role cannot be deleted');
+        }
+        
         $role->delete();
 
-        Alert::success('Success', 'Role deleted successfully');
-
-        return redirect()->route('admin.roles.index');
+        return redirect()->route('admin.roles.index')->with('success', 'Role deleted successfully');
     }
 
     public function data()
     {
-        $roles = $this->role->orderBy('id', 'desc')->get();
+        $roles = $this->role->all();
 
         return DataTables::of($roles)
             ->addIndexColumn()
-            ->addColumn('action', 'admin.roles.action')
+            ->addColumn('action', function ($row) {
+                return view('admin.roles.action', ['model' => $row]);
+            })
             ->rawColumns(['action'])
-            ->toJson();
+            ->make(true);
     }
 
     protected function validateRequest(Request $request, $id = null)
     {
         $rules = [
-            'name' => 'required|string|max:255|unique:roles,name' . ($id ? ',' . $id : ''),
-            'guard_name' => 'required|string|max:255',
-            'permissions' => 'array',
-            'permissions.*' => 'integer|exists:permissions,id',
+            'name' => 'required|unique:roles,name,' . $id,
+            'guard_name' => 'required',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id'
         ];
 
-        $request->validate($rules);
+        return $request->validate($rules);
     }
 
-    protected function syncPermissions(Role $role, $permissions)
+    protected function syncPermissions($role, $permissionIds)
     {
-        if ($permissions) {
-            $permissionNames = $this->permission->whereIn('id', $permissions)->pluck('name');
+        if ($permissionIds) {
+            // Get permission names from IDs
+            $permissionNames = Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
             $role->syncPermissions($permissionNames);
         } else {
             $role->syncPermissions([]);

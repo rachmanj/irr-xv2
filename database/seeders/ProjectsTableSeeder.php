@@ -19,6 +19,7 @@ class ProjectsTableSeeder extends Seeder
             ['code' => '021C', 'owner' => 'SBI', 'location' => 'Bogor', 'created_at' => now(), 'updated_at' => now()],
             ['code' => '022C', 'owner' => 'GPK', 'location' => 'Melak', 'created_at' => now(), 'updated_at' => now()],
             ['code' => '023C', 'owner' => 'TRUST', 'location' => 'Melak', 'created_at' => now(), 'updated_at' => now()],
+            ['code' => '025C', 'owner' => 'SBI', 'location' => 'Cilacap', 'created_at' => now(), 'updated_at' => now()],
             ['code' => 'APS', 'owner' => 'APS', 'location' => 'Kariangau', 'created_at' => now(), 'updated_at' => now()],
         ];
 

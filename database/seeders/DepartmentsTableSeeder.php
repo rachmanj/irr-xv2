@@ -19,7 +19,7 @@ class DepartmentsTableSeeder extends Seeder
             ['department_name' => 'Corporate Secretary', 'project' => '001H', 'akronim' => 'CORSEC', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'APS - Arka Project Support', 'project' => 'APS', 'akronim' => 'APS', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'Relationship & Coordination', 'project' => '000H', 'akronim' => 'RNC', 'created_at' => now(), 'updated_at' => now()],
-            ['department_name' => 'Design & Construction', 'project' => '000H', 'akronim' => 'DNC', 'created_at' => now(), 'updated_at' => now()],
+            ['department_name' => 'Design & Construction', 'project' => '000H', 'akronim' => 'DNC', 'created_at' => now(), 'updated_    at' => now()],
             ['department_name' => 'Finance', 'project' => '001H', 'akronim' => 'FIN', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'Human Capital & Support', 'project' => '000H', 'akronim' => 'HCS', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'Logistic', 'project' => '000H', 'akronim' => 'LOG', 'created_at' => now(), 'updated_at' => now()],
@@ -27,6 +27,7 @@ class DepartmentsTableSeeder extends Seeder
             ['department_name' => 'Warehouse 021C', 'project' => '021C', 'akronim' => 'WH021', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'Warehouse 022C', 'project' => '022C', 'akronim' => 'WH022', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'Warehouse 023C', 'project' => '023C', 'akronim' => 'WH023', 'created_at' => now(), 'updated_at' => now()],
+            ['department_name' => 'Warehouse 025C', 'project' => '025C', 'akronim' => 'WH025', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'Accounting', 'project' => '000H', 'akronim' => 'ACC', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'Plant', 'project' => '000H', 'akronim' => 'PLANT', 'created_at' => now(), 'updated_at' => now()],
             ['department_name' => 'Procurement', 'project' => '000H', 'akronim' => 'PROC', 'created_at' => now(), 'updated_at' => now()],
@@ -38,11 +39,26 @@ class DepartmentsTableSeeder extends Seeder
 
         DB::table('departments')->insert($departments);
 
-        DB::table('departments')->where('akronim', 'ACC')->update(['transit_code' => '000H-ACC-TRN']);
-        DB::table('departments')->where('akronim', 'LOG')->update(['transit_code' => '000H-LOG-TRN']);
-        DB::table('departments')->where('akronim', 'FIN')->update(['transit_code' => '001H-FIN-TRN']);
-        DB::table('departments')->where('akronim', 'ACC')->update(['location_code' => '000H-ACC']);
-        DB::table('departments')->where('akronim', 'LOG')->update(['location_code' => '000H-LOG']);
-        DB::table('departments')->where('akronim', 'FIN')->update(['location_code' => '001H-FIN']);
+        DB::table('departments')->where('akronim', 'ACC')->update(['location_code' => '000HACC']);
+        DB::table('departments')->where('akronim', 'LOG')->update(['location_code' => '000HLOG']);
+        DB::table('departments')->where('akronim', 'FIN')->update(['location_code' => '001HFIN']);
+        DB::table('departments')->where('akronim', 'PLANT')->update(['location_code' => '000HPLANT']);
+        DB::table('departments')->where('akronim', 'PROC')->update(['location_code' => '000HPROC']);
+        DB::table('departments')->where('akronim', 'OPR')->update(['location_code' => '000HOPR']);
+        DB::table('departments')->where('akronim', 'SHE')->update(['location_code' => '000HSHE']);
+        DB::table('departments')->where('akronim', 'IT')->update(['location_code' => '000HIT']);
+        DB::table('departments')->where('akronim', 'RND')->update(['location_code' => '000HRND']);
+        DB::table('departments')->where('akronim', 'WH017')->update(['location_code' => '017CWH']);
+        DB::table('departments')->where('akronim', 'WH021')->update(['location_code' => '021CWH']);
+        DB::table('departments')->where('akronim', 'WH022')->update(['location_code' => '022CWH']);
+        DB::table('departments')->where('akronim', 'WH023')->update(['location_code' => '023CWH']);
+        DB::table('departments')->where('akronim', 'WH025')->update(['location_code' => '025CWH']);
+        DB::table('departments')->where('akronim', 'DNC')->update(['location_code' => '000HDNC']);
+        DB::table('departments')->where('akronim', 'RNC')->update(['location_code' => '000HRNC']);
+        DB::table('departments')->where('akronim', 'APS')->update(['location_code' => '000HAPS']);
+        DB::table('departments')->where('akronim', 'CORSEC')->update(['location_code' => '001HCORSEC']);
+        DB::table('departments')->where('akronim', 'IAS')->update(['location_code' => '000H-IAS']);
+        DB::table('departments')->where('akronim', 'BOD')->update(['location_code' => '000H-BOD']);
+        DB::table('departments')->where('akronim', 'HCS')->update(['location_code' => '000HHCS']);
     }
 }

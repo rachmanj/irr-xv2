@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Accounting;
+namespace App\Http\Controllers\Deliveries;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ToolController;
@@ -21,10 +21,10 @@ class SpiController extends Controller
         $page = request()->query('page', 'dashboard');
 
         $views = [
-            'dashboard' => 'accounting.spi.dashboard',
-            'search' => 'accounting.spi.search',
-            'create' => 'accounting.spi.create',
-            'list' => 'accounting.spi.list',
+            'dashboard' => 'deliveries.spi.dashboard',
+            'search' => 'deliveries.spi.search',
+            'create' => 'deliveries.spi.create',
+            'list' => 'deliveries.spi.list',
         ];
 
         if ($page == 'create') {
@@ -70,7 +70,7 @@ class SpiController extends Controller
         saveLog('delivery', $spi->id, 'create', Auth::id(), 15);
         Alert::success('Success', 'SPI created successfully');
 
-        return redirect()->route('accounting.spi.index')->with('success', 'SPI created successfully');
+        return redirect()->route('deliveries.spi.index')->with('success', 'SPI created successfully');
     }
 
     public function readyToDeliverData()
@@ -131,7 +131,7 @@ class SpiController extends Controller
                 return $delivery->sent_date ? 'Sent' : 'Pending';
             })
             ->addColumn('action', function ($delivery) {
-                return view('accounting.spi.action', compact('delivery'))->render();
+                return view('deliveries.spi.action', compact('delivery'))->render();
             })
             ->addColumn('formatted_date', function ($delivery) {
                 return $delivery->date ? \Carbon\Carbon::parse($delivery->date)->format('d M Y') : '';
@@ -148,7 +148,7 @@ class SpiController extends Controller
         ])
             ->findOrFail($id);
 
-        return view('accounting.spi.print-preview', compact('spi'));
+        return view('deliveries.spi.print-preview', compact('spi'));
     }
 
     public function printContent($id)
@@ -157,7 +157,7 @@ class SpiController extends Controller
             'documents.documentable.supplier'
         ])->findOrFail($id);
 
-        return view('accounting.spi.print-content', compact('spi'));
+        return view('deliveries.spi.print-content', compact('spi'));
     }
 
     public function send($id)
@@ -214,7 +214,7 @@ class SpiController extends Controller
             'documents.documentable.additionalDocuments.type',
         ])->findOrFail($id);
 
-        return view('accounting.spi.show', compact('spi'));
+        return view('deliveries.spi.show', compact('spi'));
     }
 
     public function edit($id)
@@ -226,12 +226,12 @@ class SpiController extends Controller
 
         if ($spi->sent_date) {
             Alert::error('Error', 'Cannot edit a sent SPI');
-            return redirect()->route('accounting.spi.show', $spi->id);
+            return redirect()->route('deliveries.spi.show', $spi->id);
         }
 
         $projects = Project::orderBy('code', 'asc')->get();
 
-        return view('accounting.spi.edit', compact('spi', 'projects'));
+        return view('deliveries.spi.edit', compact('spi', 'projects'));
     }
 
     public function update(Request $request, $id)
@@ -283,7 +283,7 @@ class SpiController extends Controller
             DB::commit();
 
             Alert::success('Success', 'SPI updated successfully');
-            return redirect()->route('accounting.spi.show', $spi->id);
+            return redirect()->route('deliveries.spi.show', $spi->id);
         } catch (\Exception $e) {
             DB::rollback();
             Alert::error('Error', 'Failed to update SPI: ' . $e->getMessage());
@@ -327,4 +327,4 @@ class SpiController extends Controller
             ], 500);
         }
     }
-}
+} 

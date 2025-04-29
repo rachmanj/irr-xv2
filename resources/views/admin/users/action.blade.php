@@ -1,23 +1,27 @@
 @if ($model->is_active == 1)
-    <form action="{{ route('admin.users.deactivate', $model->id) }}" method="POST" class="d-inline">
+    <form id="deactivate-form-{{ $model->id }}" action="{{ route('admin.users.deactivate', $model->id) }}"
+        method="POST" style="display: none;">
         @csrf @method('PUT')
-        <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-xs btn-warning">deactivate</button>
     </form>
+    <button type="button" class="btn btn-xs btn-warning"
+        onclick="confirmFormSubmit('deactivate-form-{{ $model->id }}', 'Are you sure you want to deactivate this user?')">deactivate</button>
 @endif
 
 @if ($model->is_active == 0)
-    <form action="{{ route('admin.users.activate', $model->id) }}" method="POST" class="d-inline">
+    <form id="activate-form-{{ $model->id }}" action="{{ route('admin.users.activate', $model->id) }}" method="POST"
+        style="display: none;">
         @csrf @method('PUT')
-        <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-xs btn-warning">activate</button>
     </form>
+    <button type="button" class="btn btn-xs btn-warning"
+        onclick="confirmFormSubmit('activate-form-{{ $model->id }}', 'Are you sure you want to activate this user?')">activate</button>
 @endif
 
 <a href="{{ route('admin.users.edit', $model->id) }}" class="btn btn-xs btn-info d-inline">edit</a>
 
 @if ($model->is_active == 0)
-    <form action="{{ route('admin.users.destroy', $model->id) }}" method="POST" class="d-inline">
-        @csrf @method('DELETE')
-        <button class="btn btn-xs btn-danger" type="submit"
-            onclick="return confirm('Are You sure You want to delete this user?')">delete</button>
-    </form>
+    @include('admin.partials.delete-button', [
+        'id' => $model->id,
+        'action' => route('admin.users.destroy', $model->id),
+        'text' => 'delete',
+    ])
 @endif

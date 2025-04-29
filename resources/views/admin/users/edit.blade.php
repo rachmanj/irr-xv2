@@ -122,7 +122,7 @@
                 if (project) {
                     // Fetch departments for selected project
                     $.ajax({
-                        url: '{{ route('admin.departments.by.project') }}',
+                        url: '{{ route('admin.get-departments-by-project') }}',
                         type: 'GET',
                         data: {
                             project: project

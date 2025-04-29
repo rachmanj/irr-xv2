@@ -19,7 +19,7 @@
 <body class="hold-transition login-page">
     <div class="login-box">
         <div class="login-logo">
-            <h2><b>IRR</b> - X<small> | v.2.0</small></h2>
+            <h2><b>DD</b> System<small> | v.2.0</small></h2>
         </div>
         <!-- /.login-logo -->
         <div class="card">

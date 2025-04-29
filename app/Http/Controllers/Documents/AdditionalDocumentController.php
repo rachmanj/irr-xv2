@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Accounting;
+namespace App\Http\Controllers\Documents;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdditionalDocument;
@@ -17,10 +17,10 @@ class AdditionalDocumentController extends Controller
         $page = request()->query('page', 'dashboard');
 
         $views = [
-            'dashboard' => 'accounting.additional-documents.dashboard',
-            'search' => 'accounting.additional-documents.search',
-            'create' => 'accounting.additional-documents.create',
-            'list' => 'accounting.additional-documents.list',
+            'dashboard' => 'documents.additional-documents.dashboard',
+            'search' => 'documents.additional-documents.search',
+            'create' => 'documents.additional-documents.create',
+            'list' => 'documents.additional-documents.list',
         ];
 
         if ($page === 'create') {
@@ -67,7 +67,7 @@ class AdditionalDocumentController extends Controller
         $additionalDocumentTypes = AdditionalDocumentType::all();
         $invoices = Invoice::with('supplier')->where('status', 'open')->get(); // Ensure invoices are fetched with suppliers
 
-        return view('accounting.additional-documents.edit', compact('additionalDocument', 'additionalDocumentTypes', 'invoices'));
+        return view('documents.additional-documents.edit', compact('additionalDocument', 'additionalDocumentTypes', 'invoices'));
     }
 
     public function update(Request $request, $id)
@@ -91,7 +91,7 @@ class AdditionalDocumentController extends Controller
         saveLog('additional_document', $additionalDocument->id, 'update', Auth::user()->id, 5);
         Alert::success('Success', 'Additional Document updated successfully.');
 
-        return redirect()->route('accounting.additional-documents.index', ['page' => 'search']);
+        return redirect()->route('documents.additional-documents.index', ['page' => 'search']);
     }
 
     public function destroy($id)
@@ -102,14 +102,14 @@ class AdditionalDocumentController extends Controller
         saveLog('additional_document', $additionalDocument->id, 'delete', Auth::user()->id, 5);
         Alert::success('Success', 'Additional Document deleted successfully.');
 
-        return redirect()->route('additional-documents.index');
+        return redirect()->route('documents.additional-documents.index');
     }
 
     public function show($id)
     {
         $additionalDocument = AdditionalDocument::findOrFail($id);
 
-        return view('accounting.additional-documents.show', compact('additionalDocument'));
+        return view('documents.additional-documents.show', compact('additionalDocument'));
     }
 
     public function checkDocumentCombination(Request $request)
@@ -172,7 +172,7 @@ class AdditionalDocumentController extends Controller
                 return (int) \Carbon\Carbon::parse($row->created_at)->diffInDays(now());
             })
             ->addIndexColumn()
-            ->addColumn('action', 'accounting.additional-documents.action')
+            ->addColumn('action', 'documents.additional-documents.action')
             ->rawColumns(['action'])
             ->toJson();
     }
@@ -267,10 +267,10 @@ class AdditionalDocumentController extends Controller
             })
             ->addColumn('action', function ($row) {
                 return '<div class="btn-group">
-                        <a href="' . route('accounting.additional-documents.edit', $row->id) . '" class="btn btn-xs btn-warning mr-2" title="Edit">
+                        <a href="' . route('documents.additional-documents.edit', $row->id) . '" class="btn btn-xs btn-warning mr-2" title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="' . route('accounting.additional-documents.show', $row->id) . '" class="btn btn-xs btn-info" title="View">
+                        <a href="' . route('documents.additional-documents.show', $row->id) . '" class="btn btn-xs btn-info" title="View">
                             <i class="fas fa-eye"></i>
                         </a>
                     </div>';
@@ -347,6 +347,7 @@ class AdditionalDocumentController extends Controller
             ], 500);
         }
     }
+
     public function getReadyToSendDocuments()
     {
         $documents = AdditionalDocument::whereNotNull('receive_date')
@@ -357,4 +358,4 @@ class AdditionalDocumentController extends Controller
 
         return $documents;
     }
-}
+} 

@@ -7,7 +7,6 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
-use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Department;
 
 
@@ -42,9 +41,7 @@ class UserController extends Controller
 
         $user->assignRole('user');
 
-        Alert::success('Success', 'User created successfully');
-
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully');
     }
 
     public function activate($id)
@@ -53,9 +50,7 @@ class UserController extends Controller
         $user->is_active = 1; //true
         $user->save();
 
-        Alert::success('Success', 'User activated successfully');
-
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.users.index')->with('success', 'User activated successfully');
     }
 
     public function deactivate($id)
@@ -63,16 +58,13 @@ class UserController extends Controller
         $user = User::find($id);
 
         if ($user->hasRole('superadmin')) {
-            Alert::error('Error', 'Superadmin user cannot be deactivated');
-            return redirect()->route('admin.users.index');
+            return redirect()->route('admin.users.index')->with('error', 'Superadmin user cannot be deactivated');
         }
 
         $user->is_active = 0; //false
         $user->save();
 
-        Alert::success('Success', 'User deactivated successfully');
-
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.users.index')->with('success', 'User deactivated successfully');
     }
 
     public function edit($id)
@@ -115,46 +107,37 @@ class UserController extends Controller
             $user->syncRoles([]); // Clear roles if none are selected
         }
 
-        Alert::success('Success', 'User updated successfully');
-
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully');
     }
 
     public function destroy($id)
     {
         $user = User::find($id);
-
-        if ($user->role == 'superadmin') {
-            Alert::error('Error', 'Superadmin user cannot be deleted');
-            return redirect()->route('admin.users.index');
-        }
-
         $user->delete();
 
-        Alert::success('Success', 'User deleted successfully');
-
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully');
     }
 
     public function data()
     {
-        $users = User::orderBy('created_at', 'desc')->get();
+        $users = User::with('department')->get();
 
         return datatables()->of($users)
             ->addIndexColumn()
-            ->editColumn('is_active', function ($user) {
-                if ($user->is_active == 1) {
-                    return '<span class="badge badge-success">Active</span>';
-                } else {
-                    return '<span class="badge badge-danger">Inactive</span>';
-                }
+            ->addColumn('department', function ($row) {
+                return $row->department ? $row->department->akronim : '';
             })
-            ->addColumn('department', function ($user) {
-                return $user->department->department_name;
+            ->addColumn('is_active', function ($row) {
+                return $row->is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>';
             })
-            ->addColumn('action', 'admin.users.action')
-            ->rawColumns(['action', 'is_active'])
-            ->toJson();
+            ->addColumn('location_code', function ($row) {
+                return $row->department ? $row->department->location_code : '';
+            })
+            ->addColumn('action', function ($row) {
+                return view('admin.users.action', ['model' => $row]);
+            })
+            ->rawColumns(['is_active', 'action'])
+            ->make(true);
     }
 
     public function getDepartmentsByProject(Request $request)

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Accounting;
+namespace App\Http\Controllers\Deliveries;
 
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
@@ -18,10 +18,10 @@ class DeliveryController extends Controller
         $page = request()->query('page', 'dashboard');
 
         $views = [
-            'dashboard' => 'accounting.deliveries.dashboard',
-            'search' => 'accounting.deliveries.search',
-            'create' => 'accounting.deliveries.create',
-            'list' => 'accounting.deliveries.list',
+            'dashboard' => 'deliveries.deliveries.dashboard',
+            'search' => 'deliveries.deliveries.search',
+            'create' => 'deliveries.deliveries.create',
+            'list' => 'deliveries.deliveries.list',
         ];
 
         if ($page === 'dashboard') {
@@ -53,7 +53,7 @@ class DeliveryController extends Controller
         $invoices = Invoice::all();
         $additionalDocuments = AdditionalDocument::all();
 
-        return view('accounting.deliveries.create', compact('projects', 'users', 'invoices', 'additionalDocuments'));
+        return view('deliveries.deliveries.create', compact('projects', 'users', 'invoices', 'additionalDocuments'));
     }
 
     public function store(Request $request)
@@ -89,7 +89,7 @@ class DeliveryController extends Controller
             'updated_at' => now()
         ]);
 
-        return redirect()->route('accounting.deliveries.show', $delivery)
+        return redirect()->route('deliveries.deliveries.show', $delivery)
             ->with('success', 'Delivery created successfully');
     }
 
@@ -104,7 +104,7 @@ class DeliveryController extends Controller
             'additionalDocuments'
         ]);
 
-        return view('accounting.deliveries.show', compact('delivery'));
+        return view('deliveries.deliveries.show', compact('delivery'));
     }
 
     public function markAsReceived(Delivery $delivery)
@@ -136,4 +136,4 @@ class DeliveryController extends Controller
             })
             ->toJson();
     }
-}
+} 

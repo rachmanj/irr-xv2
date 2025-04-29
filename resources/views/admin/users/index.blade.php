@@ -28,8 +28,7 @@
                                 <th>Username</th>
                                 <th>Project</th>
                                 <th>Dept</th>
-                                <th>Email</th>
-                                <th>is active</th>
+                                <th>LocationCode</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -188,11 +187,11 @@
                         data: 'department'
                     },
                     {
-                        data: 'email'
+                        data: 'location_code'
                     },
-                    {
-                        data: 'is_active'
-                    },
+                    // {
+                    //     data: 'is_active'
+                    // },
                     {
                         data: 'action',
                         orderable: false,
@@ -201,42 +200,43 @@
                 ],
                 fixedHeader: true,
             });
+
+            // Initialize Select2 Elements
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             });
 
-            // Handle project change
-            $('#project').on('change', function() {
+            // Handle project change and department loading
+            $('#project').change(function() {
                 var project = $(this).val();
-                var departmentSelect = $('#department_id');
-
-                // Clear current options
-                departmentSelect.empty().append('<option value="">-- Select Department --</option>');
-
                 if (project) {
-                    // Fetch departments for selected project
                     $.ajax({
-                        url: '{{ route('admin.departments.by.project') }}',
+                        url: '{{ route('admin.get-departments-by-project') }}',
                         type: 'GET',
                         data: {
                             project: project
                         },
-                        success: function(response) {
-                            $.each(response, function(key, value) {
-                                departmentSelect.append(
-                                    $('<option>', {
-                                        value: value.id,
-                                        text: value.department_name
-                                    })
-                                );
+                        success: function(data) {
+                            $('#department_id').empty();
+                            $('#department_id').append(
+                                '<option value="">-- Select Department --</option>');
+                            $.each(data, function(key, value) {
+                                $('#department_id').append('<option value="' + value
+                                    .id + '">' +
+                                    value.name + '</option>');
                             });
-
-                            // Trigger Select2 to update
-                            departmentSelect.trigger('change');
                         }
                     });
+                } else {
+                    $('#department_id').empty();
+                    $('#department_id').append('<option value="">-- Select Department --</option>');
                 }
             });
+
+            // If there are form errors, show the modal
+            @if ($errors->any())
+                $('#addUserModal').modal('show');
+            @endif
         });
     </script>
 @endsection

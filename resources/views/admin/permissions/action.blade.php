@@ -2,12 +2,12 @@
     data-target="#editPermissionModal-{{ $permission->id }}">
     Edit
 </button>
-<form action="{{ route('admin.permissions.destroy', $permission->id) }}" method="POST" style="display:inline-block;"
-    onsubmit="return confirmDelete(this);">
-    @csrf
-    @method('DELETE')
-    <button type="submit" class="btn btn-danger btn-xs">Delete</button>
-</form>
+
+@include('admin.partials.delete-button', [
+    'id' => $permission->id,
+    'action' => route('admin.permissions.destroy', $permission->id),
+    'text' => 'Delete',
+])
 
 <!-- Edit Permission Modal -->
 <div class="modal fade" id="editPermissionModal-{{ $permission->id }}" tabindex="-1" role="dialog"
@@ -40,9 +40,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    function confirmDelete(form) {
-        return confirm('Are you sure you want to delete this permission?');
-    }
-</script>

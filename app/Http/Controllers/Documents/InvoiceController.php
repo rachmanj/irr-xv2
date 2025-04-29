@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Accounting;
+namespace App\Http\Controllers\Documents;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdditionalDocument;
@@ -23,11 +23,11 @@ class InvoiceController extends Controller
         $page = request()->query('page', 'dashboard');
 
         $views = [
-            'dashboard' => 'accounting.invoices.dashboard',
-            'search' => 'accounting.invoices.search',
-            'create' => 'accounting.invoices.create',
-            'not-posted' => 'accounting.invoices.not-posted',
-            'list' => 'accounting.invoices.list',
+            'dashboard' => 'documents.invoices.dashboard',
+            'search' => 'documents.invoices.search',
+            'create' => 'documents.invoices.create',
+            'not-posted' => 'documents.invoices.not-posted',
+            'list' => 'documents.invoices.list',
         ];
 
         if ($page === 'create') {
@@ -100,7 +100,7 @@ class InvoiceController extends Controller
 
         Alert::success('Success', 'Invoice created successfully');
 
-        return redirect()->route('accounting.invoices.index', ['page' => 'create']);
+        return redirect()->route('documents.invoices.index', ['page' => 'create']);
     }
 
     public function edit(Invoice $invoice)
@@ -130,7 +130,7 @@ class InvoiceController extends Controller
         $invoice->invoice_date = \Carbon\Carbon::parse($invoice->invoice_date);
         $invoice->receive_date = \Carbon\Carbon::parse($invoice->receive_date);
 
-        return view('accounting.invoices.edit', compact(
+        return view('documents.invoices.edit', compact(
             'invoice',
             'additionalDocuments',
             'connectedDocumentIds',
@@ -193,7 +193,7 @@ class InvoiceController extends Controller
 
         Alert::success('Success', 'Invoice updated successfully');
 
-        return redirect()->route('accounting.invoices.index', ['page' => 'search']);
+        return redirect()->route('documents.invoices.index', ['page' => 'search']);
     }
 
     public function show($id)
@@ -207,7 +207,7 @@ class InvoiceController extends Controller
         $invoice->receive_date = \Carbon\Carbon::parse($invoice->receive_date);
         $invoice->additionalDocs = $invoice->additionalDocuments;
 
-        return view('accounting.invoices.show', compact('invoice'));
+        return view('documents.invoices.show', compact('invoice'));
     }
 
     public function checkInvoiceNumber(Request $request)
@@ -245,7 +245,7 @@ class InvoiceController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($invoice) {
                 return '<div class="btn-group">
-                        <a href="' . route('accounting.invoices.show', $invoice->id) . '" class="btn btn-xs btn-info mr-1" title="View">
+                        <a href="' . route('documents.invoices.show', $invoice->id) . '" class="btn btn-xs btn-info mr-1" title="View">
                             <i class="fas fa-eye"></i>
                         </a>
                         <button onclick="deleteInvoice(' . $invoice->id . ')" class="btn btn-xs btn-danger" title="Delete">
@@ -308,10 +308,10 @@ class InvoiceController extends Controller
             })
             ->addColumn('action', function ($invoice) {
                 return '<div class="btn-group">
-                        <a href="' . route('accounting.invoices.edit', $invoice->id) . '" class="btn btn-xs btn-warning mr-2" title="Edit">
+                        <a href="' . route('documents.invoices.edit', $invoice->id) . '" class="btn btn-xs btn-warning mr-2" title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="' . route('accounting.invoices.show', $invoice->id) . '" class="btn btn-xs btn-info" title="View">
+                        <a href="' . route('documents.invoices.show', $invoice->id) . '" class="btn btn-xs btn-info" title="View">
                             <i class="fas fa-eye"></i>
                         </a>
                     </div>';
@@ -529,4 +529,4 @@ class InvoiceController extends Controller
             return response()->json(['message' => 'Error deleting invoice'], 500);
         }
     }
-}
+} 

@@ -7,7 +7,7 @@ use App\Http\Controllers\Accounting\LpdController;
 use App\Http\Controllers\Accounting\SpiController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('accounting')->name('accounting.')->group(function () {
+Route::prefix('documents')->name('documents.')->group(function () {
     // INVOICES
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('data', [InvoiceController::class, 'data'])->name('data');

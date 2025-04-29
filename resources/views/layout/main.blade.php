@@ -7,7 +7,6 @@
     <div class="wrapper">
 
         @include('layout.partials.navbar')
-        @include('sweetalert::alert')
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
@@ -43,6 +42,10 @@
 
     <!-- REQUIRED SCRIPTS -->
     @include('layout.partials.script')
+
+    <!-- Notification & Confirmation Helpers -->
+    @include('admin.partials.notification-helper')
+    @include('admin.partials.confirmation-helper')
 
 </body>
 

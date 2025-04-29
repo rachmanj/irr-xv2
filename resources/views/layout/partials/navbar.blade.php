@@ -21,21 +21,17 @@
 
                 <a href="#" class="nav-link">Search</a>
 
-                @can('akses_accounting')
-                    @include('layout.partials.menu.accounting')
+                @can('akses-documents')
+                    @include('layout.partials.menu.documents')
                 @endcan
 
-                @can('akses_logistic')
-                    @include('layout.partials.menu.logistic')
-                @endcan
-
-                @can('akses_master')
+                @can('akses-master')
                     @include('layout.partials.menu.master')
                 @endcan
 
-                @can('akses_admin')
-                    @include('layout.partials.menu.admin')
-                @endcan
+                {{-- @can('akses-admin') --}}
+                @include('layout.partials.menu.admin')
+                {{-- @endcan --}}
 
             </ul>
         </div>
@@ -44,7 +40,8 @@
         <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
             <li class="nav-item dropdown">
                 <a id="dropdownPayreq" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                    class="nav-link dropdown-toggle">{{ auth()->user()->name }} ({{ auth()->user()->project }})</a>
+                    class="nav-link dropdown-toggle">{{ auth()->user()->name }}
+                    ({{ auth()->user()->locationCode() }})</a>
                 <ul aria-labelledby="dropdownPayreq" class="dropdown-menu border-0 shadow">
                     <li>
                         <a href="{{ route('admin.users.change_password', auth()->user()->id) }}"

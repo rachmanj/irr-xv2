@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Accounting;
+namespace App\Http\Controllers\Deliveries;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ToolController;
@@ -20,10 +20,10 @@ class LpdController extends Controller
         $page = request()->query('page', 'dashboard');
 
         $views = [
-            'dashboard' => 'accounting.lpd.dashboard',
-            'search' => 'accounting.lpd.search',
-            'create' => 'accounting.lpd.create',
-            'list' => 'accounting.lpd.list',
+            'dashboard' => 'deliveries.lpd.dashboard',
+            'search' => 'deliveries.lpd.search',
+            'create' => 'deliveries.lpd.create',
+            'list' => 'deliveries.lpd.list',
         ];
 
         if ($page == 'create') {
@@ -158,7 +158,7 @@ class LpdController extends Controller
                 return $delivery->sent_date ? 'Sent' : 'Pending';
             })
             ->addColumn('action', function ($delivery) {
-                return view('accounting.lpd.action', compact('delivery'))->render();
+                return view('deliveries.lpd.action', compact('delivery'))->render();
             })
             ->addColumn('formatted_date', function ($delivery) {
                 return $delivery->date ? \Carbon\Carbon::parse($delivery->date)->format('d M Y') : '';
@@ -174,7 +174,7 @@ class LpdController extends Controller
             'documents.documentable.type',
         ])->findOrFail($id);
 
-        return view('accounting.lpd.show', compact('lpd'));
+        return view('deliveries.lpd.show', compact('lpd'));
     }
 
     public function printPreview($id)
@@ -189,7 +189,7 @@ class LpdController extends Controller
             'documents.documentable.type'
         ])->findOrFail($id);
 
-        return view('accounting.lpd.print-preview', compact('lpd'));
+        return view('deliveries.lpd.print-preview', compact('lpd'));
     }
 
     public function edit($id)
@@ -201,12 +201,12 @@ class LpdController extends Controller
 
         if ($lpd->sent_date) {
             Alert::error('Error', 'Cannot edit a sent LPD');
-            return redirect()->route('accounting.lpd.show', $lpd->id);
+            return redirect()->route('deliveries.lpd.show', $lpd->id);
         }
 
         $projects = Project::orderBy('code', 'asc')->get();
 
-        return view('accounting.lpd.edit', compact('lpd', 'projects'));
+        return view('deliveries.lpd.edit', compact('lpd', 'projects'));
     }
 
     public function update(Request $request, $id)
@@ -258,7 +258,7 @@ class LpdController extends Controller
             DB::commit();
 
             Alert::success('Success', 'LPD updated successfully');
-            return redirect()->route('accounting.lpd.show', $lpd->id);
+            return redirect()->route('deliveries.lpd.show', $lpd->id);
         } catch (\Exception $e) {
             DB::rollback();
             Alert::error('Error', 'Failed to update LPD: ' . $e->getMessage());
@@ -343,4 +343,4 @@ class LpdController extends Controller
             ], 500);
         }
     }
-}
+} 

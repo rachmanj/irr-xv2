@@ -56,10 +56,9 @@ class User extends Authenticatable
         ]);
     }
 
-    public function curLoc()
+    public function locationCode()
     {
-        return $this->belongsTo(Department::class, 'cur_loc')->withDefault([
-            'location_code' => 'n/a'
-        ]);
+        // Return the location_code from the related department or 'n/a' if not set
+        return $this->department->location_code ?: 'n/a';
     }
 }

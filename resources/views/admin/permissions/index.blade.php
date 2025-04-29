@@ -119,48 +119,24 @@
                     url: '{{ route('admin.permissions.store') }}',
                     method: 'POST',
                     data: $(this).serialize(),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(response) {
                         $('#createPermissionModal').modal('hide');
                         $('#permissions').DataTable().ajax.reload();
-                        alert(response.success);
+                        toastr.success(response.success || 'Permission created successfully');
+                        // Reset form
+                        $('#createPermissionForm')[0].reset();
                     },
                     error: function(response) {
                         if (response.responseJSON && response.responseJSON.errors) {
                             let errors = response.responseJSON.errors;
-                            let errorMessage = '';
                             for (let field in errors) {
-                                errorMessage += errors[field].join(', ') + '\n';
+                                toastr.error(errors[field].join(', '));
                             }
-                            alert(errorMessage);
                         } else {
-                            alert('An error occurred while creating the permission');
-                        }
-                    }
-                });
-            });
-
-            $('#editPermissionForm').on('submit', function(e) {
-                e.preventDefault();
-
-                $.ajax({
-                    url: $(this).attr('action'),
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        $('#editPermissionModal').modal('hide');
-                        $('#permissions').DataTable().ajax.reload();
-                        alert('Permission updated successfully');
-                    },
-                    error: function(response) {
-                        if (response.responseJSON && response.responseJSON.errors) {
-                            let errors = response.responseJSON.errors;
-                            let errorMessage = '';
-                            for (let field in errors) {
-                                errorMessage += errors[field].join(', ') + '\n';
-                            }
-                            alert(errorMessage);
-                        } else {
-                            alert('An error occurred while updating the permission');
+                            toastr.error('An error occurred while creating the permission');
                         }
                     }
                 });
@@ -172,10 +148,6 @@
             $('#edit_permission_name').val(name);
             $('#edit_guard_name').val(guardName);
             $('#editPermissionModal').modal('show');
-        }
-
-        function confirmDelete(form) {
-            return confirm('Are you sure you want to delete this permission?');
         }
     </script>
 @endsection
