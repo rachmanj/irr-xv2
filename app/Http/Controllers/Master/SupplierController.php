@@ -37,32 +37,118 @@ class SupplierController extends Controller
     public function import(Request $request)
     {
         try {
-            $suppliers = $request->input('customers', []);
-            $createdCount = 0;
-
-            // Insert data to suppliers table
-            foreach ($suppliers as $supplier) {
-                $existingSupplier = DB::table('suppliers')->where('sap_code', $supplier['code'])->first();
-                if (!$existingSupplier) {
-                    DB::table('suppliers')->insert([
-                        'sap_code' => $supplier['code'],
-                        'name' => $supplier['name'],
-                        'type' => $supplier['type'],
-                        'created_by' => Auth::id(),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                    $createdCount++;
+            // Ensure we return JSON errors, not HTML
+            config(['app.debug' => false]);
+            
+            // Add debug logging
+            Log::info('Import request received', [
+                'contentType' => $request->header('Content-Type'),
+                'authId' => Auth::id() 
+            ]);
+            
+            // Check if the user is authenticated
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Unauthorized: You must be logged in to import suppliers'
+                ], 401);
+            }
+            
+            // Check if the request is JSON and handle accordingly
+            if ($request->isJson() || $request->header('Content-Type') == 'application/json') {
+                $data = $request->json()->all();
+                $suppliers = $data['customers'] ?? [];
+                
+                if (isset($data['debug'])) {
+                    Log::info('Debug mode enabled via JSON');
+                }
+            } else {
+                $suppliers = $request->input('customers', []);
+                
+                if ($request->has('debug')) {
+                    Log::info('Debug mode enabled via form data');
                 }
             }
+            
+            if (empty($suppliers)) {
+                Log::warning('No suppliers data found in request');
+                return response()->json(['success' => false, 'message' => 'No suppliers data found in request'], 400);
+            }
+            
+            Log::info('Processing ' . count($suppliers) . ' suppliers');
+            
+            DB::beginTransaction();
+            
+            try {
+                $createdCount = 0;
+                $updatedCount = 0;
+                $batchSize = 50;
+                $totalCount = count($suppliers);
+                
+                // Process in smaller batches to prevent memory issues
+                for ($i = 0; $i < $totalCount; $i += $batchSize) {
+                    $batch = array_slice($suppliers, $i, $batchSize);
+                    
+                    foreach ($batch as $supplier) {
+                        // Handle different formats - supplier might be an array or object
+                        $supplierName = is_array($supplier) ? ($supplier['name'] ?? null) : ($supplier->name ?? null);
+                        $supplierCode = is_array($supplier) ? ($supplier['code'] ?? null) : ($supplier->code ?? null);
+                        $supplierType = is_array($supplier) ? ($supplier['type'] ?? 'vendor') : ($supplier->type ?? 'vendor');
+                        $supplierProject = is_array($supplier) ? ($supplier['project'] ?? '001H') : ($supplier->project ?? '001H');
+                        
+                        if (!$supplierName) {
+                            Log::warning('Supplier name is missing', ['code' => $supplierCode]);
+                            continue;
+                        }
+                        
+                        $existingSupplier = Supplier::where('sap_code', $supplierCode)->first();
+                        
+                        if (!$existingSupplier) {
+                            // Create new supplier
+                            Supplier::create([
+                                'sap_code' => $supplierCode,
+                                'name' => $supplierName,
+                                'type' => $supplierType,
+                                'payment_project' => $supplierProject,
+                                'created_by' => Auth::id(),
+                            ]);
+                            $createdCount++;
+                        } else {
+                            // Update existing supplier
+                            $existingSupplier->update([
+                                'name' => $supplierName,
+                                'type' => $supplierType,
+                                'payment_project' => $supplierProject ?? $existingSupplier->payment_project,
+                            ]);
+                            $updatedCount++;
+                        }
+                    }
+                    
+                    // Log progress
+                    Log::info("Processed batch: {$i} to " . min($i + $batchSize, $totalCount) . " of {$totalCount}");
+                }
+                
+                DB::commit();
+                
+                // Alert success
+                $message = "Data suppliers berhasil diimport. Total created: $createdCount, updated: $updatedCount";
+                Log::info($message);
+                Alert::success('Success', $message);
 
-            // Alert success
-            Alert::success('Success', "Data suppliers berhasil diimport. Total created: $createdCount");
-
-            return response()->json(['success' => true, 'message' => "Data suppliers berhasil diimport. Total created: $createdCount"]);
+                return response()->json(['success' => true, 'message' => $message]);
+                
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+            
         } catch (\Exception $e) {
-            Log::error('Failed to import suppliers: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to import suppliers'], 500);
+            Log::error('Failed to import suppliers: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['success' => false, 'message' => 'Failed to import suppliers: ' . $e->getMessage()], 500);
         }
     }
 

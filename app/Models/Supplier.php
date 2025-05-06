@@ -13,6 +13,11 @@ class Supplier extends Model
         'name',
         'type',
         'sap_code',
-        'payment_project', // Add other fields as necessary
+        'payment_project',
+        'city',
+        'address',
+        'npwp',
+        'is_active',
+        'created_by'
     ];
 }
