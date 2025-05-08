@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class AccSpiLinks extends Component
+class DeliveryLinks extends Component
 {
     public $page;
 
@@ -17,6 +17,6 @@ class AccSpiLinks extends Component
 
     public function render(): View|Closure|string
     {
-        return view('components.acc-spi-links');
+        return view('components.delivery-links');
     }
 }

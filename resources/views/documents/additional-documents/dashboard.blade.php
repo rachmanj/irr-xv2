@@ -11,15 +11,15 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-addoc-links page='dashboard' />
+            <x-additional-document-links page='dashboard' />
 
             <div class="row">
                 <div class="col-6">
-                    @include('accounting.additional-documents.dashboard.outs')
+                    @include('documents.additional-documents.dashboard.outs')
                 </div>
 
                 <div class="col-6">
-                    @include('accounting.additional-documents.dashboard.bytype')
+                    @include('documents.additional-documents.dashboard.bytype')
                 </div>
             </div>
 

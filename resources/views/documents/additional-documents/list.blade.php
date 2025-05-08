@@ -5,13 +5,13 @@
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / addocs / list</small>
+    <small>documents / addocs / list</small>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-addoc-links page='list' />
+            <x-additional-document-links page='list' />
 
             <div class="card">
                 <div class="card-header">
@@ -69,7 +69,7 @@
                 processing: true,
                 serverSide: true,
                 fixedHeader: true,
-                ajax: '{{ route('accounting.additional-documents.data') }}',
+                ajax: '{{ route('documents.additional-documents.data') }}',
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,

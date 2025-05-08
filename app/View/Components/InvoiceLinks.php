@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class AccAddocLinks extends Component
+class InvoiceLinks extends Component
 {
     public $page;
 
@@ -17,6 +17,6 @@ class AccAddocLinks extends Component
 
     public function render(): View|Closure|string
     {
-        return view('components.acc-addoc-links');
+        return view('components.invoice-links');
     }
 }

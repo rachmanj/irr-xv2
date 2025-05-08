@@ -11,13 +11,13 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-addoc-links page='create' />
+            <x-additional-document-links page='create' />
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Create New Additional Document</h3>
                 </div>
 
-                <form action="{{ route('accounting.additional-documents.store') }}" method="POST"
+                <form action="{{ route('documents.additional-documents.store') }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
                     <div class="card-body">
@@ -114,7 +114,7 @@
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                        <a href="{{ route('accounting.additional-documents.index') }}"
+                        <a href="{{ route('documents.additional-documents.index') }}"
                             class="btn btn-secondary btn-sm">Cancel</a>
                     </div>
                 </form>

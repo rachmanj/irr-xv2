@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\Accounting\AdditionalDocumentController;
-use App\Http\Controllers\Accounting\DeliveryController;
-use App\Http\Controllers\Accounting\InvoiceController;
-use App\Http\Controllers\Accounting\LpdController;
-use App\Http\Controllers\Accounting\SpiController;
+use App\Http\Controllers\Documents\AdditionalDocumentController;
+use App\Http\Controllers\Documents\InvoiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('documents')->name('documents.')->group(function () {

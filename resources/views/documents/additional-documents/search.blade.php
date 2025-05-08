@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-12">
 
-            <x-acc-addoc-links page="search" /> <!-- Updated component for additional docs links -->
+            <x-additional-document-links page="search" /> <!-- Updated component for additional docs links -->
 
             <div class="card">
                 <div class="card-header">
@@ -133,7 +133,7 @@
                 serverSide: true,
                 deferLoading: false,
                 ajax: {
-                    url: '{{ route('accounting.additional-documents.search') }}',
+                    url: '{{ route('documents.additional-documents.search') }}',
                     type: 'GET',
                     data: function(d) {
                         d.document_number = $('#document_number').val();

@@ -43,24 +43,6 @@ class AdditionalDocumentController extends Controller
         return view($views[$page]);
     }
 
-    public function store_old(Request $request)
-    {
-        $validatedData = $request->validate([
-            'type_id' => 'required|string|max:255',
-            'document_number' => 'required|string|max:255',
-            'document_date' => 'required|date',
-        ]);
-
-        $validatedData['po_no'] = $request->po_no;
-        $validatedData['created_by'] = Auth::user()->id;
-        $additionalDocument = AdditionalDocument::create($validatedData);
-
-        saveLog('additional_document', $additionalDocument->id, 'create',  Auth::user()->id, 10);
-        Alert::success('Success', 'Additional Document created successfully.');
-
-        return redirect()->back();
-    }
-
     public function edit($id)
     {
         $additionalDocument = AdditionalDocument::findOrFail($id);
@@ -163,7 +145,7 @@ class AdditionalDocumentController extends Controller
                 return $row->document_date ? \Carbon\Carbon::parse($row->document_date)->format('d-M-Y') : 'N/A';
             })
             ->addColumn('document_type', function ($row) {
-                return $row->documentType ? $row->documentType->type_name : 'N/A';
+                return $row->type ? $row->type->type_name : 'N/A';
             })
             ->addColumn('invoice_number', function ($row) {
                 return $row->invoice ? $row->invoice->invoice_number : 'N/A';
