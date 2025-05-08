@@ -9,6 +9,7 @@ use RealRashid\SweetAlert\Facades\Alert;
 use App\Imports\ItoImport;
 use App\Models\AdditionalDocument;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class ItoController extends Controller
 {
@@ -18,21 +19,49 @@ class ItoController extends Controller
             'attachment' => 'required|file|mimes:xlsx,xls',
         ]);
 
+        // Ensure uploads directory exists
+        $uploadPath = public_path('uploads');
+        if (!File::exists($uploadPath)) {
+            File::makeDirectory($uploadPath, 0755, true);
+        }
+
         $file = $request->file('attachment');
         $filename = 'ito_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('uploads'), $filename);
+        $file->move($uploadPath, $filename);
 
         try {
             $import = new ItoImport(true);
             Excel::import($import, public_path('uploads/' . $filename));
-            Alert::success('Success', 'File berhasil diupload. ' . $import->getSuccessCount() . ' records imported, ' . $import->getSkippedCount() . ' records skipped.');
+            
+            // Check if there were any errors during import
+            if (!empty($import->getErrors())) {
+                $errorMessage = 'File uploaded with warnings: ' . implode(', ', $import->getErrors());
+                // Alert::warning('Warning', $errorMessage);
+                session()->flash('warning', $errorMessage);
+                \Log::warning('ITO Import Warnings: ' . $errorMessage);
+            } else {
+                // Alert::success('Success', 'File berhasil diupload. ' . $import->getSuccessCount() . ' records imported, ' . $import->getSkippedCount() . ' records skipped.');
+                session()->flash('success', 'File berhasil diupload. ' . $import->getSuccessCount() . ' records imported, ' . $import->getSkippedCount() . ' records skipped.');
+            }
         } catch (\Exception $e) {
-            Alert::error('Error', 'Failed to upload file: ' . $e->getMessage());
+            // Alert::error('Error', 'Failed to upload file: ' . $e->getMessage());
+            session()->flash('error', 'Failed to upload file: ' . $e->getMessage());
+            \Log::error('ITO Import Error: ' . $e->getMessage());
         } finally {
-            unlink(public_path('uploads/' . $filename));
+            if (File::exists(public_path('uploads/' . $filename))) {
+                unlink(public_path('uploads/' . $filename));
+            }
         }
 
-        saveLog('additional_document', null, 'upload', Auth::user()->id, 20);
+        try {
+            // Check if saveLog function exists and use it
+            if (function_exists('saveLog')) {
+                saveLog('additional_document', null, 'upload', Auth::user()->id, 20);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error saving log: ' . $e->getMessage());
+        }
+        
         return redirect()->back();
     }
 
