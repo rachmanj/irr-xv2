@@ -18,7 +18,7 @@
                     <h6>Additional Docs belum diterima</h6>
                 </div>
                 <div class="card-body">
-                    <table id="addoc-table" class="table table-bordered table-striped">
+                    <table id="addoc-table" class="table table-bordered table-striped table-sm">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -28,6 +28,7 @@
                                 <th>PO No</th>
                                 <th>Inv No</th>
                                 <th>Days</th>
+                                <th>Current Location</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -50,6 +51,15 @@
             color: black;
             text-transform: uppercase;
         }
+
+        .table-sm td,
+        .table-sm th {
+            padding: 0.3rem;
+        }
+
+        .table-sm {
+            font-size: 0.9rem;
+        }
     </style>
 @endsection
 
@@ -69,6 +79,7 @@
                 processing: true,
                 serverSide: true,
                 fixedHeader: true,
+                pageLength: 25,
                 ajax: '{{ route('documents.additional-documents.data') }}',
                 columns: [{
                         data: 'DT_RowIndex',
@@ -93,6 +104,9 @@
                     {
                         data: 'days',
                         className: 'text-right'
+                    },
+                    {
+                        data: 'cur_loc',
                     },
                     {
                         data: 'action',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Documents;
 use App\Http\Controllers\Controller;
 use App\Models\AdditionalDocument;
 use App\Models\AdditionalDocumentType;
+use App\Models\Department;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -36,8 +37,12 @@ class AdditionalDocumentController extends Controller
             return view($views[$page], compact('dashboardData'));
         } elseif ($page === 'search') {
             $documentTypes = AdditionalDocumentType::orderBy('type_name')->get();
+            $locationCodes = Department::whereNotNull('location_code')
+                ->select('location_code', 'project', 'department_name')
+                ->distinct('location_code')
+                ->get();
 
-            return view($views[$page], compact('documentTypes'));
+            return view($views[$page], compact('documentTypes', 'locationCodes'));
         }
 
         return view($views[$page]);
@@ -270,6 +275,9 @@ class AdditionalDocumentController extends Controller
                 }
                 if ($request->filled('invoice_number')) {
                     $query->where('invoice_number', 'like', '%' . $request->invoice_number . '%');
+                }
+                if ($request->filled('cur_loc')) {
+                    $query->where('cur_loc', $request->cur_loc);
                 }
             })
             ->toJson();

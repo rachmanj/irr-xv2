@@ -24,8 +24,5 @@ class AdditionalDocument extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function lpds()
-    {
-        return $this->belongsToMany(Lpd::class, 'lpd_additional_document', 'additional_document_id', 'lpd_id');
-    }
+
 }

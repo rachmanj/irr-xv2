@@ -25,13 +25,14 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="document_number">Document Number</label>
-                                    <input type="text" class="form-control" id="document_number" name="document_number">
+                                    <input type="text" class="form-control form-control-sm" id="document_number"
+                                        name="document_number">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="type_id">Document Type</label>
-                                    <select class="form-control select2bs4" id="type_id" name="type_id">
+                                    <select class="form-control form-control-sm select2bs4" id="type_id" name="type_id">
                                         <option value="">-- Select Document Type --</option>
                                         @foreach ($documentTypes as $type)
                                             <option value="{{ $type->id }}">{{ $type->type_name }}</option>
@@ -42,7 +43,8 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="po_no">PO Number</label>
-                                    <input type="text" class="form-control" id="po_no" name="po_no">
+                                    <input type="text" class="form-control form-control-sm" id="po_no"
+                                        name="po_no">
                                 </div>
                             </div>
                         </div>
@@ -50,13 +52,31 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="invoice_number">Invoice Number</label>
-                                    <input type="text" class="form-control" id="invoice_number" name="invoice_number">
+                                    <input type="text" class="form-control form-control-sm" id="invoice_number"
+                                        name="invoice_number">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="receive_date">Receive Date</label>
-                                    <input type="date" class="form-control" id="receive_date" name="receive_date">
+                                    <input type="date" class="form-control form-control-sm" id="receive_date"
+                                        name="receive_date">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="cur_loc">Current Location</label>
+                                    <select class="form-control form-control-sm select2bs4" id="cur_loc" name="cur_loc">
+                                        <option value="">-- Select Location --</option>
+                                        @foreach ($locationCodes as $locationCode)
+                                            <option value="{{ $locationCode->location_code }}">
+                                                {{ $locationCode->project ?? '-' }}
+                                                ({{ $locationCode->department_name ?? 'Unknown Dept' }})
+                                                -
+                                                {{ $locationCode->location_code }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -68,7 +88,7 @@
                         </div>
                     </form>
 
-                    <table class="table table-bordered table-striped" id="search-results">
+                    <table class="table table-bordered table-striped table-sm" id="search-results">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -77,6 +97,7 @@
                                 <th>PO Number</th>
                                 <th>Invoice Number</th>
                                 <th>Receive Date</th>
+                                <th>Current Location</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -105,6 +126,19 @@
             color: black;
             text-transform: uppercase;
         }
+
+        .table-sm td,
+        .table-sm th {
+            padding: 0.3rem;
+        }
+
+        .table-sm {
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.5rem;
+        }
     </style>
 @endsection
 
@@ -132,6 +166,7 @@
                 processing: true,
                 serverSide: true,
                 deferLoading: false,
+                pageLength: 25,
                 ajax: {
                     url: '{{ route('documents.additional-documents.search') }}',
                     type: 'GET',
@@ -141,6 +176,7 @@
                         d.po_no = $('#po_no').val();
                         d.invoice_number = $('#invoice_number').val();
                         d.receive_date = $('#receive_date').val();
+                        d.cur_loc = $('#cur_loc').val();
                     }
                 },
                 columns: [{
@@ -170,6 +206,10 @@
                         name: 'receive_date'
                     },
                     {
+                        data: 'cur_loc',
+                        name: 'cur_loc'
+                    },
+                    {
                         data: 'status',
                         name: 'status'
                     },
@@ -184,7 +224,7 @@
 
             // Show initial message
             $('#search-results tbody').html(
-                '<tr><td colspan="8" class="text-center">Please click search to view data</td></tr>'
+                '<tr><td colspan="9" class="text-center">Please click search to view data</td></tr>'
             );
 
             // Handle search form submission
@@ -196,10 +236,10 @@
             // Handle reset button
             $('#search-form button[type="reset"]').click(function() {
                 $(this).closest('form').find("input[type=text], select").val("");
-                $('#type_id, #status').val(null).trigger('change');
+                $('#type_id, #cur_loc').val(null).trigger('change');
                 // clear table and show initial message
                 $('#search-results').html(
-                    '<tr><td colspan="8" class="text-center">Please click search to view data</td></tr>'
+                    '<tr><td colspan="9" class="text-center">Please click search to view data</td></tr>'
                 );
             });
 

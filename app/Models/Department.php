@@ -13,7 +13,10 @@ class Department extends Model
     protected $fillable = [
         'project',
         'department_name',
-        'akronim'
+        'akronim',
+        'location_code',
+        'transit_code',
+        'sap_code'
     ];
 
     public function project(): BelongsTo
