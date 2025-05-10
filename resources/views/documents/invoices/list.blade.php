@@ -5,13 +5,13 @@
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / invoices / dashboard</small>
+    <small>documents / invoices / in-process</small>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-invoice-links page='list' />
+            <x-invoice-links page='list' />
 
             <div class="card">
                 <div class="card-body">
@@ -67,7 +67,7 @@
                 autoWidth: false,
                 processing: true,
                 serverSide: true,
-                ajax: '{{ route('accounting.invoices.data') }}',
+                ajax: '{{ route('documents.invoices.data') }}',
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -121,7 +121,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: `/accounting/invoices/${invoiceId}`,
+                            url: `/documents/invoices/${invoiceId}`,
                             type: 'DELETE',
                             data: {
                                 _token: '{{ csrf_token() }}'

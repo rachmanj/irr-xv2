@@ -20,9 +20,11 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function additionalDocuments()
+    public function additionalDocuments(): BelongsToMany
     {
-        return $this->hasMany(AdditionalDocument::class);
+        return $this->belongsToMany(AdditionalDocument::class, 'additional_document_invoice')
+                    ->withPivot('remarks')
+                    ->withTimestamps();
     }
 
     public function invoiceType(): BelongsTo

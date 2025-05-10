@@ -5,19 +5,19 @@
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / invoices / create</small>
+    <small>documents / invoices / create</small>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-invoice-links page='create' />
+            <x-invoice-links page='create' />
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Create New Invoice</h3>
                 </div>
 
-                <form action="{{ route('accounting.invoices.store') }}" method="POST">
+                <form id="invoiceForm" action="{{ route('documents.invoices.store') }}" method="POST">
                     @csrf
                     <div class="card-body">
                         <div class="row">
@@ -353,6 +353,42 @@
                         }
                     });
                 }
+            });
+
+            // New AJAX form submission
+            $('#invoiceForm').on('submit', function(e) {
+                e.preventDefault();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        showSuccessNotification('Invoice created successfully');
+                        // Reset form after successful save
+                        $('#invoiceForm')[0].reset();
+                        $('.select2bs4').val('').trigger('change');
+                        $('#similar-documents-card').hide();
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Failed to save invoice';
+
+                        // Extract validation errors if available
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            let errorList = '';
+                            $.each(xhr.responseJSON.errors, function(field, errors) {
+                                errorList += errors[0] + '<br>';
+                            });
+                            errorMsg = errorList;
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        showErrorNotification(errorMsg);
+                    }
+                });
             });
         });
     </script>

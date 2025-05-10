@@ -5,13 +5,13 @@
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / invoices / not posted</small>
+    <small>documents / invoices / not posted</small>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-invoice-links page='list' />
+            <x-invoice-links page='not-posted' />
 
             <div class="card">
                 <div class="card-body">
@@ -103,7 +103,7 @@
             }
 
             $.ajax({
-                url: `/accounting/invoices/${invoiceId}/update-sap-doc`,
+                url: `/documents/invoices/${invoiceId}/update-sap-doc`,
                 type: 'POST',
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),
@@ -130,7 +130,7 @@
                 autoWidth: false,
                 processing: true,
                 serverSide: true,
-                ajax: '{{ route('accounting.invoices.not-posted.data') }}',
+                ajax: '{{ route('documents.invoices.not-posted.data') }}',
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,

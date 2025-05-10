@@ -5,13 +5,13 @@
 @endsection
 
 @section('breadcrumb_title')
-    <small>accounting / invoices / search</small>
+    <small>documents / invoices / search</small>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-invoice-links page='search' />
+            <x-invoice-links page='search' />
 
             <div class="card">
                 <div class="card-header">
@@ -154,7 +154,7 @@
                 serverSide: true,
                 deferLoading: false, // Prevents initial ajax request
                 ajax: {
-                    url: '{{ route('accounting.invoices.search') }}',
+                    url: '{{ route('documents.invoices.search') }}',
                     data: function(d) {
                         d.invoice_number = $('#invoice_number').val();
                         d.po_no = $('#po_no').val();

@@ -87,19 +87,22 @@ class InvoiceController extends Controller
         $invoice->save();
 
         if ($request->has('selected_documents')) {
-            foreach ($request->selected_documents as $documentId) {
-                $document = AdditionalDocument::find($documentId);
-                if ($document) {
-                    $document->invoice_id = $invoice->id;
-                    $document->save();
-                }
-            }
+            $invoice->additionalDocuments()->attach($request->selected_documents);
         }
 
         saveLog('invoice', $invoice->id, 'create', Auth::user()->id, 15);
 
-        Alert::success('Success', 'Invoice created successfully');
+        // Check if the request is AJAX
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice created successfully',
+                'data' => $invoice
+            ]);
+        }
 
+        // For regular form submissions
+        Alert::success('Success', 'Invoice created successfully');
         return redirect()->route('documents.invoices.index', ['page' => 'create']);
     }
 
@@ -110,22 +113,19 @@ class InvoiceController extends Controller
         $suppliers = Supplier::all();
         $invoiceTypes = InvoiceType::all();
 
-        // Get all additional documents related to the PO number with documentType relationship
-        $orphanAdditionalDocuments = AdditionalDocument::where('invoice_id', null)
-            ->where('po_no', $invoice->po_no)
-            ->with('type') // Added documentType relationship
+        // Get all additional documents related to the PO number that are not attached to any invoice
+        $orphanAdditionalDocuments = AdditionalDocument::where('po_no', $invoice->po_no)
+            ->whereDoesntHave('invoices')
+            ->with('type')
             ->get();
 
-        $invoiceAdditionalDocuments = AdditionalDocument::with('type')
-            ->where('invoice_id', $invoice->id)
-            ->get();
+        // Get documents already attached to this invoice
+        $invoiceAdditionalDocuments = $invoice->additionalDocuments()->with('type')->get();
 
         $additionalDocuments = $orphanAdditionalDocuments->merge($invoiceAdditionalDocuments);
 
         // Get IDs of documents already connected to this invoice
-        $connectedDocumentIds = AdditionalDocument::where('invoice_id', $invoice->id)
-            ->pluck('id')
-            ->toArray();
+        $connectedDocumentIds = $invoice->additionalDocuments()->pluck('additional_documents.id')->toArray();
 
         $invoice->invoice_date = \Carbon\Carbon::parse($invoice->invoice_date);
         $invoice->receive_date = \Carbon\Carbon::parse($invoice->receive_date);
@@ -178,15 +178,11 @@ class InvoiceController extends Controller
         $invoice->remarks = $request->remarks; // Added field for remarks
         $invoice->save();
 
-        // Update document connections
-        // First, disconnect all documents from this invoice
-        AdditionalDocument::where('invoice_id', $id)
-            ->update(['invoice_id' => null]);
-
-        // Then connect the selected documents
+        // Update document connections by syncing the selected documents
         if ($request->has('selected_documents')) {
-            AdditionalDocument::whereIn('id', $request->selected_documents)
-                ->update(['invoice_id' => $id]);
+            $invoice->additionalDocuments()->sync($request->selected_documents);
+        } else {
+            $invoice->additionalDocuments()->detach();
         }
 
         saveLog('invoice', $invoice->id, 'update', Auth::user()->id, 5);

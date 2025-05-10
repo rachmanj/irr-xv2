@@ -164,6 +164,41 @@
     <script src="{{ asset('adminlte/plugins/select2/js/select2.full.min.js') }}"></script>
     <script>
         $(document).ready(function() {
+            // Form submission
+            $('form').on('submit', function(e) {
+                e.preventDefault();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success('Additional Document created successfully');
+                            // Reset form
+                            $('form')[0].reset();
+                            $('.select2bs4').val('').trigger('change');
+                            $('#similar-documents-card').hide();
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Failed to create additional document';
+
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            let errorList = '';
+                            $.each(xhr.responseJSON.errors, function(field, errors) {
+                                errorList += errors[0] + '<br>';
+                            });
+                            errorMsg = errorList;
+                        }
+
+                        toastr.error(errorMsg);
+                    }
+                });
+            });
+
             $('#document_number').on('blur', function() {
                 var documentTypeId = $('#type_id').val();
                 var documentNumber = $(this).val();
@@ -220,10 +255,11 @@
                                 $('#similar-documents-tbody').empty();
                                 $.each(response.documents, function(index, document) {
                                     $('#similar-documents-tbody').append('<tr><td>' + (
-                                            index + 1) + '</td><td>' + document
-                                        .document_type.type_name + '</td><td>' +
+                                            index + 1) + '</td><td>' + (document
+                                            .type ? document.type.type_name : 'N/A'
+                                        ) + '</td><td>' +
+                                        document.document_number + '</td><td>' +
                                         document
-                                        .document_number + '</td><td>' + document
                                         .po_no + '</td></tr>');
                                 });
                                 $('#similar-documents-card').show();

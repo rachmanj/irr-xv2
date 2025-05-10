@@ -112,13 +112,15 @@ class AdditionalDocumentController extends Controller
     {
         $poNo = $request->query('po_no');
 
-        $openInvoices = Invoice::where('status', 'open')->get();
-        $InvoicesWithSamePoNo = Invoice::where('po_no', $poNo)->get();
-        $invoices = array_merge($openInvoices, $InvoicesWithSamePoNo);
+        // Get invoices with the same PO number and eager load the supplier relationship
+        $invoices = Invoice::with('supplier')
+            ->where('po_no', $poNo)
+            ->get();
 
+        // Get additional documents with the same PO number that are not attached to any invoice
         $documents = AdditionalDocument::where('po_no', $poNo)
-            ->whereNull('invoice_id')
-            ->with('type')
+            ->whereDoesntHave('invoices')
+            ->with(['type', 'invoices'])  // Eager load both type and invoices relationships
             ->get();
 
         return response()->json([
@@ -131,7 +133,9 @@ class AdditionalDocumentController extends Controller
     {
         $poNo = $request->query('po_no');
 
-        $documents = AdditionalDocument::where('po_no', $poNo)->with('type')->get();
+        $documents = AdditionalDocument::where('po_no', $poNo)
+            ->with(['type', 'invoices'])
+            ->get();
 
         return response()->json($documents);
     }
@@ -166,8 +170,14 @@ class AdditionalDocumentController extends Controller
 
     public function outs_addoc()
     {
-        $addocs = AdditionalDocument::whereNull('invoice_id')->orWhereNull('receive_date')->get();
-        $orphan = $addocs->whereNull('invoice_id')->count();
+        $addocs = AdditionalDocument::whereDoesntHave('invoices')
+            ->orWhereNull('receive_date')
+            ->get();
+            
+        $orphan = $addocs->filter(function ($addoc) {
+            return $addoc->invoices->isEmpty();
+        })->count();
+        
         $not_receive = $addocs->whereNull('receive_date')->count();
         $last_added_count = AdditionalDocument::whereDate('created_at', \Carbon\Carbon::parse(AdditionalDocument::max('created_at'))->toDateString())->count();
 
@@ -214,12 +224,18 @@ class AdditionalDocumentController extends Controller
     public function outs_addocs_by_type()
     {
         $addoc_types = AdditionalDocumentType::orderBy('type_name', 'asc')->get();
-        $addocs = AdditionalDocument::whereNull('invoice_id')->orWhereNull('receive_date')->get();
+        $addocs = AdditionalDocument::whereDoesntHave('invoices')
+            ->orWhereNull('receive_date')
+            ->with('type')
+            ->get();
 
         $data = [];
 
         foreach ($addoc_types as $type) {
-            $count = $addocs->where('type_id', $type->id)->count();
+            $count = $addocs->filter(function ($addoc) use ($type) {
+                return $addoc->type_id === $type->id;
+            })->count();
+            
             if ($count > 0) {
                 $data[] = [
                     'type' => $type->type_name,
@@ -292,25 +308,40 @@ class AdditionalDocumentController extends Controller
             'receive_date' => 'nullable|date',
             'po_no' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:255',
-            'invoice_id' => 'required|exists:invoices,id',
+            'invoice_id' => 'nullable|exists:invoices,id',
         ]);
 
-        $validated['created_by'] = Auth::user()->id;
+        // Remove invoice_id from the data to be inserted
+        $createData = collect($validated)->except('invoice_id')->toArray();
+        $createData['created_by'] = Auth::user()->id;
 
-        $additionalDocument = AdditionalDocument::create($validated);
+        $additionalDocument = AdditionalDocument::create($createData);
+        
+        // If invoice_id is provided, attach it to the document
+        if (!empty($validated['invoice_id'])) {
+            $additionalDocument->invoices()->attach($validated['invoice_id']);
+        }
+
         saveLog('additional_document', $additionalDocument->id, 'create',  Auth::user()->id, 10);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $additionalDocument->id,
-                'document_type' => $additionalDocument->type->type_name,
-                'document_number' => $additionalDocument->document_number,
-                'document_date' => \Carbon\Carbon::parse($additionalDocument->document_date)->format('d M Y'),
-                'receive_date' => $additionalDocument->receive_date,
-                'po_no' => $additionalDocument->po_no ?? '-',
-            ]
-        ]);
+        // Check if the request is AJAX
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $additionalDocument->id,
+                    'document_type' => $additionalDocument->type->type_name,
+                    'document_number' => $additionalDocument->document_number,
+                    'document_date' => \Carbon\Carbon::parse($additionalDocument->document_date)->format('d M Y'),
+                    'receive_date' => $additionalDocument->receive_date,
+                    'po_no' => $additionalDocument->po_no ?? '-',
+                ]
+            ]);
+        }
+
+        // For regular form submissions
+        Alert::success('Success', 'Additional Document created successfully');
+        return redirect()->route('documents.additional-documents.index', ['page' => 'search']);
     }
 
     public function updateReceiveDate(Request $request, AdditionalDocument $document)

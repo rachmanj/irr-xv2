@@ -11,20 +11,20 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <x-acc-invoice-links page='dashboard' />
+            <x-invoice-links page='dashboard' />
 
             <div class="row">
                 <div class="col-12">
-                    @include('accounting.invoices.dashboard.summary')
+                    @include('documents.invoices.dashboard.summary')
                 </div>
             </div>
 
             <div class="row">
                 {{-- <div class="col-6">
-                    @include('accounting.invoices.dashboard.dashb1')
+                    @include('documents.invoices.dashboard.dashb1')
                 </div> --}}
                 <div class="col-6">
-                    @include('accounting.invoices.dashboard.10oldest')
+                    @include('documents.invoices.dashboard.10oldest')
                 </div>
             </div>
 

@@ -22,4 +22,25 @@
             @endforeach
         @endif
     });
+
+    // Global notification functions for AJAX save processes
+    function showSuccessNotification(message = 'Record saved successfully') {
+        toastr.success(message);
+    }
+
+    function showErrorNotification(message = 'Failed to save record') {
+        toastr.error(message);
+    }
+
+    // Function to handle AJAX response and show appropriate notification
+    function handleAjaxResponse(response, successMessage = 'Record saved successfully', errorMessage =
+        'Failed to save record') {
+        if (response.success) {
+            showSuccessNotification(successMessage);
+            return true;
+        } else {
+            showErrorNotification(response.message || errorMessage);
+            return false;
+        }
+    }
 </script>

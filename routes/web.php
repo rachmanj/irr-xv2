@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\Accounting\AdditionalDocumentController;
+use App\Http\Controllers\Documents\AdditionalDocumentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Accounting\InvoiceController;
+use App\Http\Controllers\Documents\InvoiceController;
 use App\Http\Controllers\Master\SupplierController;
 use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\DB;
