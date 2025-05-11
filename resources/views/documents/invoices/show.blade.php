@@ -39,19 +39,19 @@
 
                 <div class="card-body">
                     <div class="tab-content">
-                        @include('accounting.invoices.show.details')
-                        @include('accounting.invoices.show.additional_docs')
-                        @include('accounting.invoices.show.distribution')
-                        @include('accounting.invoices.show.attachments')
+                        @include('documents.invoices.show.details')
+                        @include('documents.invoices.show.additional_docs')
+                        @include('documents.invoices.show.distribution')
+                        @include('documents.invoices.show.attachments')
                     </div>
                 </div>
 
                 <div class="card-footer">
                     <div>
-                        <a href="{{ route('accounting.invoices.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
+                        <a href="{{ route('documents.invoices.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit Invoice
                         </a>
-                        <a href="{{ route('accounting.invoices.index', ['page' => 'search']) }}"
+                        <a href="{{ request()->query('from') === 'not-posted' ? route('documents.invoices.index', ['page' => 'not-posted']) : route('documents.invoices.index', ['page' => 'search']) }}"
                             class="btn btn-default btn-sm">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>

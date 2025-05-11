@@ -14,13 +14,13 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Edit Invoice</h3>
-                    <a href="{{ route('accounting.invoices.index', ['page' => 'search']) }}"
+                    <a href="{{ route('documents.invoices.index', ['page' => 'search']) }}"
                         class="btn btn-sm btn-primary float-right">
                         <i class="fas fa-arrow-left"></i> Back
                     </a>
                 </div>
 
-                <form action="{{ route('accounting.invoices.update', $invoice->id) }}" method="POST">
+                <form action="{{ route('documents.invoices.update', $invoice->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -366,8 +366,8 @@
             </div>
         </div>
     </div>
-    @include('accounting.invoices.edit._add_document_modal')
-    @include('accounting.invoices.edit._upload_attachments_modal')
+    @include('documents.invoices.edit._add_document_modal')
+    @include('documents.invoices.edit._upload_attachments_modal')
 @endsection
 
 @section('styles')
@@ -481,7 +481,7 @@
                 e.preventDefault();
 
                 $.ajax({
-                    url: '{{ route('accounting.additional-documents.store') }}',
+                    url: '{{ route('documents.additional-documents.store') }}',
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
@@ -585,7 +585,7 @@
             // Function to delete attachment
             function deleteAttachment(attachmentId) {
                 $.ajax({
-                    url: '{{ route('accounting.attachments.destroy', '') }}/' + attachmentId,
+                    url: '{{ route('documents.attachments.destroy', '') }}/' + attachmentId,
                     method: 'DELETE',
                     success: function(response) {
                         if (response.success) {
@@ -604,7 +604,7 @@
             // Function to fetch current attachments
             function fetchAttachments() {
                 $.ajax({
-                    url: '{{ route('accounting.invoices.get-attachments', $invoice->id) }}',
+                    url: '{{ route('documents.invoices.get-attachments', $invoice->id) }}',
                     method: 'GET',
                     success: function(response) {
                         refreshAttachmentsTab(response.attachments);
@@ -623,7 +623,7 @@
                 const $form = $(this); // Store reference to the form
 
                 $.ajax({
-                    url: '{{ route('accounting.invoices.upload-attachments', $invoice->id) }}',
+                    url: '{{ route('documents.invoices.upload-attachments', $invoice->id) }}',
                     method: 'POST',
                     data: formData,
                     processData: false,

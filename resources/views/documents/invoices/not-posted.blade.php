@@ -88,6 +88,9 @@
     <script src="{{ asset('adminlte/plugins/datatables/datatables.min.js') }}"></script>
 
     <script>
+        // Define the base URL for invoice show route
+        const invoiceShowUrl = "{{ route('documents.invoices.show', ['invoice' => ':invoice', 'from' => 'not-posted']) }}";
+
         function openUpdateModal(invoiceId) {
             $('#invoice_id').val(invoiceId);
             $('#updateSapDocModal').modal('show');
@@ -166,7 +169,20 @@
                         data: 'action',
                         name: 'action',
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        render: function(data, type, row) {
+                            const showUrl = invoiceShowUrl.replace(':invoice', row.id);
+                            return '<div class="btn-group">' +
+                                '<button class="btn btn-xs btn-warning mr-2" title="Update SAP Doc No" onclick="openUpdateModal(' +
+                                row.id + ')">' +
+                                '<i class="fas fa-edit"></i>' +
+                                '</button>' +
+                                '<a href="' + showUrl +
+                                '" class="btn btn-xs btn-info" title="View">' +
+                                '<i class="fas fa-eye"></i>' +
+                                '</a>' +
+                                '</div>';
+                        }
                     }
                 ]
             });

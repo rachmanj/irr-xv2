@@ -28,6 +28,7 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'akses-deliveries', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'akses-master', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'akses-report', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'update-sap-doc', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
         ];
 
         DB::table('permissions')->insert($permissions);
@@ -45,7 +46,7 @@ class RolePermissionSeeder extends Seeder
         $aksesDeliveries = DB::table('permissions')->where('name', 'akses-deliveries')->first()->id;
         $aksesMaster = DB::table('permissions')->where('name', 'akses-master')->first()->id;
         $aksesReport = DB::table('permissions')->where('name', 'akses-report')->first()->id;
-
+        $updateSapDoc = DB::table('permissions')->where('name', 'update-sap-doc')->first()->id;
         // Assign permissions to roles
         $rolePermissions = [
             // Superadmin gets all permissions
@@ -56,7 +57,7 @@ class RolePermissionSeeder extends Seeder
             ['role_id' => $superadminRole, 'permission_id' => $aksesDeliveries],
             ['role_id' => $superadminRole, 'permission_id' => $aksesMaster],
             ['role_id' => $superadminRole, 'permission_id' => $aksesReport],
-
+            ['role_id' => $superadminRole, 'permission_id' => $updateSapDoc],
             // Logistic role permissions
             ['role_id' => $logisticRole, 'permission_id' => $aksesDeliveries],
             ['role_id' => $logisticRole, 'permission_id' => $aksesMaster],
@@ -65,6 +66,7 @@ class RolePermissionSeeder extends Seeder
             // Accounting role permissions
             ['role_id' => $accountingRole, 'permission_id' => $aksesDocuments],
             ['role_id' => $accountingRole, 'permission_id' => $aksesReport],
+            ['role_id' => $accountingRole, 'permission_id' => $updateSapDoc],
         ];
 
         DB::table('role_has_permissions')->insert($rolePermissions);

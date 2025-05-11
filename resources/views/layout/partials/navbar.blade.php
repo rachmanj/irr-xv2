@@ -2,9 +2,9 @@
 <nav class="main-header navbar navbar-expand-md navbar-light navbar-dark layout-fixed py-0">
     <div class="container">
         <a href="/" class="navbar-brand">
-            <img src="{{ asset('adminlte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo"
-                class="brand-image img-circle elevation-3" style="opacity: .8">
-            <span class="brand-text text-white font-weight-light"><strong>IRR</strong> - X</span>
+            {{-- <img src="{{ asset('adminlte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo"
+                class="brand-image img-circle elevation-3" style="opacity: .8"> --}}
+            <span class="brand-text text-white font-weight-light"><strong>DD</strong> System</span>
         </a>
 
         <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse"
@@ -19,14 +19,22 @@
                     <a href="#" class="nav-link">Dashboard</a>
                 </li>
 
-                <a href="#" class="nav-link">Search</a>
+                {{-- <a href="#" class="nav-link">Search</a> --}}
 
                 @can('akses-documents')
                     @include('layout.partials.menu.documents')
                 @endcan
 
+                @can('akses-deliveries')
+                    @include('layout.partials.menu.deliveries')
+                @endcan
+
                 @can('akses-master')
                     @include('layout.partials.menu.master')
+                @endcan
+
+                @can('akses-report')
+                    @include('layout.partials.menu.reports')
                 @endcan
 
                 {{-- @can('akses-admin') --}}
