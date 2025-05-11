@@ -26,8 +26,11 @@ class AdditionalDocumentController extends Controller
 
         if ($page === 'create') {
             $additionalDocumentTypes = AdditionalDocumentType::orderBy('type_name')->get();
+            $departments = Department::whereNotNull('location_code')
+                ->orderBy('department_name')
+                ->get();
 
-            return view($views[$page], compact('additionalDocumentTypes'));
+            return view($views[$page], compact('additionalDocumentTypes', 'departments'));
         } elseif ($page === 'dashboard') {
             $dashboardData = [
                 'outs' => $this->outs_addoc(),
@@ -157,7 +160,7 @@ class AdditionalDocumentController extends Controller
                 return $row->type ? $row->type->type_name : 'N/A';
             })
             ->addColumn('invoice_number', function ($row) {
-                return $row->invoice ? $row->invoice->invoice_number : 'N/A';
+                return $row->invoices->pluck('invoice_number')->implode(', ') ?: '-';
             })
             ->addColumn('days', function ($row) {
                 return (int) \Carbon\Carbon::parse($row->created_at)->diffInDays(now());
@@ -263,7 +266,7 @@ class AdditionalDocumentController extends Controller
                 return $row->type ? $row->type->type_name : 'N/A';
             })
             ->addColumn('invoice_number', function ($row) {
-                return $row->invoice ? $row->invoice->invoice_number : '-';
+                return $row->invoices->pluck('invoice_number')->implode(', ') ?: '-';
             })
             ->editColumn('receive_date', function ($row) {
                 return $row->receive_date ? \Carbon\Carbon::parse($row->receive_date)->format('d-M-Y') : '-';
@@ -306,14 +309,21 @@ class AdditionalDocumentController extends Controller
             'document_number' => 'required|string|max:255',
             'document_date' => 'required|date',
             'receive_date' => 'nullable|date',
-            'po_no' => 'nullable|string|max:255',
+            'po_no' => 'nullable|string|max:50',
+            'project' => 'nullable|string|max:50',
             'remarks' => 'nullable|string|max:255',
             'invoice_id' => 'nullable|exists:invoices,id',
+            'status' => 'nullable|string|max:20',
+            'cur_loc' => 'nullable|string|max:30',
         ]);
 
         // Remove invoice_id from the data to be inserted
         $createData = collect($validated)->except('invoice_id')->toArray();
         $createData['created_by'] = Auth::user()->id;
+        
+        // Set default values if not provided
+        $createData['status'] = $createData['status'] ?? 'open';
+        $createData['cur_loc'] = $createData['cur_loc'] ?? Auth::user()->department_id;
 
         $additionalDocument = AdditionalDocument::create($createData);
         
@@ -322,7 +332,7 @@ class AdditionalDocumentController extends Controller
             $additionalDocument->invoices()->attach($validated['invoice_id']);
         }
 
-        saveLog('additional_document', $additionalDocument->id, 'create',  Auth::user()->id, 10);
+        saveLog('additional_document', $additionalDocument->id, 'create', Auth::user()->id, 10);
 
         // Check if the request is AJAX
         if ($request->ajax()) {
@@ -335,6 +345,9 @@ class AdditionalDocumentController extends Controller
                     'document_date' => \Carbon\Carbon::parse($additionalDocument->document_date)->format('d M Y'),
                     'receive_date' => $additionalDocument->receive_date,
                     'po_no' => $additionalDocument->po_no ?? '-',
+                    'project' => $additionalDocument->project ?? '-',
+                    'status' => $additionalDocument->status,
+                    'cur_loc' => $additionalDocument->cur_loc,
                 ]
             ]);
         }

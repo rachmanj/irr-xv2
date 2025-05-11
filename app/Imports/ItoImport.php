@@ -54,6 +54,8 @@ class ItoImport implements ToModel, WithHeadingRow
         $defaults = [
             'ito_date' => null,
             'po_no' => null,
+            'project' => null,
+            'receive_date' => null,
             'ito_remarks' => null,
             'ito_created_by' => null,
             'grpo_no' => null,
@@ -72,13 +74,16 @@ class ItoImport implements ToModel, WithHeadingRow
             'document_number' => $rowData['ito_no'],
             'document_date' => isset($rowData['ito_date']) ? $this->convert_date($rowData['ito_date']) : null,
             'po_no' => $rowData['po_no'] ?? null,
+            'project' => $rowData['project'] ?? null,
+            'receive_date' => isset($rowData['receive_date']) ? $this->convert_date($rowData['receive_date']) : null,
             'created_by' => Auth::user()->id,
             'remarks' => $rowData['ito_remarks'] ?? null,
+            'status' => 'open',
+            'cur_loc' => '000HLOG',
             'ito_creator' => $rowData['ito_created_by'] ?? null,
             'grpo_no' => $rowData['grpo_no'] ?? null,
             'origin_wh' => $rowData['origin_whs'] ?? null,
             'destination_wh' => $rowData['destination_whs'] ?? null,
-            'cur_loc' => '000HLOG',
             'batch_no' => $this->batchNo,
         ]);
     }

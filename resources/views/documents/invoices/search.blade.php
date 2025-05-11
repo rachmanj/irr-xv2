@@ -115,6 +115,36 @@
             color: black;
             text-transform: uppercase;
         }
+
+        /* DataTables sort icons */
+        table.dataTable thead .sorting:before,
+        table.dataTable thead .sorting:after,
+        table.dataTable thead .sorting_asc:before,
+        table.dataTable thead .sorting_asc:after,
+        table.dataTable thead .sorting_desc:before,
+        table.dataTable thead .sorting_desc:after {
+            display: none !important;
+        }
+
+        table.dataTable thead .sorting:after,
+        table.dataTable thead .sorting_asc:after,
+        table.dataTable thead .sorting_desc:after {
+            content: '\f0dc';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        table.dataTable thead .sorting_asc:after {
+            content: '\f0de';
+        }
+
+        table.dataTable thead .sorting_desc:after {
+            content: '\f0dd';
+        }
     </style>
 @endsection
 
@@ -153,6 +183,20 @@
                 processing: true,
                 serverSide: true,
                 deferLoading: false, // Prevents initial ajax request
+                language: {
+                    url: "{{ asset('adminlte/plugins/datatables/js/dataTables.bootstrap4.min.js') }}"
+                },
+                orderCellsTop: true,
+                fixedHeader: true,
+                dom: '<"top"lf>rt<"bottom"ip><"clear">',
+                language: {
+                    paginate: {
+                        previous: '<i class="fas fa-chevron-left"></i>',
+                        next: '<i class="fas fa-chevron-right"></i>'
+                    },
+                    sortAscending: '<i class="fas fa-sort-up"></i>',
+                    sortDescending: '<i class="fas fa-sort-down"></i>'
+                },
                 ajax: {
                     url: '{{ route('documents.invoices.search') }}',
                     data: function(d) {

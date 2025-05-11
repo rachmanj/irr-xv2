@@ -101,7 +101,25 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="cur_loc">Current Location</label>
+                                    <select name="cur_loc" id="cur_loc" class="form-control select2bs4">
+                                        <option value="{{ Auth::user()->department->location_code ?? '' }}" selected>
+                                            {{ Auth::user()->department->location_code ?? 'Select Location' }}
+                                        </option>
+                                        @foreach ($departments as $department)
+                                            @if ($department->location_code && $department->location_code !== (Auth::user()->department->location_code ?? ''))
+                                                <option value="{{ $department->location_code }}"
+                                                    {{ old('cur_loc') == $department->location_code ? 'selected' : '' }}>
+                                                    {{ $department->location_code }} - {{ $department->department_name }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
                                 <div class="form-group">
                                     <label for="remarks">Remarks</label>
                                     <textarea name="remarks" id="remarks" class="form-control @error('remarks') is-invalid @enderror">{{ old('remarks') }}</textarea>

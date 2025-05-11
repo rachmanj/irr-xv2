@@ -9,7 +9,7 @@ Route::prefix('documents')->name('documents.')->group(function () {
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('data', [InvoiceController::class, 'data'])->name('data');
         Route::get('not-posted/data', [InvoiceController::class, 'notPostedData'])->name('not-posted.data');
-        Route::get('/search', [InvoiceController::class, 'searchInvoices'])->name('search');
+        Route::get('/search', [InvoiceController::class, 'search'])->name('search');
         Route::post('/{invoice}/update-sap-doc', [InvoiceController::class, 'updateSapDoc'])
             ->name('update-sap-doc');
         Route::resource('/', InvoiceController::class)->parameters(['' => 'invoice']);
