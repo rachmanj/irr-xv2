@@ -24,7 +24,7 @@ Route::middleware('guest')->group(function () {
 
 // middleware('auth') means that the user must be authenticated to access the route
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/test', [TestController::class, 'index'])->name('test');
@@ -32,7 +32,9 @@ Route::middleware('auth')->group(function () {
     require __DIR__ . '/admin.php';
     require __DIR__ . '/documents.php';
     require __DIR__ . '/master.php';
-    require __DIR__ . '/deliveries.php';
+    
+    // Include distribution routes with auth middleware already applied
+    require __DIR__ . '/distributions.php';
 });
 
 Route::get('/check-invoice-number', [InvoiceController::class, 'checkInvoiceNumber'])->name('check.invoice.number');

@@ -24,6 +24,12 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-12">
+            @include('document-distributions.dashboard-widget')
+        </div>
+    </div>
 @endsection
 
 @section('styles')

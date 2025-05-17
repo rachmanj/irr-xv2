@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class DeliveryLinks extends Component
+class DistributionLinks extends Component
 {
     public $page;
 
@@ -17,6 +17,6 @@ class DeliveryLinks extends Component
 
     public function render(): View|Closure|string
     {
-        return view('components.delivery-links');
+        return view('components.distribution-links');
     }
 }

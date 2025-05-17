@@ -16,17 +16,13 @@
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Dashboard</a>
+                    <a href="{{ route('dashboard.index') }}" class="nav-link">Dashboard</a>
                 </li>
 
                 {{-- <a href="#" class="nav-link">Search</a> --}}
 
-                @can('akses-documents')
+                @canany(['akses-documents', 'akses-deliveries'])
                     @include('layout.partials.menu.documents')
-                @endcan
-
-                @can('akses-deliveries')
-                    @include('layout.partials.menu.deliveries')
                 @endcan
 
                 @can('akses-master')
@@ -37,9 +33,9 @@
                     @include('layout.partials.menu.reports')
                 @endcan
 
-                {{-- @can('akses-admin') --}}
-                @include('layout.partials.menu.admin')
-                {{-- @endcan --}}
+                @can('akses-admin')
+                    @include('layout.partials.menu.admin')
+                @endcan
 
             </ul>
         </div>

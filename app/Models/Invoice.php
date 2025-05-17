@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Invoice extends Model
 {
@@ -45,5 +46,21 @@ class Invoice extends Model
     public function curLoc()
     {
         return $this->belongsTo(Department::class, 'cur_loc');
+    }
+    
+    /**
+     * Get the current location department.
+     */
+    public function currentDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'cur_loc', 'location_code');
+    }
+    
+    /**
+     * Get the distributions for the invoice.
+     */
+    public function distributions(): MorphMany
+    {
+        return $this->morphMany(DocumentDistribution::class, 'document');
     }
 }

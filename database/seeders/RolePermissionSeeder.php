@@ -24,7 +24,8 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'akses-admin', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'akses-permission', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'akses-user', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'akses-documents', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'akses-invoices', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'akses-addocs', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'akses-deliveries', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'akses-master', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'akses-report', 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()],
@@ -42,7 +43,8 @@ class RolePermissionSeeder extends Seeder
         $aksesAdmin = DB::table('permissions')->where('name', 'akses-admin')->first()->id;
         $aksesPermission = DB::table('permissions')->where('name', 'akses-permission')->first()->id;
         $aksesUser = DB::table('permissions')->where('name', 'akses-user')->first()->id;
-        $aksesDocuments = DB::table('permissions')->where('name', 'akses-documents')->first()->id;
+        $aksesInvoices = DB::table('permissions')->where('name', 'akses-invoices')->first()->id;
+        $aksesAddocs = DB::table('permissions')->where('name', 'akses-addocs')->first()->id;
         $aksesDeliveries = DB::table('permissions')->where('name', 'akses-deliveries')->first()->id;
         $aksesMaster = DB::table('permissions')->where('name', 'akses-master')->first()->id;
         $aksesReport = DB::table('permissions')->where('name', 'akses-report')->first()->id;
@@ -53,18 +55,21 @@ class RolePermissionSeeder extends Seeder
             ['role_id' => $superadminRole, 'permission_id' => $aksesAdmin],
             ['role_id' => $superadminRole, 'permission_id' => $aksesPermission],
             ['role_id' => $superadminRole, 'permission_id' => $aksesUser],
-            ['role_id' => $superadminRole, 'permission_id' => $aksesDocuments],
+            ['role_id' => $superadminRole, 'permission_id' => $aksesInvoices],
             ['role_id' => $superadminRole, 'permission_id' => $aksesDeliveries],
             ['role_id' => $superadminRole, 'permission_id' => $aksesMaster],
             ['role_id' => $superadminRole, 'permission_id' => $aksesReport],
             ['role_id' => $superadminRole, 'permission_id' => $updateSapDoc],
             // Logistic role permissions
             ['role_id' => $logisticRole, 'permission_id' => $aksesDeliveries],
+            ['role_id' => $logisticRole, 'permission_id' => $aksesAddocs],
             ['role_id' => $logisticRole, 'permission_id' => $aksesMaster],
             ['role_id' => $logisticRole, 'permission_id' => $aksesReport],
 
+
             // Accounting role permissions
-            ['role_id' => $accountingRole, 'permission_id' => $aksesDocuments],
+            ['role_id' => $accountingRole, 'permission_id' => $aksesInvoices],
+            ['role_id' => $accountingRole, 'permission_id' => $aksesAddocs],
             ['role_id' => $accountingRole, 'permission_id' => $aksesReport],
             ['role_id' => $accountingRole, 'permission_id' => $updateSapDoc],
         ];
